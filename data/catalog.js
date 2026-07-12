@@ -53,6 +53,22 @@ window.ACE_CATALOG = {
     ],
   },
 
+  guides: [
+    {
+      id: "clear-ghost-data",
+      title: "How to clear ghost data",
+      summary: "Clear invisible leftover data from boxes 11–14 before attempting an ACE code.",
+      category: "Preparation",
+      difficulty: "Beginner",
+      introduction: "This guide is being prepared. It will explain how to identify and clear ghost data safely before executing ACE codes.",
+      sections: [
+        { title: "Before you begin", text: "Make a backup of your save and keep anything important out of boxes 11–14." },
+        { title: "Tutorial coming soon", text: "The complete written steps, screenshots, and video tutorial will be added here." },
+      ],
+      video: "",
+    },
+  ],
+
   codes: [
     {
       id: "give-item-demo",

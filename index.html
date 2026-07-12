@@ -92,9 +92,9 @@
 
       </div>
 
-      <section class="tab-panel info-panel" data-panel="guides">
-        <p class="step-label">ACE GUIDES</p><h1>Learn the setup, then choose a code.</h1>
-        <p>Guides will explain stable ACE species, bootstraps, box-name entry, and safe execution. Creation payloads themselves remain in the ACE codes list.</p>
+      <section class="tab-panel guide-panel" data-panel="guides">
+        <div class="section-heading library-heading"><div><p class="step-label">ACE GUIDES</p><h1>Guides</h1></div></div>
+        <div class="guide-list" id="guide-list"></div>
       </section>
       <section class="tab-panel info-panel" data-panel="troubleshooting">
         <p class="step-label">TROUBLESHOOTING</p><h1>Find out why a code did not run.</h1>
@@ -147,6 +147,9 @@
 
     <dialog class="code-dialog" id="code-dialog">
       <div id="dialog-content"></div>
+    </dialog>
+    <dialog class="code-dialog guide-dialog" id="guide-dialog">
+      <div id="guide-dialog-content"></div>
     </dialog>
 
     <div class="toast" id="toast" role="status" aria-live="polite">Copied to clipboard</div>

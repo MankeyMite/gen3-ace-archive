@@ -27,6 +27,13 @@
     category: "All",
     search: "",
   };
+  const incomingUrl = new URL(window.location.href);
+  const sharedGame = incomingUrl.searchParams.get("game");
+  const sharedLanguage = incomingUrl.searchParams.get("language");
+  const sharedPlatform = incomingUrl.searchParams.get("platform");
+  if (catalog.games.some((item) => item.id === sharedGame)) state.game = sharedGame;
+  if (catalog.languages.some((item) => item.id === sharedLanguage)) state.language = sharedLanguage;
+  if (catalog.platforms.some((item) => item.id === sharedPlatform)) state.platform = sharedPlatform;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const elements = {
@@ -34,6 +41,7 @@
     grid: $("#code-grid"), count: $("#result-count"), categories: $("#category-filters"),
     search: $("#code-search"), status: $("#setup-status"), dialog: $("#code-dialog"),
     dialogContent: $("#dialog-content"), empty: $("#empty-state"), toast: $("#toast"),
+    guideDialog: $("#guide-dialog"), guideDialogContent: $("#guide-dialog-content"),
   };
 
   function nameFor(collection, id) {
@@ -158,28 +166,78 @@
       "Execute the code.",
       "If it crashes or nothing happens, read the troubleshooting section below.",
     ];
+    const troubleshootingItems = [
+      "Make sure the code is typed correctly in the correct boxes.",
+      "Read and make sure you meet the requirements for this code.",
+      "Keep Pokémon out of the last row of box 11, and all of boxes 12–14.",
+      `Attempt to clear ghost data in boxes 11–14. <button type="button" class="inline-link" data-open-guide="clear-ghost-data">Click here</button> for a tutorial on how to do this.`,
+      `Go to the <button type="button" class="inline-link" data-open-tab="troubleshooting">ACE troubleshooting tab</button> to see video examples of how to solve an ACE code problem.`,
+    ];
     const outputPanel = `<div class="output-panel"><div class="output-heading"><h3>${code.parameters.length ? "Generated code" : ""}</h3><button type="button" id="copy-code">Copy all</button></div>
         <pre id="generated-code"></pre>${outputNotes.length ? `<div class="code-notes">${outputNotes.map((note) => `<p>${note}</p>`).join("")}</div>` : ""}</div>`;
     const generatorArea = code.parameters.length
       ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${code.parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
       : `<form class="fixed-code-section" id="generator-form"><h3>Box name code</h3>${outputPanel}</form>`;
     elements.dialogContent.innerHTML = `
-      <div class="dialog-header"><div><span class="category-tag">${code.category}</span><h2>${code.title}</h2><p>${code.summary}</p></div><button class="close-dialog" aria-label="Close">×</button></div>
+      <div class="dialog-header"><div><span class="category-tag">${code.category}</span><h2>${code.title}</h2><p>${code.summary}</p></div><div class="dialog-actions"><button class="share-code" type="button">Share</button><button class="close-dialog" aria-label="Close">×</button></div></div>
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("languages", state.language)}</span><span>✓ ${nameFor("platforms", state.platform)}</span></div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul></section>
       ${generatorArea}
       <div class="instructions"><h3>Steps</h3><ol>${executionSteps.map((step) => `<li>${step}</li>`).join("")}</ol></div>
       <details class="source-code"><summary>Show source code</summary><pre>${(code.sourceCode || ["Source code not added yet."]).join("\n")}</pre><p class="source">Source: ${code.source.url ? `<a href="${code.source.url}" target="_blank" rel="noreferrer">${code.source.label}</a>` : code.source.label}</p></details>
       <section class="tutorial-video"><h3>Video tutorial</h3>${videoMarkup(code.video)}</section>
-      <section class="quick-check"><h3>Quick troubleshooting checklist</h3><ul>${(code.troubleshooting || []).map((item) => `<li><span>□</span>${item}</li>`).join("")}</ul></section>`;
+      <section class="quick-check"><h3>Quick troubleshooting checklist</h3><ol>${troubleshootingItems.map((item) => `<li>${item}</li>`).join("")}</ol></section>`;
     $(".close-dialog", elements.dialogContent).addEventListener("click", () => elements.dialog.close());
+    $(".share-code", elements.dialogContent).addEventListener("click", () => shareCode(code));
     $("#generator-form").addEventListener("input", () => renderGenerated(code));
     elements.dialogContent.querySelectorAll("[data-choice-search]").forEach((input) => {
       input.addEventListener("input", () => filterChoices(input));
     });
     $("#copy-code").addEventListener("click", copyCode);
+    elements.dialogContent.querySelector("[data-open-guide]")?.addEventListener("click", (event) => {
+      elements.dialog.close(); activateTab("guides"); openGuide(event.currentTarget.dataset.openGuide);
+    });
+    elements.dialogContent.querySelector("[data-open-tab]")?.addEventListener("click", (event) => {
+      elements.dialog.close(); activateTab(event.currentTarget.dataset.openTab);
+    });
     renderGenerated(code);
+    setCodeDeepLink(code.id);
     elements.dialog.showModal();
+  }
+
+  function codeShareUrl(id) {
+    const url = new URL(window.location.href);
+    url.searchParams.set("game", state.game);
+    url.searchParams.set("language", state.language);
+    url.searchParams.set("platform", state.platform);
+    url.hash = `code=${encodeURIComponent(id)}`;
+    return url;
+  }
+
+  function setCodeDeepLink(id) {
+    history.replaceState(null, "", codeShareUrl(id));
+  }
+
+  async function shareCode(code) {
+    const url = codeShareUrl(code.id).href;
+    try {
+      if (navigator.share) await navigator.share({ title: code.title, text: code.summary, url });
+      else await navigator.clipboard.writeText(url);
+      elements.toast.textContent = navigator.share ? "Share link ready" : "Share link copied";
+    } catch (error) {
+      if (error?.name === "AbortError") return;
+      try { await navigator.clipboard.writeText(url); elements.toast.textContent = "Share link copied"; }
+      catch { elements.toast.textContent = url; }
+    }
+    elements.toast.classList.add("show");
+    setTimeout(() => { elements.toast.classList.remove("show"); elements.toast.textContent = "Copied to clipboard"; }, 2200);
+  }
+
+  function clearCodeDeepLink() {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("game"); url.searchParams.delete("language"); url.searchParams.delete("platform");
+    url.hash = "";
+    history.replaceState(null, "", url);
   }
 
   function videoMarkup(video) {
@@ -187,6 +245,25 @@
     const match = String(video).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/) || String(video).match(/^([\w-]{11})$/);
     if (!match) return `<div class="video-placeholder"><p>Video link needs a valid YouTube URL.</p></div>`;
     return `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${match[1]}" title="Video tutorial" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+  }
+
+  function renderGuides() {
+    const guides = catalog.guides || [];
+    $("#guide-list").innerHTML = guides.map((guide) => `<article class="guide-card" tabindex="0" data-guide-id="${guide.id}"><span class="category-tag">${guide.category}</span><div><h2>${guide.title}</h2><p>${guide.summary}</p></div><span class="difficulty ${guide.difficulty.toLowerCase()}">${guide.difficulty}</span></article>`).join("");
+  }
+
+  function openGuide(id) {
+    const guide = (catalog.guides || []).find((entry) => entry.id === id);
+    if (!guide) return;
+    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${guide.category}</span><h2>${guide.title}</h2><p>${guide.summary}</p></div><button class="close-guide-dialog" aria-label="Close">×</button></div><article class="guide-content"><p class="guide-introduction">${guide.introduction}</p>${guide.sections.map((section) => `<section id="guide-${guide.id}-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"><h3>${section.title}</h3><p>${section.text}</p></section>`).join("")}${guide.video ? `<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section>` : ""}</article>`;
+    $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
+    elements.guideDialog.showModal();
+  }
+
+  function activateTab(name) {
+    document.querySelectorAll("[data-tab]").forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
+    document.querySelectorAll("[data-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === name));
+    window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
   function initDeveloperMode() {
@@ -474,14 +551,19 @@
   elements.grid.addEventListener("click", (event) => { const id = event.target.closest("[data-id]")?.dataset.id; if (id) openCode(id); });
   elements.grid.addEventListener("keydown", (event) => { if (event.key === "Enter") openCode(event.target.closest("[data-id]")?.dataset.id); });
   elements.dialog.addEventListener("click", (event) => { if (event.target === elements.dialog) elements.dialog.close(); });
+  elements.dialog.addEventListener("close", clearCodeDeepLink);
   document.querySelector(".section-tabs").addEventListener("click", (event) => {
     const tab = event.target.closest("[data-tab]");
     if (!tab) return;
-    document.querySelectorAll("[data-tab]").forEach((button) => button.classList.toggle("active", button === tab));
-    document.querySelectorAll("[data-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === tab.dataset.tab));
+    activateTab(tab.dataset.tab);
   });
+  $("#guide-list").addEventListener("click", (event) => { const id = event.target.closest("[data-guide-id]")?.dataset.guideId; if (id) openGuide(id); });
+  $("#guide-list").addEventListener("keydown", (event) => { if (event.key === "Enter") openGuide(event.target.closest("[data-guide-id]")?.dataset.guideId); });
+  elements.guideDialog.addEventListener("click", (event) => { if (event.target === elements.guideDialog) elements.guideDialog.close(); });
   document.addEventListener("keydown", (event) => { if (event.key === "/" && document.activeElement.tagName !== "INPUT") { event.preventDefault(); elements.search.focus(); } });
 
-  initSetup(); initDeveloperMode(); renderLibrary();
+  initSetup(); initDeveloperMode(); renderLibrary(); renderGuides();
+  const sharedCodeId = window.location.hash.startsWith("#code=") ? decodeURIComponent(window.location.hash.slice(6)) : "";
+  if (sharedCodeId && catalog.codes.some((code) => code.id === sharedCodeId && !code.deleted)) openCode(sharedCodeId);
   $("#library-version").textContent = catalog.version;
 })();

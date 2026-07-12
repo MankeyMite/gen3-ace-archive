@@ -2,19 +2,15 @@
 window.ACE_CUSTOM_CODES = [
   {
     "id": "local-stable-ace-species-0x410e-1783794759018",
-    "title": "Stable ACE species 0x410e",
+    "title": "Stable ARM species 0x410e",
     "summary": "The stable species will be generated inside the PC in Box 10 Slot 19 (Row 4, Column 1). Keep this slot free before executing this code. These codes can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615).\nAfter this code executes, the sprite of the Pokémon (stable or unstable) will become invisible;\nthis means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash).\nAlso, these codes will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it.\n\nThe stable ACE species 0x410e is the first code you should execute after getting the Dots egg, as it allows you to execute codes by viewing the summary of the species and also unlocks more codes than the Dots egg can access.",
     "category": "Code enabler",
-    "difficulty": "Unrated",
+    "difficulty": "Beginner",
     "games": [
       "emerald"
     ],
     "languages": [
-      "en",
-      "de",
-      "fr",
-      "es",
-      "it"
+      "en"
     ],
     "platforms": [
       "accurate",
@@ -37,7 +33,7 @@ window.ACE_CUSTOM_CODES = [
       }
     },
     "requirements": [
-      "Dots Egg from the pomeg berry corruption glitch."
+      "Unstable ARM Dots egg (0x0611 or 0x0615) from the Pomeg berry glitch."
     ],
     "sourceCode": [
       "@@ title = \"Create (meta)stable ACE species\"",
@@ -88,7 +84,7 @@ window.ACE_CUSTOM_CODES = [
       "strh r13, [r4, #0x3e] ; completely redundant",
       "adc r15, r11, #0x28c ; jump 2/2"
     ],
-    "video": "",
+    "video": "https://youtu.be/74MWE8QS20A",
     "troubleshooting": [],
     "instructions": [
       "Back up your save.",
@@ -105,7 +101,7 @@ window.ACE_CUSTOM_CODES = [
     "title": "Unlock Birth Island via Mystery Gift",
     "summary": "Get the AuroraTicket for catching Deoxys on Birth Island. \nThe code must be executed inside the Mauville Pkmn center. Talk to the man in the top left for the ticket.",
     "category": "Event",
-    "difficulty": "Unrated",
+    "difficulty": "Beginner",
     "games": [
       "emerald"
     ],
@@ -232,7 +228,9 @@ window.ACE_CUSTOM_CODES = [
         "notes": "Game, language and platform-specific variation."
       }
     },
-    "requirements": [],
+    "requirements": [
+      "Stable ACE species."
+    ],
     "sourceCode": [
       "@@ title = \"Unlock Birth Island via Mystery Gift\"",
       "@@ author = \"Sleipnir17, adapted by Mettrich\"",
@@ -273,6 +271,443 @@ window.ACE_CUSTOM_CODES = [
     "source": {
       "label": "Locally added entry",
       "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#unlock-birth-island-via-mystery-gift"
+    }
+  },
+  {
+    "id": "unlock-event-demo",
+    "deleted": true
+  },
+  {
+    "id": "give-item-demo",
+    "deleted": true
+  },
+  {
+    "id": "utility-demo",
+    "deleted": true
+  },
+  {
+    "id": "encounter-species-demo",
+    "deleted": true
+  },
+  {
+    "id": "local-stable-ace-species-0x4130-1783821222024",
+    "title": "Stable ARM species 0x4130",
+    "summary": "The stable species will be generated inside the PC in Box 10 Slot 19 (Row 4, Column 1). Keep this slot free before executing this code. These codes can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615).\nAfter this code executes, the sprite of the Pokémon (stable or unstable) will become invisible;\nthis means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash).\nAlso, these codes will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it.",
+    "category": "Code enabler",
+    "difficulty": "Beginner",
+    "games": [
+      "emerald"
+    ],
+    "languages": [
+      "de"
+    ],
+    "platforms": [
+      "accurate",
+      "inaccurate"
+    ],
+    "tags": [],
+    "parameters": [],
+    "variants": {
+      "default": {
+        "template": [
+          "Box  1: p . U n P T D n\t[p.UnPTDn]",
+          "Box  2: _ R n – B U n P\t[ Rn–BUnP]",
+          "Box  3: 9 q / w Q m D R\t[9q/wQmDR]",
+          "Box  4: o T F R n\t[oTFRn]",
+          "Box  5: / F P m D F P m\t[/FPmDFPm]",
+          "Box  6: B T o D Y J m 2\t[BToDYJm2]",
+          "Box  7: ! n\t        [!n]"
+        ],
+        "notes": "Locally added developer entry."
+      },
+      "emerald|de|inaccurate": {
+        "template": [
+          "Box  1: p . U n P T D n\t[p.UnPTDn]",
+          "Box  2: _ R n – B U n Q\t[ Rn–BUnQ]",
+          "Box  3: 9 q B w Q m D R\t[9qBwQmDR]",
+          "Box  4: o T F R n\t[oTFRn]",
+          "Box  5: / F P m D F P m\t[/FPmDFPm]",
+          "Box  6: B T o D Y J m 2\t[BToDYJm2]",
+          "Box  7: ! n\t        [!n]"
+        ],
+        "notes": "Game, language and platform-specific variation."
+      }
+    },
+    "requirements": [
+      "Unstable ARM Dots egg (0x0611 or 0x0615) from the Pomeg berry glitch."
+    ],
+    "sourceCode": [
+      "@@ title = \"Create (meta)stable ACE species\"",
+      "@@ author = \"Mettrich\"",
+      "@@ exit = null",
+      "@@ filler4 = 0xffffffff",
+      "@@ fill = false",
+      "; This code creates a (meta)stable species",
+      "; in box 10 slot 19 for English, Italian and German.",
+      "; It also gives you access to the eon ticket:",
+      "; just go upstairs in any pokecenter and you",
+      "; will be given the ticket.",
+      "old_emu = 0",
+      "lang = 2",
+      "; (1 - JP) not supported by this code",
+      "; 2 - EN ; 0x410e (stable)",
+      "; (3 - FR) not supported by this code",
+      "; 4 - IT ; 0x415e (metastable)",
+      "; 5 - DE ; 0x4130 (stable)",
+      "; (7 - ES) not supported by this code",
+      "@@",
+      "sbc r10, r15, #0x3900 ; addressing 1/2",
+      "adcs r12, r14, #0xca0 ; exit code 1/2",
+      "sbc r0, r12, #0xff ; exit code 2/2",
+      "sbc r11, r15, #0xae00 ; eon ticket 1/2",
+      "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+      "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+      "{lang == 2 ? 0xe3ffccbc :\\",
+      "(lang == 4 ? 0xe3ffccbc :\\",
+      "(lang == 5 ? 0xe3ffccbe : 0xbbffbbbb))} ; species 1/2",
+      "; mvns r12, #(…)",
+      "; EN: 0xbc00",
+      "; IT: 0xbc00",
+      "; DE: 0xbe00",
+      "; else: filler",
+      "sbc r12, r12, #{\\",
+      "(lang == 2 ? 0x2f0 :\\",
+      "(lang == 4 ? 0x2a0 :\\",
+      "(lang == 5 ? 0xce : 0x00)))} ; species 2/2",
+      "; sub r12, r12, #(…)",
+      "; EN: 0x2f1",
+      "; IT: 0x2a1",
+      "; DE: 0xcf",
+      "; else: 0x01",
+      "strh r12, [r10, #10] ; store checksum",
+      "strh r12, [r10, #14] ; store species",
+      "bic r11, r14, #0xff00 ; jump 1/2",
+      "strh r13, [r4, #0x3e] ; completely redundant",
+      "adc r15, r11, #0x28c ; jump 2/2"
+    ],
+    "video": "",
+    "troubleshooting": [],
+    "instructions": [
+      "Back up your save.",
+      "Confirm every requirement above.",
+      "Enter and execute the code exactly as documented."
+    ],
+    "source": {
+      "label": "Locally added entry",
+      "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-ace-species"
+    }
+  },
+  {
+    "id": "local-metastable-ace-species-0x415e-1783821736516",
+    "title": "Metastable ARM species 0x415e",
+    "summary": "The stable species will be generated inside the PC in Box 10 Slot 19 (Row 4, Column 1). Keep this slot free before executing this code. These codes can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615).\nAfter this code executes, the sprite of the Pokémon (stable or unstable) will become invisible;\nthis means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash).\nAlso, these codes will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it.",
+    "category": "Code enabler",
+    "difficulty": "Beginner",
+    "games": [
+      "emerald"
+    ],
+    "languages": [
+      "it"
+    ],
+    "platforms": [
+      "accurate",
+      "inaccurate"
+    ],
+    "tags": [],
+    "parameters": [],
+    "variants": {
+      "default": {
+        "template": [
+          "Box  1: p . U n P T D n   [p.UnPTDn]",
+          "Box  2: _ R n – B U n P   [ Rn–BUnP]",
+          "Box  3: 9 q / w Q m B R   [9q/wQmBR]",
+          "Box  4: o 7 U R n         [o7URn]",
+          "Box  5: / F P m D F P m   [/FPmDFPm]",
+          "Box  6: B T o D Y J m 2   [BToDYJm2]",
+          "Box  7: ! n               [!n]"
+        ],
+        "notes": "Locally added developer entry."
+      },
+      "emerald|it|inaccurate": {
+        "template": [
+          "Box  1: p . U n P T D n   [p.UnPTDn]",
+          "Box  2: _ R n – B U n Q   [ Rn–BUnQ]",
+          "Box  3: 9 q B w Q m B R   [9qBwQmBR]",
+          "Box  4: o 7 U R n         [o7URn]",
+          "Box  5: / F P m D F P m   [/FPmDFPm]",
+          "Box  6: B T o D Y J m 2   [BToDYJm2]",
+          "Box  7: ! n               [!n]"
+        ],
+        "notes": "Game, language and platform-specific variation."
+      }
+    },
+    "requirements": [
+      "Unstable ARM Dots egg (0x0611 or 0x0615) from the Pomeg berry glitch."
+    ],
+    "sourceCode": [
+      "@@ title = \"Create (meta)stable ACE species\"",
+      "@@ author = \"Mettrich\"",
+      "@@ exit = null",
+      "@@ filler4 = 0xffffffff",
+      "@@ fill = false",
+      "; This code creates a (meta)stable species",
+      "; in box 10 slot 19 for English, Italian and German.",
+      "; It also gives you access to the eon ticket:",
+      "; just go upstairs in any pokecenter and you",
+      "; will be given the ticket.",
+      "old_emu = 0",
+      "lang = 4",
+      "; (1 - JP) not supported by this code",
+      "; 2 - EN ; 0x410e (stable)",
+      "; (3 - FR) not supported by this code",
+      "; 4 - IT ; 0x415e (metastable)",
+      "; 5 - DE ; 0x4130 (stable)",
+      "; (7 - ES) not supported by this code",
+      "@@",
+      "sbc r10, r15, #0x3900 ; addressing 1/2",
+      "adcs r12, r14, #0xca0 ; exit code 1/2",
+      "sbc r0, r12, #0xff ; exit code 2/2",
+      "sbc r11, r15, #0xae00 ; eon ticket 1/2",
+      "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+      "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+      "{lang == 2 ? 0xe3ffccbc :\\",
+      "(lang == 4 ? 0xe3ffccbc :\\",
+      "(lang == 5 ? 0xe3ffccbe : 0xbbffbbbb))} ; species 1/2",
+      "; mvns r12, #(…)",
+      "; EN: 0xbc00",
+      "; IT: 0xbc00",
+      "; DE: 0xbe00",
+      "; else: filler",
+      "sbc r12, r12, #{\\",
+      "(lang == 2 ? 0x2f0 :\\",
+      "(lang == 4 ? 0x2a0 :\\",
+      "(lang == 5 ? 0xce : 0x00)))} ; species 2/2",
+      "; sub r12, r12, #(…)",
+      "; EN: 0x2f1",
+      "; IT: 0x2a1",
+      "; DE: 0xcf",
+      "; else: 0x01",
+      "strh r12, [r10, #10] ; store checksum",
+      "strh r12, [r10, #14] ; store species",
+      "bic r11, r14, #0xff00 ; jump 1/2",
+      "strh r13, [r4, #0x3e] ; completely redundant",
+      "adc r15, r11, #0x28c ; jump 2/2"
+    ],
+    "video": "",
+    "troubleshooting": [],
+    "instructions": [
+      "Back up your save.",
+      "Confirm every requirement above.",
+      "Enter and execute the code exactly as documented."
+    ],
+    "source": {
+      "label": "Locally added entry",
+      "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-ace-species"
+    }
+  },
+  {
+    "id": "local-metastable-arm-species-0x599-1783822153620",
+    "title": "Metastable ARM species 0x599",
+    "summary": "The metastable species will be generated inside the PC in Box 10 Slot 19 (Row 4, Column 1). Keep this slot free before executing this code. These codes can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615).\nAfter this code executes, the sprite of the Pokémon (stable or unstable) will become invisible;\nthis means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash).\nAlso, these codes will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it.",
+    "category": "Code enabler",
+    "difficulty": "Beginner",
+    "games": [
+      "emerald"
+    ],
+    "languages": [
+      "es"
+    ],
+    "platforms": [
+      "accurate",
+      "inaccurate"
+    ],
+    "tags": [],
+    "parameters": [],
+    "variants": {
+      "default": {
+        "template": [
+          "Box  1: p . U n P T D n\t[p.UnPTDn]",
+          "Box  2: _ R n – B k n P\t[ Rn–BknP]",
+          "Box  3: 9 q / w Q m\t[9q/wQm]",
+          "Box  4: A H U . o\t[AHU.o]",
+          "Box  5: 3 U B n / F P m\t[3UBn/FPm]",
+          "Box  6: B T o D F P m 2\t[BToDFPm2]",
+          "Box  7: ! n\t        [!n]"
+        ],
+        "notes": "Locally added developer entry."
+      },
+      "emerald|es|inaccurate": {
+        "template": [
+          "Box  1: p . U n P T D n\t[p.UnPTDn]",
+          "Box  2: _ R n – B k n Q\t[ Rn–BknQ]",
+          "Box  3: 9 q B w Q m\t[9qBwQm]",
+          "Box  4: A H U . o\t[AHU.o]",
+          "Box  5: 3 U B n / F P m\t[3UBn/FPm]",
+          "Box  6: B T o D F P m 2\t[BToDFPm2]",
+          "Box  7: ! n\t        [!n]"
+        ],
+        "notes": "Game, language and platform-specific variation."
+      }
+    },
+    "requirements": [
+      "Unstable ARM Dots egg (0x0611 or 0x0615) from the Pomeg berry glitch."
+    ],
+    "sourceCode": [
+      "@@ title = \"Create (meta)stable ACE species\"",
+      "@@ author = \"Mettrich\"",
+      "@@ exit = null",
+      "@@ filler3 = 0xbbffffff",
+      "@@ filler4 = 0xffffffff",
+      "@@ fill = false",
+      "; This code creates a metastable (ARM) species",
+      "; in box 10 slot 19 for Spanish (0x0599).",
+      "; It also gives you access to the eon ticket:",
+      "; just go upstairs in any pokecenter and you",
+      "; will be given the ticket.",
+      "old_emu = 0",
+      "@@",
+      "sbc r10, r15, #0x3900 ; addressing 1/2",
+      "adcs r12, r14, #0xca0 ; exit code 1/2",
+      "sbc r0, r12, #0xff ; exit code 2/2",
+      "sbcs r11, r15, #0xae00 ; eon ticket 1/2",
+      "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+      "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+      "mov r12, #0x308 ; species 1/2",
+      "adcs r12, r12, #0x290 ; species 2/2",
+      "strh r12, [r10, #10] ; store checksum",
+      "bic r11, r14, #0xff00 ; jump 1/2",
+      "strh r12, [r10, #14] ; store species",
+      "adc r15, r11, #0x28c ; jump 2/2"
+    ],
+    "video": "",
+    "troubleshooting": [],
+    "instructions": [
+      "Back up your save.",
+      "Confirm every requirement above.",
+      "Enter and execute the code exactly as documented."
+    ],
+    "source": {
+      "label": "Locally added entry",
+      "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-ace-species"
+    }
+  },
+  {
+    "id": "local-pseudostable-thumb-species-0x40ed-1783822853818",
+    "title": "Pseudostable THUMB species 0x40ed",
+    "summary": "The metastable species will be generated inside the PC in Box 10 Slot 19 (Row 4, Column 1). Keep this slot free before executing this code. The Thumb→ARM bootstrap will be generated in Box 12 Slot 4 (Row 1, Column 4) and looks like a bad egg. Also keep this slot free beforehand.\nAfter this code executes, the sprite of the Pokémon (stable or unstable) will become invisible, this means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash).\nRECOMMENDED: After you execute the code the first time, check the boxes to see whether it worked, if it did, you should fortify the Thumb→ARM bootstrap (the bad egg). By default this bootstrap is quite fragile and can easily be overwritten by just placing other Pokemon on top of it, to prevent this, move the bootstrap from Box 12 Slot 4 (where it should have generated) to Box 12 Slot 7 (Row 2, Column 1). Then change the code in Box 6 slightly (just replace the \"T\" with a \"U\") and trigger execution with your newly generated metastable Thumb species (or any ARM species, doesn't matter). There should be another metastable Thumb species in Box 10 Slot 19, and the bootstrap should now be fortified. To test this, pick up the bootstrap in a group selection and look whether it disappears when you place it down. If it disappears, reset and go to your last save point, something must have gone wrong. Otherwise, you're done and can place the bootstrap anywhere in between Box 12 Slot 4 and Box 14 Slot 30 for it to work (Box 12 Slot 4 or Slot 7 is recommended though).",
+    "category": "Code enabler",
+    "difficulty": "Beginner",
+    "games": [
+      "emerald"
+    ],
+    "languages": [
+      "fr"
+    ],
+    "platforms": [
+      "accurate",
+      "inaccurate"
+    ],
+    "tags": [],
+    "parameters": [],
+    "variants": {
+      "default": {
+        "template": [
+          "Box  1: p . U n P T D n\t[p.UnPTDn]",
+          "Box  2: _ h n z O D F P\t[ hnzODFP]",
+          "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
+          "Box  4: o z … A n\t[oz…An]",
+          "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+          "Box  6: B j o _ T 9 q 2\t[Bjo T9q2]",
+          "Box  7: A n\t        [An]"
+        ],
+        "notes": "Locally added developer entry."
+      },
+      "emerald|fr|inaccurate": {
+        "template": [
+          "Box  1: p . U n P T D n\t[p.UnPTDn]",
+          "Box  2: _ h n z O D F Q\t[ hnzODFP]",
+          "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
+          "Box  4: o z … A n\t[oz…An]",
+          "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+          "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+          "Box  7: A n\t        [An]"
+        ],
+        "notes": "Game, language and platform-specific variation."
+      }
+    },
+    "requirements": [
+      "Unstable ARM Dots egg (0x0611 or 0x0615) from the Pomeg berry glitch."
+    ],
+    "sourceCode": [
+      "@@ title = \"Create Pokémon from nothing\"",
+      "@@ author = \"Mettrich\"",
+      "@@ exit = null",
+      "@@ filler4 = 0xffffffff",
+      "@@ fill = false",
+      "; This code creates a (meta)stable Thumb species",
+      "; in box 10 slot 19 for all languages,",
+      "; and a Thumb->ARM bootstrap in Box 12 Slot 4.",
+      "old_emu = 0",
+      "lang = 2",
+      "; (1 - JP) not supported by this code",
+      "; 2 - EN ; 0x45bb (metastable)",
+      "; 3 - FR ; 0x40ed (pseudostable)",
+      "; 4 - IT ; 0x45b7 (pseodostable)",
+      "; 5 - DE ; 0x44f1 (metastable)",
+      "; 7 - ES ; 0x45db (metastable)",
+      "fortify = 0",
+      "; set this to 1 for the second execution to",
+      "; \"fortify\" the bootstrap (so you don't accidentally overwrite it, since it's pretty fragile otherwise).",
+      "; only box 6 should change slightly, you can keep the rest the same.",
+      "; before executing the fortify code, move the bootstrap (bad egg)",
+      "; to Box 12 Slot 7 (Row 2, Column 1).",
+      "@@",
+      "sbc r10, r15, #0x3900 ; addressing",
+      "adcs r12, r14, #0xca0 ; exit code 1/2",
+      "sbcs r0, r12, #0xff ; exit code 2/2",
+      "; generate `bx r15` in the high bits here...",
+      "adcgts r12, r14, r14, ror #19",
+      "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; set hasSpecies to 1",
+      "; and finish it here, have the low bits be nonzero",
+      "adcs r12, r12, #0x32400000",
+      "{lang == 2 ? 0xe3ffbcbb :\\",
+      "(lang == 3 ? 0xe3ffbcc0 :\\",
+      "(lang == 4 ? 0xe3ffbcbe :\\",
+      "(lang == 5 ? 0xe3ffbcbc :\\",
+      "(lang == 7 ? 0xe3ffbcbb : 0xbbffffff))))}",
+      "; species 1/2",
+      "; EN: mvns r11, 0xbb00",
+      "; FR: mvns r11, 0xc000",
+      "; IT: mvns r11, 0xbe00",
+      "; DE: mvns r11, 0xbc00",
+      "; ES: mvns r11, 0xbb00",
+      "{lang == 2 ? 0xE2BBB0BC :\\",
+      "(lang == 3 ? 0xE2BBB0EE :\\",
+      "(lang == 4 ? 0xE2BBBFEE :\\",
+      "(lang == 5 ? 0xE2BBB0F2 :\\",
+      "(lang == 7 ? 0xE2BBB0DC : 0xbbbbbbbb))))}",
+      "; species 2/2",
+      "; EN: adcs r11, r11, #0xbc",
+      "; FR: adcs r11, r11, #0xee",
+      "; IT: adcs r11, r11, #0x3b8",
+      "; DE: adcs r11, r11, #0xf2",
+      "; ES: adcs r11, r11, #0xdc",
+      "strh r11, [r10, #10] ; store checksum",
+      "strh r11, [r10, #14] ; store species",
+      "bic r11, r14, #0xff00",
+      "str r12, [r10, #{fortify?0xf00:0xe00}]! ; store bootstrap in PID/flags",
+      "adc r15, r11, #0x28c"
+    ],
+    "video": "",
+    "troubleshooting": [],
+    "instructions": [
+      "Back up your save.",
+      "Confirm every requirement above.",
+      "Enter and execute the code exactly as documented."
+    ],
+    "source": {
+      "label": "Locally added entry",
+      "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-metastable-thumb-species"
     }
   }
 ];

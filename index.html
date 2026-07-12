@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="A beginner-friendly library and generator for Gen 3 ACE codes."
+    />
+    <title>ACE Archive — Gen 3 code library</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500;700&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div class="page-noise" aria-hidden="true"></div>
+
+    <header class="site-header">
+      <a class="brand" href="#top" aria-label="ACE Archive home">
+        <span class="brand-mark" aria-hidden="true">A</span>
+        <span>
+          <strong>ACE Archive</strong>
+          <small>Gen 3 code library</small>
+        </span>
+      </a>
+    </header>
+
+    <nav class="section-tabs" aria-label="Site sections">
+      <div>
+        <button class="active" type="button" data-tab="codes">ACE codes</button>
+        <button class="developer-tab" type="button" data-tab="developer" hidden>Developer</button>
+        <button type="button" data-tab="guides">ACE guides</button>
+        <button type="button" data-tab="troubleshooting">ACE troubleshooting</button>
+        <button type="button" data-tab="faq">FAQ</button>
+      </div>
+    </nav>
+
+    <main id="top">
+      <div class="tab-panel active" data-panel="codes">
+      <section class="setup-section" id="setup">
+        <div class="section-heading">
+          <div>
+            <h1>Choose your setup</h1>
+          </div>
+        </div>
+
+        <form class="setup-grid" id="setup-form">
+          <label class="field">
+            <span>Game</span>
+            <select id="game-select" name="game"></select>
+          </label>
+          <label class="field">
+            <span>Language</span>
+            <select id="language-select" name="language"></select>
+          </label>
+          <label class="field platform-field">
+            <span>What are you playing on?</span>
+            <select id="platform-select" name="platform"></select>
+          </label>
+        </form>
+        <p class="setup-status" id="setup-status" aria-live="polite"></p>
+      </section>
+
+      <section class="library-section" id="library">
+        <div class="section-heading library-heading">
+          <div>
+            <h2>ACE codes</h2>
+          </div>
+          <div class="result-count"><strong id="result-count">0</strong><span>compatible<br />codes</span></div>
+        </div>
+
+        <div class="library-toolbar">
+          <label class="search-field">
+            <span class="sr-only">Search codes</span>
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m21 21-4.35-4.35m2.35-5.65a8 8 0 1 1-16 0 8 8 0 0 1 16 0Z" /></svg>
+            <input id="code-search" type="search" placeholder="Search by name, category, or description…" />
+          </label>
+          <div class="category-filters" id="category-filters" aria-label="Filter by category"></div>
+        </div>
+
+        <div class="code-grid" id="code-grid"></div>
+        <div class="empty-state" id="empty-state" hidden>
+          <span>⌁</span>
+          <h3>No matching codes</h3>
+          <p>Try another search, category, or setup.</p>
+        </div>
+      </section>
+
+      </div>
+
+      <section class="tab-panel info-panel" data-panel="guides">
+        <p class="step-label">ACE GUIDES</p><h1>Learn the setup, then choose a code.</h1>
+        <p>Guides will explain stable ACE species, bootstraps, box-name entry, and safe execution. Creation payloads themselves remain in the ACE codes list.</p>
+      </section>
+      <section class="tab-panel info-panel" data-panel="troubleshooting">
+        <p class="step-label">TROUBLESHOOTING</p><h1>Find out why a code did not run.</h1>
+        <p>General diagnostic guides will live here. Each individual code also has its own quick checklist.</p>
+      </section>
+      <section class="tab-panel info-panel" data-panel="faq">
+        <p class="step-label">FAQ</p><h1>Frequently asked questions</h1>
+        <p>Common questions about compatibility, terminology, safety, and this archive will appear here.</p>
+      </section>
+      <section class="tab-panel developer-panel" data-panel="developer">
+        <div class="developer-heading">
+          <div><p class="step-label">LOCAL DEVELOPER MODE</p><h1>Code editor</h1><p>Entries are saved in this browser and appear in the library immediately.</p></div>
+          <div class="developer-actions"><button type="button" id="export-codes">Export project file</button><label>Import JSON<input type="file" id="import-codes" accept="application/json,.js" /></label></div>
+        </div>
+        <form id="developer-form" class="developer-form">
+          <div class="developer-grid">
+            <label><span>Code title *</span><input name="title" required /></label>
+            <label><span>Category *</span><input name="category" value="Utilities" required /></label>
+            <label><span>Difficulty *</span><select name="difficulty" required><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Unrated</option></select></label>
+            <label class="wide"><span>Short description *</span><textarea name="summary" rows="2" required></textarea></label>
+          </div>
+          <div class="developer-columns">
+            <fieldset><legend>Games *</legend><div id="dev-games" class="check-grid"></div></fieldset>
+            <fieldset><legend>Languages *</legend><div id="dev-languages" class="check-grid"></div></fieldset>
+            <fieldset><legend>Platforms *</legend><div id="dev-platforms" class="check-grid"></div></fieldset>
+          </div>
+          <label class="shared-platform-option"><input type="checkbox" id="same-emulator-code" /><span>Console / accurate emulator and old emulator use the same code</span></label>
+          <div class="code-variation-workspace">
+            <label class="base-code-field"><span>Default box names / generated code * — one line per box</span><textarea name="code" rows="10" required placeholder="Box 1: ...&#10;Box 2: ..."></textarea></label>
+            <section class="combination-editor">
+              <div class="combination-heading"><span>Game, language and platform variations</span><small>Leave blank to use the default code. Filled tabs are marked.</small></div>
+              <div class="combination-tabs" id="combination-tabs"></div>
+              <div id="combination-field" class="combination-field"><p>Select compatibility above to create variation tabs.</p></div>
+            </section>
+          </div>
+          <div class="developer-grid">
+            <label class="wide"><span>Requirements — one per line</span><textarea name="requirements" rows="4" placeholder="Stable ACE species&#10;Specific wallpaper"></textarea></label>
+            <label class="wide"><span>Source code</span><textarea name="sourceCode" rows="7"></textarea></label>
+            <label><span>Source label</span><input name="sourceLabel" /></label>
+            <label><span>Source URL</span><input name="sourceUrl" type="url" /></label>
+            <label class="wide"><span>YouTube URL or video ID</span><input name="video" /></label>
+            <label class="wide"><span>Troubleshooting — one item per line</span><textarea name="troubleshooting" rows="4"></textarea></label>
+          </div>
+          <div class="developer-submit"><button type="submit" id="save-code-button">Save code to local library</button><button type="button" id="cancel-code-edit" hidden>Cancel editing</button><button type="button" id="delete-code-edit" hidden>Delete code</button><p id="developer-status" role="status"></p></div>
+        </form>
+        <section class="local-code-list"><h2>Current codes</h2><div id="local-codes"></div></section>
+      </section>
+
+    </main>
+
+    <dialog class="code-dialog" id="code-dialog">
+      <div id="dialog-content"></div>
+    </dialog>
+
+    <div class="toast" id="toast" role="status" aria-live="polite">Copied to clipboard</div>
+
+    <footer>
+      <p>Always back up your save before experimenting.</p>
+      <p id="library-version"></p>
+    </footer>
+
+    <script src="developer-config.js"></script>
+    <script src="data/catalog.js"></script>
+    <script src="data/custom-codes.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>

@@ -3,8 +3,17 @@
 
   const catalog = window.ACE_CATALOG;
   const LOCAL_CODES_KEY = "ace-developer-codes";
-  const projectCodes = Array.isArray(window.ACE_CUSTOM_CODES) ? window.ACE_CUSTOM_CODES : [];
-  let localCodes = loadLocalCodes();
+  const LOCAL_GUIDES_KEY = "ace-developer-guides";
+  const LOCAL_PAGES_KEY = "ace-developer-pages";
+  const customContent = window.ACE_CUSTOM_CONTENT || {};
+  const projectCodes = Array.isArray(customContent.codes) ? customContent.codes : (Array.isArray(window.ACE_CUSTOM_CODES) ? window.ACE_CUSTOM_CODES : []);
+  const projectGuides = Array.isArray(customContent.guides) ? customContent.guides : [];
+  const builtInGuides = Array.isArray(window.ACE_BUILTIN_GUIDES) ? window.ACE_BUILTIN_GUIDES : [];
+  const projectPages = customContent.pages && typeof customContent.pages === "object" ? customContent.pages : {};
+  let localCodes = loadLocalCollection(LOCAL_CODES_KEY, []);
+  let localGuides = loadLocalCollection(LOCAL_GUIDES_KEY, []);
+  let localPages = loadLocalCollection(LOCAL_PAGES_KEY, {});
+  catalog.guides ||= [];
   const builtInCodeIds = new Set(catalog.codes.map((code) => code.id));
   function mergeCode(code) {
     const index = catalog.codes.findIndex((entry) => entry.id === code.id);
@@ -17,9 +26,38 @@
   }
   projectCodes.forEach(mergeCode);
   localCodes.forEach(mergeCode);
+  function normalizeGuide(guide) {
+    if (guide.type === "interactive-setup" && Array.isArray(guide.phases)) {
+      guide.phases = guide.phases.filter((phase) => Boolean(
+        phase.title?.trim() || phase.shortTitle?.trim() || phase.objective?.trim() || phase.image?.trim()
+        || phase.sections?.length || phase.checks?.length
+      ));
+    }
+    return guide;
+  }
+  function mergeGuide(guide) {
+    normalizeGuide(guide);
+    const index = catalog.guides.findIndex((entry) => entry.id === guide.id);
+    if (guide.deleted) { if (index >= 0) catalog.guides.splice(index, 1); return; }
+    if (index >= 0) catalog.guides[index] = guide;
+    else catalog.guides.push(guide);
+  }
+  builtInGuides.forEach(mergeGuide);
+  projectGuides.forEach(mergeGuide);
+  localGuides.forEach(mergeGuide);
+  localStorage.setItem(LOCAL_GUIDES_KEY, JSON.stringify(localGuides));
+  const pageContent = {
+    troubleshooting: { title: "Find out why a code did not run.", introduction: "General diagnostic guides and video examples will live here.", body: "" },
+    faq: { title: "Frequently asked questions", introduction: "Common questions about compatibility, terminology, safety, and this archive will appear here.", body: "" },
+    ...projectPages,
+    ...localPages,
+  };
   const variationDrafts = new Map();
   let activeVariation = "";
   let editingCodeId = "";
+  let editingGuideId = "";
+  let interactivePhaseDrafts = [];
+  let activeInteractivePhase = 0;
   const state = {
     game: localStorage.getItem("ace-game") || "emerald",
     language: localStorage.getItem("ace-language") || "en",
@@ -48,11 +86,11 @@
     return catalog[collection].find((entry) => entry.id === id)?.name || id;
   }
 
-  function loadLocalCodes() {
+  function loadLocalCollection(key, fallback) {
     try {
-      const saved = JSON.parse(localStorage.getItem(LOCAL_CODES_KEY) || "[]");
-      return Array.isArray(saved) ? saved : [];
-    } catch { return []; }
+      const saved = JSON.parse(localStorage.getItem(key) || JSON.stringify(fallback));
+      return saved && typeof saved === "object" ? saved : fallback;
+    } catch { return fallback; }
   }
 
   function initSetup() {
@@ -102,7 +140,11 @@
     return catalog.codes.filter((code) => {
       const text = [code.title, code.summary, code.category, ...(code.tags || [])].join(" ").toLowerCase();
       return isCompatible(code) && (state.category === "All" || code.category === state.category) && (!query || text.includes(query));
-    });
+    }).sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
+  }
+
+  function compareTitles(a, b) {
+    return String(a.title || "").localeCompare(String(b.title || ""), undefined, { sensitivity: "base", numeric: true });
   }
 
   function renderCategories() {
@@ -123,7 +165,7 @@
     elements.empty.hidden = codes.length > 0;
     elements.grid.innerHTML = codes.map((code) => `
       <article class="code-card" data-id="${code.id}" tabindex="0">
-        <span class="category-tag">${code.category}</span>
+        <div class="code-card-tags"><span class="category-tag">${code.category}</span>${code.recommended ? '<span class="recommended-tag">Recommended</span>' : ""}</div>
         <div class="code-list-copy"><h3>${code.title}</h3><p>${code.summary}</p></div>
         <div class="card-meta"><span class="difficulty ${code.difficulty.toLowerCase()}">${code.difficulty}</span></div>
       </article>`).join("");
@@ -179,7 +221,7 @@
       ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${code.parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
       : `<form class="fixed-code-section" id="generator-form"><h3>Box name code</h3>${outputPanel}</form>`;
     elements.dialogContent.innerHTML = `
-      <div class="dialog-header"><div><span class="category-tag">${code.category}</span><h2>${code.title}</h2><p>${code.summary}</p></div><div class="dialog-actions"><button class="share-code" type="button">Share</button><button class="close-dialog" aria-label="Close">×</button></div></div>
+      <div class="dialog-header"><div><span class="category-tag">${code.category}</span><h2>${code.title}</h2><div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.65.05l2.2-2.2a4 4 0 0 0-5.66-5.66l-1.26 1.26m1.87 3.75a4 4 0 0 0-5.65-.05l-2.2 2.2a4 4 0 0 0 5.66 5.66l1.25-1.25" /></svg></button><button class="close-dialog" aria-label="Close">×</button></div></div>
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("languages", state.language)}</span><span>✓ ${nameFor("platforms", state.platform)}</span></div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul></section>
       ${generatorArea}
@@ -220,17 +262,20 @@
 
   async function shareCode(code) {
     const url = codeShareUrl(code.id).href;
+    const button = $(".share-code", elements.dialogContent);
     try {
-      if (navigator.share) await navigator.share({ title: code.title, text: code.summary, url });
-      else await navigator.clipboard.writeText(url);
-      elements.toast.textContent = navigator.share ? "Share link ready" : "Share link copied";
-    } catch (error) {
-      if (error?.name === "AbortError") return;
-      try { await navigator.clipboard.writeText(url); elements.toast.textContent = "Share link copied"; }
-      catch { elements.toast.textContent = url; }
+      await navigator.clipboard.writeText(url);
+    } catch {
+      const temporaryInput = document.createElement("textarea");
+      temporaryInput.value = url; temporaryInput.style.position = "fixed"; temporaryInput.style.opacity = "0";
+      document.body.append(temporaryInput); temporaryInput.select();
+      document.execCommand("copy"); temporaryInput.remove();
     }
-    elements.toast.classList.add("show");
-    setTimeout(() => { elements.toast.classList.remove("show"); elements.toast.textContent = "Copied to clipboard"; }, 2200);
+    button.classList.add("copied"); button.innerHTML = "<span aria-hidden=\"true\">✓</span>"; button.setAttribute("aria-label", "Share link copied"); button.title = "Share link copied";
+    setTimeout(() => {
+      if (!button.isConnected) return;
+      button.classList.remove("copied"); button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.65.05l2.2-2.2a4 4 0 0 0-5.66-5.66l-1.26 1.26m1.87 3.75a4 4 0 0 0-5.65-.05l-2.2 2.2a4 4 0 0 0 5.66 5.66l1.25-1.25" /></svg>'; button.setAttribute("aria-label", "Copy share link"); button.title = "Copy share link";
+    }, 1800);
   }
 
   function clearCodeDeepLink() {
@@ -248,16 +293,111 @@
   }
 
   function renderGuides() {
-    const guides = catalog.guides || [];
+    const guides = [...(catalog.guides || [])].sort(compareTitles);
     $("#guide-list").innerHTML = guides.map((guide) => `<article class="guide-card" tabindex="0" data-guide-id="${guide.id}"><span class="category-tag">${guide.category}</span><div><h2>${guide.title}</h2><p>${guide.summary}</p></div><span class="difficulty ${guide.difficulty.toLowerCase()}">${guide.difficulty}</span></article>`).join("");
+  }
+
+  function escapeHtml(value) {
+    return String(value || "").replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character]);
+  }
+
+  function renderFormattedText(value) {
+    const lines = String(value || "").split(/\r?\n/);
+    let html = "", listOpen = false, paragraph = [];
+    const closeParagraph = () => { if (paragraph.length) { html += `<p>${paragraph.map(escapeHtml).join(" ")}</p>`; paragraph = []; } };
+    const closeList = () => { if (listOpen) { html += "</ul>"; listOpen = false; } };
+    lines.forEach((line) => {
+      const trimmed = line.trim();
+      if (trimmed.startsWith("## ")) { closeParagraph(); closeList(); html += `<h2>${escapeHtml(trimmed.slice(3))}</h2>`; }
+      else if (trimmed.startsWith("### ")) { closeParagraph(); closeList(); html += `<h3>${escapeHtml(trimmed.slice(4))}</h3>`; }
+      else if (/^-\s*/.test(trimmed)) { closeParagraph(); if (!listOpen) { html += "<ul>"; listOpen = true; } html += `<li>${escapeHtml(trimmed.replace(/^-\s*/, ""))}</li>`; }
+      else if (!trimmed) { closeParagraph(); closeList(); }
+      else { closeList(); paragraph.push(trimmed); }
+    });
+    closeParagraph(); closeList();
+    return html;
+  }
+
+  function renderPages() {
+    ["troubleshooting", "faq"].forEach((pageId) => {
+      const page = pageContent[pageId];
+      const body = pageId === "faq" ? renderFaqContent(page.body) : `<div class="formatted-content">${renderFormattedText(page.body)}</div>`;
+      $(`#${pageId}-content`).innerHTML = `<p class="step-label">${pageId === "faq" ? "FAQ" : "TROUBLESHOOTING"}</p><h1>${escapeHtml(page.title)}</h1>${page.introduction ? `<p class="page-introduction">${escapeHtml(page.introduction)}</p>` : ""}${body}`;
+    });
+  }
+
+  function renderFaqContent(value) {
+    const questions = [];
+    let current = null;
+    String(value || "").split(/\r?\n/).forEach((line) => {
+      if (line.trim().startsWith("## ")) {
+        current = { question: line.trim().slice(3), answer: [] };
+        questions.push(current);
+      } else if (current) current.answer.push(line);
+    });
+    if (!questions.length) return `<div class="faq-empty">Add FAQ questions in Developer mode using <strong>## Question</strong>.</div>`;
+    return `<div class="faq-list">${questions.map((item) => `<details class="faq-item"><summary><span>${escapeHtml(item.question)}</span><b aria-hidden="true">+</b></summary><div class="faq-answer formatted-content">${renderFormattedText(item.answer.join("\n"))}</div></details>`).join("")}</div>`;
   }
 
   function openGuide(id) {
     const guide = (catalog.guides || []).find((entry) => entry.id === id);
     if (!guide) return;
-    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${guide.category}</span><h2>${guide.title}</h2><p>${guide.summary}</p></div><button class="close-guide-dialog" aria-label="Close">×</button></div><article class="guide-content"><p class="guide-introduction">${guide.introduction}</p>${guide.sections.map((section) => `<section id="guide-${guide.id}-${section.title.toLowerCase().replace(/[^a-z0-9]+/g, "-")}"><h3>${section.title}</h3><p>${section.text}</p></section>`).join("")}${guide.video ? `<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section>` : ""}</article>`;
+    if (guide.type === "interactive-setup") { openInteractiveGuide(guide); return; }
+    elements.guideDialog.classList.remove("setup-guide-dialog");
+    const guideBody = guide.body ? `<div class="formatted-content">${renderFormattedText(guide.body)}</div>` : (guide.sections || []).map((section) => `<section><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.text)}</p></section>`).join("");
+    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.summary)}</p></div><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}${guide.video ? `<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section>` : ""}</article>`;
     $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
     elements.guideDialog.showModal();
+  }
+
+  function openInteractiveGuide(guide) {
+    elements.guideDialog.classList.add("setup-guide-dialog");
+    const storageKey = `ace-guide-progress-${guide.id}`;
+    let progress;
+    try { progress = JSON.parse(localStorage.getItem(storageKey) || '{"complete":[],"checks":{}}'); }
+    catch { progress = { complete: [], checks: {} }; }
+    progress.complete ||= []; progress.checks ||= {};
+    let activePhase = Math.min(Number(sessionStorage.getItem(`${storageKey}-phase`)) || 0, guide.phases.length - 1);
+
+    const saveProgress = () => {
+      localStorage.setItem(storageKey, JSON.stringify(progress));
+      sessionStorage.setItem(`${storageKey}-phase`, activePhase);
+    };
+
+    const renderSection = (section) => `<section class="setup-phase-section"><h3>${escapeHtml(section.title)}</h3>${(section.paragraphs || []).map((paragraph) => `<p>${escapeHtml(paragraph)}</p>`).join("")}${section.bullets ? `<ul>${section.bullets.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>` : ""}${section.note ? `<aside class="setup-note"><strong>Note</strong><p>${escapeHtml(section.note)}</p></aside>` : ""}${section.warning ? `<aside class="setup-warning"><strong>Important</strong><p>${escapeHtml(section.warning)}</p></aside>` : ""}</section>`;
+
+    const render = () => {
+      const phase = guide.phases[activePhase];
+      const checked = new Set(progress.checks[activePhase] || []);
+      const completedCount = progress.complete.length;
+      const percent = Math.round((completedCount / guide.phases.length) * 100);
+      elements.guideDialogContent.innerHTML = `<div class="dialog-header setup-guide-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.introduction)}</p></div><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div>
+        <div class="setup-progress" aria-label="${completedCount} of ${guide.phases.length} phases completed"><div><span>${completedCount} of ${guide.phases.length} phases complete</span><strong>${percent}%</strong></div><div class="setup-progress-track"><i style="width:${percent}%"></i></div></div>
+        <div class="setup-guide-layout"><nav class="setup-phase-nav" aria-label="Guide phases">${guide.phases.map((item, index) => `<button type="button" data-phase="${index}" class="${index === activePhase ? "active" : ""} ${progress.complete.includes(index) ? "complete" : ""}"><span>${progress.complete.includes(index) ? "✓" : index + 1}</span><b>${escapeHtml(item.shortTitle)}</b></button>`).join("")}</nav>
+        <article class="setup-phase-content"><p class="setup-phase-number">Phase ${activePhase + 1} of ${guide.phases.length}</p><h2>${escapeHtml(phase.title)}</h2><p class="setup-objective">${escapeHtml(phase.objective)}</p>${phase.sections.map(renderSection).join("")}
+        <figure class="guide-image-placeholder"><div aria-hidden="true">▧</div><figcaption>${escapeHtml(phase.image)}</figcaption><small>Image placeholder — add the relevant screenshot later</small></figure>
+        <section class="setup-checkpoint"><h3>Before continuing</h3>${phase.checks.map((item, index) => `<label><input type="checkbox" data-guide-check="${index}" ${checked.has(index) ? "checked" : ""} /><span>${escapeHtml(item)}</span></label>`).join("")}<button type="button" class="phase-complete-button ${progress.complete.includes(activePhase) ? "complete" : ""}" data-toggle-complete>${progress.complete.includes(activePhase) ? "✓ Phase completed" : "Mark phase as complete"}</button></section>
+        <div class="setup-phase-actions"><button type="button" data-guide-back ${activePhase === 0 ? "disabled" : ""}>← Previous</button><button type="button" class="next" data-guide-next ${activePhase === guide.phases.length - 1 ? "disabled" : ""}>Next phase →</button></div><p class="guide-source-note">${escapeHtml(guide.sourceNote)}</p></article></div>`;
+      $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
+    };
+
+    elements.guideDialogContent.onclick = (event) => {
+      const phaseButton = event.target.closest("[data-phase]");
+      if (phaseButton) activePhase = Number(phaseButton.dataset.phase);
+      else if (event.target.closest("[data-guide-back]") && activePhase > 0) activePhase -= 1;
+      else if (event.target.closest("[data-guide-next]") && activePhase < guide.phases.length - 1) activePhase += 1;
+      else if (event.target.closest("[data-toggle-complete]")) {
+        progress.complete = progress.complete.includes(activePhase) ? progress.complete.filter((index) => index !== activePhase) : [...progress.complete, activePhase].sort((a, b) => a - b);
+      } else return;
+      saveProgress(); render(); elements.guideDialog.scrollTop = 0;
+    };
+    elements.guideDialogContent.onchange = (event) => {
+      if (!event.target.matches("[data-guide-check]")) return;
+      const index = Number(event.target.dataset.guideCheck), values = new Set(progress.checks[activePhase] || []);
+      event.target.checked ? values.add(index) : values.delete(index);
+      progress.checks[activePhase] = [...values].sort((a, b) => a - b); saveProgress();
+    };
+    render(); elements.guideDialog.showModal();
   }
 
   function activateTab(name) {
@@ -285,7 +425,23 @@
     $("#developer-form").querySelectorAll('input[type="checkbox"]').forEach((input) => input.addEventListener("change", renderVariationTabs));
     $("#developer-form").elements.code.addEventListener("input", syncDefaultCodeToVariations);
     $("#combination-tabs").addEventListener("click", selectVariationTab);
+    $(".developer-content-tabs").addEventListener("click", (event) => {
+      const button = event.target.closest("[data-dev-tab]"); if (!button) return;
+      document.querySelectorAll("[data-dev-tab]").forEach((item) => item.classList.toggle("active", item === button));
+      document.querySelectorAll("[data-dev-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.devPanel === button.dataset.devTab));
+    });
+    $("#guide-developer-form").addEventListener("submit", saveDeveloperGuide);
+    $("#developer-guides").addEventListener("click", handleDeveloperGuideAction);
+    $("#cancel-guide-edit").addEventListener("click", resetGuideDeveloperForm);
+    $("#delete-guide-edit").addEventListener("click", deleteEditingGuide);
+    $("#interactive-phase-tabs").addEventListener("click", selectInteractivePhase);
+    $("#add-guide-phase").addEventListener("click", addInteractivePhase);
+    $("#delete-guide-phase").addEventListener("click", deleteInteractivePhase);
+    $("#page-developer-form").addEventListener("submit", saveDeveloperPage);
+    $("#page-developer-form").elements.page.addEventListener("change", loadPageDeveloperForm);
     renderLocalCodes();
+    renderDeveloperGuides();
+    loadPageDeveloperForm();
   }
 
   function selectedDeveloperValues(name) {
@@ -301,15 +457,28 @@
       platforms = platforms.filter((item) => !["accurate", "inaccurate"].includes(item.id));
       platforms.unshift({ id: "accurate+inaccurate", ids: ["accurate", "inaccurate"] });
     }
+    const baselineGame = games[0], baselineLanguage = languages[0];
+    const baselinePlatform = platforms.find((choice) => choice.ids.includes("accurate")) || platforms[0];
     return games.flatMap((game) => languages.flatMap((language) => platforms
       .filter((platformChoice) => platformChoice.ids.some((platformId) => {
         const platform = catalog.platforms.find((item) => item.id === platformId);
         return !platform?.games || platform.games.includes(game);
       }))
+      .filter((platformChoice) => !(game === baselineGame && language === baselineLanguage && platformChoice.id === baselinePlatform?.id))
       .map((platformChoice) => ({ game, language, platform: platformChoice.id, platformIds: platformChoice.ids, key: `${game}|${language}|${platformChoice.id}` }))));
   }
 
   function renderVariationTabs() {
+    const selectedGames = selectedDeveloperValues("games"), selectedLanguages = selectedDeveloperValues("languages");
+    const selectedPlatforms = selectedDeveloperValues("platforms");
+    const baselineGame = selectedGames[0], baselineLanguage = selectedLanguages[0];
+    const baselinePlatform = selectedPlatforms.includes("accurate") ? "accurate" : selectedPlatforms[0];
+    $("#default-code-label").textContent = baselineGame && baselineLanguage && baselinePlatform
+      ? `Default: ${nameFor("games", baselineGame)} · ${nameFor("languages", baselineLanguage)} · ${nameFor("platforms", baselinePlatform)} *`
+      : "Default console / accurate-emulator code * — one line per box";
+    $("#default-code-help").textContent = baselineGame && baselineLanguage && baselinePlatform
+      ? "This baseline combination is saved automatically. Use the tabs only when another combination differs."
+      : "Select a game and language to define the baseline code.";
     const combinations = variationCombinations();
     combinations.forEach((combo) => {
       if (!variationDrafts.has(combo.key)) variationDrafts.set(combo.key, { value: "", edited: false });
@@ -390,6 +559,7 @@
     const code = {
       id: editingCodeId || `local-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
       title, summary: safeText(data.get("summary")), category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
+      recommended: data.get("recommended") === "on",
       games, languages, platforms, tags: existingCode?.tags || [], parameters: existingCode?.parameters || [], variants,
       requirements: lines(data.get("requirements")).map(safeText), sourceCode: lines(data.get("sourceCode")),
       video: safeText(data.get("video")), troubleshooting: lines(data.get("troubleshooting")).map(safeText),
@@ -409,7 +579,8 @@
   }
 
   function renderLocalCodes() {
-    $("#local-codes").innerHTML = catalog.codes.length ? catalog.codes.map((code) => `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`).join("") : "<p>No codes available.</p>";
+    const codes = [...catalog.codes].sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
+    $("#local-codes").innerHTML = codes.length ? codes.map((code) => `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.recommended ? " · Recommended" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`).join("") : "<p>No codes available.</p>";
   }
 
   function handleDeveloperCodeAction(event) {
@@ -432,6 +603,7 @@
     form.elements.title.value = code.title || "";
     form.elements.category.value = code.category || "Utilities";
     form.elements.difficulty.value = code.difficulty || "Unrated";
+    form.elements.recommended.checked = Boolean(code.recommended);
     form.elements.summary.value = code.summary || "";
     form.elements.code.value = code.variants?.default?.template?.join("\n") || "";
     form.elements.requirements.value = (code.requirements || []).join("\n");
@@ -440,7 +612,7 @@
     form.elements.sourceUrl.value = code.source?.url || "";
     form.elements.video.value = code.video || "";
     form.elements.troubleshooting.value = (code.troubleshooting || []).join("\n");
-    form.querySelectorAll('input[type="checkbox"][name]').forEach((input) => {
+    form.querySelectorAll('input[type="checkbox"][name="games"], input[type="checkbox"][name="languages"], input[type="checkbox"][name="platforms"]').forEach((input) => {
       input.checked = (code[input.name] || []).includes(input.value);
     });
     $("#same-emulator-code").checked = false;
@@ -480,6 +652,149 @@
     $("#developer-status").textContent = `Deleted “${code.title}”. Export the project file to make this deletion permanent.`;
   }
 
+  function saveDeveloperGuide(event) {
+    event.preventDefault();
+    const data = new FormData(event.currentTarget);
+    const title = safeText(data.get("title"));
+    const existing = editingGuideId ? catalog.guides.find((guide) => guide.id === editingGuideId) : null;
+    const isInteractive = !$("#interactive-guide-editor").hidden;
+    if (isInteractive) syncInteractivePhaseFromFields();
+    const guide = {
+      id: editingGuideId || `guide-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
+      title, category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
+      summary: safeText(data.get("summary")), introduction: safeText(data.get("introduction")),
+      video: safeText(data.get("video")), locallyAdded: true,
+    };
+    if (isInteractive) {
+      guide.type = "interactive-setup";
+      guide.phases = interactivePhaseDrafts;
+      guide.sourceNote = existing?.sourceNote || "Edited in the ACE Archive Developer editor.";
+    } else guide.body = String(data.get("body") || "").trim();
+    const localIndex = localGuides.findIndex((entry) => entry.id === guide.id);
+    if (localIndex >= 0) localGuides[localIndex] = guide; else localGuides.push(guide);
+    mergeGuide(guide); localStorage.setItem(LOCAL_GUIDES_KEY, JSON.stringify(localGuides));
+    const action = existing ? "Updated" : "Saved";
+    resetGuideDeveloperForm(); renderGuides(); renderDeveloperGuides();
+    $("#guide-developer-status").textContent = `${action} “${title}”.`;
+  }
+
+  function renderDeveloperGuides() {
+    const guides = [...catalog.guides].sort(compareTitles);
+    $("#developer-guides").innerHTML = guides.map((guide) => `<div><span><strong>${escapeHtml(guide.title)}</strong><small>${escapeHtml(guide.category)} · ${escapeHtml(guide.difficulty)}${guide.type === "interactive-setup" ? " · Interactive" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-guide="${guide.id}">Edit</button></span></div>`).join("");
+  }
+
+  function handleDeveloperGuideAction(event) {
+    const id = event.target.dataset.editGuide; if (!id) return;
+    const guide = catalog.guides.find((entry) => entry.id === id); if (!guide) return;
+    const form = $("#guide-developer-form"); editingGuideId = id;
+    ["title", "category", "difficulty", "summary", "introduction", "video"].forEach((name) => { form.elements[name].value = guide[name] || ""; });
+    const isInteractive = guide.type === "interactive-setup";
+    $("#interactive-guide-editor").hidden = !isInteractive;
+    $("#normal-guide-body-field").hidden = isInteractive;
+    form.elements.body.required = !isInteractive;
+    if (isInteractive) {
+      interactivePhaseDrafts = JSON.parse(JSON.stringify(guide.phases || [])); activeInteractivePhase = 0; renderInteractivePhaseTabs();
+    } else form.elements.body.value = guide.body || (guide.sections || []).map((section) => `## ${section.title}\n\n${section.text}`).join("\n\n");
+    $("#save-guide-button").textContent = "Update guide"; $("#cancel-guide-edit").hidden = false; $("#delete-guide-edit").hidden = false;
+    $("#guide-developer-status").textContent = `Editing “${guide.title}”.`; form.scrollIntoView({ behavior: "smooth", block: "start" });
+  }
+
+  function resetGuideDeveloperForm() {
+    $("#guide-developer-form").reset(); editingGuideId = ""; $("#save-guide-button").textContent = "Save guide";
+    $("#cancel-guide-edit").hidden = true; $("#delete-guide-edit").hidden = true;
+    $("#interactive-guide-editor").hidden = true; $("#normal-guide-body-field").hidden = false; $("#guide-developer-form").elements.body.required = true;
+    interactivePhaseDrafts = []; activeInteractivePhase = 0;
+  }
+
+  function phaseToEditorText(phase) {
+    return (phase.sections || []).map((section) => {
+      const lines = [`## ${section.title}`, ""];
+      (section.paragraphs || []).forEach((paragraph) => lines.push(paragraph, ""));
+      (section.bullets || []).forEach((item) => lines.push(`- ${item}`));
+      if (section.bullets?.length) lines.push("");
+      if (section.note) lines.push(`> Note: ${section.note}`, "");
+      if (section.warning) lines.push(`> Important: ${section.warning}`, "");
+      return lines.join("\n").trim();
+    }).join("\n\n");
+  }
+
+  function editorTextToSections(value) {
+    const sections = []; let section = null, paragraph = [];
+    const ensureSection = () => { if (!section) { section = { title: "Instructions", paragraphs: [] }; sections.push(section); } return section; };
+    const flushParagraph = () => { if (paragraph.length) { ensureSection().paragraphs ||= []; ensureSection().paragraphs.push(paragraph.join(" ")); paragraph = []; } };
+    String(value || "").split(/\r?\n/).forEach((line) => {
+      const text = line.trim();
+      if (text.startsWith("## ")) { flushParagraph(); section = { title: text.slice(3), paragraphs: [] }; sections.push(section); }
+      else if (/^-\s*/.test(text)) { flushParagraph(); ensureSection().bullets ||= []; section.bullets.push(text.replace(/^-\s*/, "")); }
+      else if (/^>\s*Note:/i.test(text)) { flushParagraph(); ensureSection().note = text.replace(/^>\s*Note:\s*/i, ""); }
+      else if (/^>\s*Important:/i.test(text)) { flushParagraph(); ensureSection().warning = text.replace(/^>\s*Important:\s*/i, ""); }
+      else if (!text) flushParagraph();
+      else paragraph.push(text);
+    });
+    flushParagraph();
+    return sections.filter((item) => item.title || item.paragraphs?.length || item.bullets?.length);
+  }
+
+  function syncInteractivePhaseFromFields() {
+    const phase = interactivePhaseDrafts[activeInteractivePhase]; if (!phase) return;
+    phase.title = $("#phase-title").value.trim(); phase.shortTitle = $("#phase-short-title").value.trim();
+    phase.objective = $("#phase-objective").value.trim(); phase.sections = editorTextToSections($("#phase-body").value);
+    phase.image = $("#phase-image").value.trim(); phase.checks = lines($("#phase-checks").value);
+  }
+
+  function renderInteractivePhaseTabs() {
+    $("#interactive-phase-tabs").innerHTML = interactivePhaseDrafts.map((phase, index) => `<button type="button" class="${index === activeInteractivePhase ? "active" : ""}" data-edit-phase="${index}"><span>${index + 1}</span>${escapeHtml(phase.shortTitle || phase.title || "New phase")}</button>`).join("");
+    const phase = interactivePhaseDrafts[activeInteractivePhase];
+    if (!phase) return;
+    $("#phase-title").value = phase.title || ""; $("#phase-short-title").value = phase.shortTitle || ""; $("#phase-objective").value = phase.objective || "";
+    $("#phase-body").value = phaseToEditorText(phase); $("#phase-image").value = phase.image || ""; $("#phase-checks").value = (phase.checks || []).join("\n");
+  }
+
+  function selectInteractivePhase(event) {
+    const button = event.target.closest("[data-edit-phase]"); if (!button) return;
+    syncInteractivePhaseFromFields(); activeInteractivePhase = Number(button.dataset.editPhase); renderInteractivePhaseTabs();
+  }
+
+  function addInteractivePhase() {
+    syncInteractivePhaseFromFields(); interactivePhaseDrafts.push({ title: "New phase", shortTitle: "New phase", objective: "", sections: [], image: "", checks: [] });
+    activeInteractivePhase = interactivePhaseDrafts.length - 1; renderInteractivePhaseTabs();
+  }
+
+  function deleteInteractivePhase() {
+    if (interactivePhaseDrafts.length <= 1 || !window.confirm("Delete this phase?")) return;
+    interactivePhaseDrafts.splice(activeInteractivePhase, 1); activeInteractivePhase = Math.max(0, activeInteractivePhase - 1); renderInteractivePhaseTabs();
+  }
+
+  function deleteEditingGuide() {
+    const guide = catalog.guides.find((entry) => entry.id === editingGuideId);
+    if (!guide || !window.confirm(`Delete “${guide.title}”?`)) return;
+    localGuides = localGuides.filter((entry) => entry.id !== guide.id);
+    localGuides.push({ id: guide.id, deleted: true, locallyAdded: true });
+    mergeGuide({ id: guide.id, deleted: true }); localStorage.setItem(LOCAL_GUIDES_KEY, JSON.stringify(localGuides));
+    resetGuideDeveloperForm(); renderGuides(); renderDeveloperGuides(); $("#guide-developer-status").textContent = `Deleted “${guide.title}”.`;
+  }
+
+  function loadPageDeveloperForm() {
+    const form = $("#page-developer-form"), page = pageContent[form.elements.page.value];
+    form.elements.title.value = page.title || ""; form.elements.introduction.value = page.introduction || ""; form.elements.body.value = page.body || "";
+    const isFaq = form.elements.page.value === "faq";
+    form.elements.body.placeholder = isFaq ? "## What is the question?\n\nWrite the answer here.\n\n## Another question?\n\nWrite the next answer here." : "## Section heading\n\nWrite a paragraph here.\n\n- First list item\n- Second list item";
+    $("#page-format-help").textContent = isFaq ? "Start every question with ##, then write its answer below. Each question becomes an expandable pill." : "Use ## for headings, - for lists, and blank lines between paragraphs.";
+  }
+
+  function saveDeveloperPage(event) {
+    event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); const id = data.get("page");
+    const page = { title: safeText(data.get("title")), introduction: safeText(data.get("introduction")), body: String(data.get("body") || "").trim() };
+    pageContent[id] = page; localPages[id] = page; localStorage.setItem(LOCAL_PAGES_KEY, JSON.stringify(localPages)); renderPages();
+    $("#page-developer-status").textContent = `Saved ${id === "faq" ? "FAQ" : "ACE troubleshooting"} page text.`;
+  }
+
+  function mergeExportCollection(projectItems, localItems) {
+    const result = [...projectItems];
+    localItems.forEach((item) => { const clean = { ...item }; delete clean.locallyAdded; const index = result.findIndex((entry) => entry.id === clean.id); if (index >= 0) result[index] = clean; else result.push(clean); });
+    return result;
+  }
+
   function exportLocalCodes() {
     const permanentCodes = [...projectCodes];
     localCodes.forEach((code) => {
@@ -489,7 +804,9 @@
       if (existingIndex >= 0) permanentCodes[existingIndex] = cleanCode;
       else permanentCodes.push(cleanCode);
     });
-    const contents = `/* Generated by the ACE Archive Developer editor. */\nwindow.ACE_CUSTOM_CODES = ${JSON.stringify(permanentCodes, null, 2)};\n`;
+    const permanentGuides = mergeExportCollection(projectGuides, localGuides);
+    const permanentPages = { ...projectPages, ...localPages };
+    const contents = `/* Generated by the ACE Archive Developer editor. */\nwindow.ACE_CUSTOM_CONTENT = ${JSON.stringify({ codes: permanentCodes, guides: permanentGuides, pages: permanentPages }, null, 2)};\n`;
     const blob = new Blob([contents], { type: "text/javascript" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob); link.download = "custom-codes.js"; link.click();
@@ -502,15 +819,20 @@
     if (!file) return;
     try {
       const raw = await file.text();
-      const jsonText = raw.includes("window.ACE_CUSTOM_CODES") ? raw.slice(raw.indexOf("=") + 1, raw.lastIndexOf(";")) : raw;
+      const isProjectFile = raw.includes("window.ACE_CUSTOM_CONTENT") || raw.includes("window.ACE_CUSTOM_CODES");
+      const jsonText = isProjectFile ? raw.slice(raw.indexOf("=") + 1, raw.lastIndexOf(";")) : raw;
       const imported = JSON.parse(jsonText);
-      if (!Array.isArray(imported)) throw new Error("Expected an array");
-      localCodes = imported.map((code) => ({ ...code, locallyAdded: true }));
+      const importedContent = Array.isArray(imported) ? { codes: imported, guides: [], pages: {} } : imported;
+      if (!Array.isArray(importedContent.codes)) throw new Error("Expected content data");
+      localCodes = importedContent.codes.map((code) => ({ ...code, locallyAdded: true }));
+      localGuides = (importedContent.guides || []).map((guide) => ({ ...guide, locallyAdded: true }));
+      localPages = importedContent.pages || {};
       catalog.codes.splice(0, catalog.codes.length, ...catalog.codes.filter((code) => !code.locallyAdded));
       localCodes.forEach(mergeCode);
-      localStorage.setItem(LOCAL_CODES_KEY, JSON.stringify(localCodes));
-      renderLocalCodes(); renderLibrary();
-      $("#developer-status").textContent = `Imported ${localCodes.length} local code${localCodes.length === 1 ? "" : "s"}.`;
+      localGuides.forEach(mergeGuide); Object.assign(pageContent, localPages);
+      localStorage.setItem(LOCAL_CODES_KEY, JSON.stringify(localCodes)); localStorage.setItem(LOCAL_GUIDES_KEY, JSON.stringify(localGuides)); localStorage.setItem(LOCAL_PAGES_KEY, JSON.stringify(localPages));
+      renderLocalCodes(); renderLibrary(); renderGuides(); renderDeveloperGuides(); renderPages(); loadPageDeveloperForm();
+      $("#developer-status").textContent = `Imported ${localCodes.length} code${localCodes.length === 1 ? "" : "s"}, ${localGuides.length} guide${localGuides.length === 1 ? "" : "s"}, and page text.`;
     } catch { $("#developer-status").textContent = "That file is not a valid exported code list."; }
     event.target.value = "";
   }
@@ -562,7 +884,7 @@
   elements.guideDialog.addEventListener("click", (event) => { if (event.target === elements.guideDialog) elements.guideDialog.close(); });
   document.addEventListener("keydown", (event) => { if (event.key === "/" && document.activeElement.tagName !== "INPUT") { event.preventDefault(); elements.search.focus(); } });
 
-  initSetup(); initDeveloperMode(); renderLibrary(); renderGuides();
+  initSetup(); initDeveloperMode(); renderLibrary(); renderGuides(); renderPages();
   const sharedCodeId = window.location.hash.startsWith("#code=") ? decodeURIComponent(window.location.hash.slice(6)) : "";
   if (sharedCodeId && catalog.codes.some((code) => code.id === sharedCodeId && !code.deleted)) openCode(sharedCodeId);
   $("#library-version").textContent = catalog.version;

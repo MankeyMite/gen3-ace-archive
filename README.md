@@ -29,16 +29,19 @@ showDeveloperMode: 0,
 ```
 
 before publishing to hide the button and editor. No special URL or local server is
-required. When enabled, the Developer tab contains a form for adding compatibility,
-requirements, source code, YouTube tutorials, troubleshooting, and language/platform
-overrides. Saved entries appear in the ACE codes library immediately.
+required. When enabled, the Developer tab contains editors for codes, ACE guides, and
+the Troubleshooting/FAQ page text. Saved content appears on the site immediately.
+
+Guide and page-body fields support lightweight formatting: begin a line with `## ` for
+a section heading, `### ` for a smaller heading, or `- ` for a list item. Separate
+paragraphs with a blank line.
 
 Because a static browser page cannot write directly into project files, new entries
 are initially stored in that browser's `localStorage`. Click **Export project file**
 to download a ready-made `custom-codes.js`, then replace `data/custom-codes.js` in the
-project with that downloaded file. The site loads it automatically, making those codes
-part of the project and every deployment. The export merges existing permanent codes
-with newly added local codes.
+project with that downloaded file. The site loads it automatically, making codes,
+guides, and page text part of the project and every deployment. The export merges
+existing permanent content with newly added local content.
 
 You may also edit `data/custom-codes.js` manually. Keep the surrounding assignment and
 paste a valid exported JSON array after the equals sign:
@@ -64,6 +67,7 @@ All editable library content is in `data/catalog.js`:
 - `games`, `languages`, and `platforms` define the setup choices.
 - `choices.species` and `choices.items` power searchable human-readable selectors.
 - `codes` contains the library entries.
+- `data/guides.js` contains structured built-in interactive guides that need richer step-by-step behavior.
 - `variants` selects a payload based on `language|platform`.
 - `parameters` describes inputs; the interface builds the generator automatically.
 

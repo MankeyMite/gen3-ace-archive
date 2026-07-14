@@ -97,24 +97,25 @@
         <div class="guide-list" id="guide-list"></div>
       </section>
       <section class="tab-panel info-panel" data-panel="troubleshooting">
-        <p class="step-label">TROUBLESHOOTING</p><h1>Find out why a code did not run.</h1>
-        <p>General diagnostic guides will live here. Each individual code also has its own quick checklist.</p>
+        <div id="troubleshooting-content"></div>
       </section>
       <section class="tab-panel info-panel" data-panel="faq">
-        <p class="step-label">FAQ</p><h1>Frequently asked questions</h1>
-        <p>Common questions about compatibility, terminology, safety, and this archive will appear here.</p>
+        <div id="faq-content"></div>
       </section>
       <section class="tab-panel developer-panel" data-panel="developer">
         <div class="developer-heading">
-          <div><p class="step-label">LOCAL DEVELOPER MODE</p><h1>Code editor</h1><p>Entries are saved in this browser and appear in the library immediately.</p></div>
+          <div><p class="step-label">LOCAL DEVELOPER MODE</p><h1>Content editor</h1><p>Codes, guides, and page text are saved in this browser and included in the project export.</p></div>
           <div class="developer-actions"><button type="button" id="export-codes">Export project file</button><label>Import JSON<input type="file" id="import-codes" accept="application/json,.js" /></label></div>
         </div>
+        <nav class="developer-content-tabs" aria-label="Developer content type"><button type="button" class="active" data-dev-tab="codes">Codes</button><button type="button" data-dev-tab="guides">Guides</button><button type="button" data-dev-tab="pages">Troubleshooting & FAQ</button></nav>
+        <div class="developer-content-panel active" data-dev-panel="codes">
         <form id="developer-form" class="developer-form">
           <div class="developer-grid">
             <label><span>Code title *</span><input name="title" required /></label>
             <label><span>Category *</span><input name="category" value="Utilities" required /></label>
             <label><span>Difficulty *</span><select name="difficulty" required><option>Beginner</option><option>Intermediate</option><option>Advanced</option><option>Unrated</option></select></label>
-            <label class="wide"><span>Short description *</span><textarea name="summary" rows="2" required></textarea></label>
+            <label class="recommended-option"><input type="checkbox" name="recommended" /><span>Recommended — show this code above other matching results</span></label>
+            <label class="wide"><span>Short description *</span><textarea name="summary" rows="9" class="large-description-editor" required></textarea></label>
           </div>
           <div class="developer-columns">
             <fieldset><legend>Games *</legend><div id="dev-games" class="check-grid"></div></fieldset>
@@ -123,7 +124,7 @@
           </div>
           <label class="shared-platform-option"><input type="checkbox" id="same-emulator-code" /><span>Console / accurate emulator and old emulator use the same code</span></label>
           <div class="code-variation-workspace">
-            <label class="base-code-field"><span>Default box names / generated code * — one line per box</span><textarea name="code" rows="10" required placeholder="Box 1: ...&#10;Box 2: ..."></textarea></label>
+            <label class="base-code-field"><span id="default-code-label">Default console / accurate-emulator code * — one line per box</span><textarea name="code" rows="10" required placeholder="Box 1: ...&#10;Box 2: ..."></textarea><small class="format-help" id="default-code-help">This is the baseline code. Only fill variation tabs when their box names differ.</small></label>
             <section class="combination-editor">
               <div class="combination-heading"><span>Game, language and platform variations</span><small>Leave blank to use the default code. Filled tabs are marked.</small></div>
               <div class="combination-tabs" id="combination-tabs"></div>
@@ -141,6 +142,46 @@
           <div class="developer-submit"><button type="submit" id="save-code-button">Save code to local library</button><button type="button" id="cancel-code-edit" hidden>Cancel editing</button><button type="button" id="delete-code-edit" hidden>Delete code</button><p id="developer-status" role="status"></p></div>
         </form>
         <section class="local-code-list"><h2>Current codes</h2><div id="local-codes"></div></section>
+        </div>
+        <div class="developer-content-panel" data-dev-panel="guides">
+          <form id="guide-developer-form" class="developer-form">
+            <div class="developer-grid">
+              <label><span>Guide title *</span><input name="title" required /></label>
+              <label><span>Category *</span><input name="category" value="Preparation" required /></label>
+              <label><span>Difficulty *</span><select name="difficulty" required><option>Beginner</option><option>Intermediate</option><option>Advanced</option></select></label>
+              <label class="wide"><span>Short description *</span><textarea name="summary" rows="2" required></textarea></label>
+              <label class="wide"><span>Introduction</span><textarea name="introduction" rows="3"></textarea></label>
+              <label class="wide" id="normal-guide-body-field"><span>Guide content *</span><textarea name="body" rows="14" required placeholder="## First heading&#10;&#10;Write a paragraph here.&#10;&#10;- First list item&#10;- Second list item"></textarea><small class="format-help">Use ## for headings, - for lists, and blank lines between paragraphs.</small></label>
+              <label class="wide"><span>YouTube URL or video ID</span><input name="video" /></label>
+            </div>
+            <section class="interactive-guide-editor" id="interactive-guide-editor" hidden>
+              <div class="interactive-editor-heading"><div><h2>Interactive phases</h2><p>Edit one phase at a time. Changes are kept when switching tabs.</p></div><button type="button" id="add-guide-phase">+ Add phase</button></div>
+              <div class="interactive-phase-tabs" id="interactive-phase-tabs"></div>
+              <div class="developer-grid interactive-phase-fields">
+                <label><span>Phase title *</span><input id="phase-title" /></label>
+                <label><span>Short sidebar title *</span><input id="phase-short-title" /></label>
+                <label class="wide"><span>Phase objective *</span><textarea id="phase-objective" rows="3"></textarea></label>
+                <label class="wide"><span>Phase content *</span><textarea id="phase-body" rows="18"></textarea><small class="format-help">Use ## for section headings, - for bullets, &gt; Note: for green notes, and &gt; Important: for warnings.</small></label>
+                <label class="wide"><span>Image placeholder description</span><input id="phase-image" /></label>
+                <label class="wide"><span>Completion checklist — one per line</span><textarea id="phase-checks" rows="6"></textarea></label>
+              </div>
+              <button type="button" class="delete-phase-button" id="delete-guide-phase">Delete this phase</button>
+            </section>
+            <div class="developer-submit"><button type="submit" id="save-guide-button">Save guide</button><button type="button" id="cancel-guide-edit" hidden>Cancel editing</button><button type="button" id="delete-guide-edit" hidden>Delete guide</button><p id="guide-developer-status" role="status"></p></div>
+          </form>
+          <section class="local-code-list"><h2>Current guides</h2><div id="developer-guides"></div></section>
+        </div>
+        <div class="developer-content-panel" data-dev-panel="pages">
+          <form id="page-developer-form" class="developer-form">
+            <div class="developer-grid">
+              <label><span>Page *</span><select name="page"><option value="troubleshooting">ACE troubleshooting</option><option value="faq">FAQ</option></select></label>
+              <label><span>Page title *</span><input name="title" required /></label>
+              <label class="wide"><span>Introduction</span><textarea name="introduction" rows="3"></textarea></label>
+              <label class="wide"><span>Page content</span><textarea name="body" rows="16" placeholder="## Section heading&#10;&#10;Write a paragraph here.&#10;&#10;- First list item&#10;- Second list item"></textarea><small class="format-help" id="page-format-help">Use ## for headings, - for lists, and blank lines between paragraphs.</small></label>
+            </div>
+            <div class="developer-submit"><button type="submit">Save page text</button><p id="page-developer-status" role="status"></p></div>
+          </form>
+        </div>
       </section>
 
     </main>
@@ -161,6 +202,7 @@
 
     <script src="developer-config.js"></script>
     <script src="data/catalog.js"></script>
+    <script src="data/guides.js"></script>
     <script src="data/custom-codes.js"></script>
     <script src="app.js"></script>
   </body>

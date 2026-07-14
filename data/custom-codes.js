@@ -1172,13 +1172,7 @@ window.ACE_CUSTOM_CONTENT = {
   "guides": [
     {
       "id": "guide-test-1783856738271",
-      "title": "test",
-      "category": "Preparation",
-      "difficulty": "Beginner",
-      "summary": "this is a test.",
-      "introduction": "testing the introduction",
-      "body": "how to do it\n\nyou start like this.. then this..",
-      "video": ""
+      "deleted": true
     },
     {
       "id": "emerald-ace-setup",
@@ -1287,7 +1281,7 @@ window.ACE_CUSTOM_CONTENT = {
                 "English, French, Italian, German, and Spanish: exactly 17 HP EVs and 6 Attack EVs.",
                 "Japanese: exactly 95 HP EVs and 8 Attack EVs. The resulting Japanese species is 0x085F."
               ],
-              "note": "EVs are not the visible stat numbers. There is no easy way to inspect the exact EV total, so count every defeated Pokémon carefully and ensure DOTS does not have the Pokérus infection while training. (small smiley-face below the sprite in the summary)."
+              "note": "EVs are not the visible stat numbers. There is no easy way to inspect the exact EV total, so count every defeated Pokémon carefully and ensure DOTS does not have the Pokérus infection while training (it would say PKRS in its summary as the status under the sprite)."
             },
             {
               "title": "Non-Japanese training: 6 Attack and 17 HP EVs",
@@ -1477,6 +1471,16 @@ window.ACE_CUSTOM_CONTENT = {
         }
       ],
       "sourceNote": "Adapted from the Ultimate ACE Setup guide for Emerald. The experimental curtain/pixel section is intentionally omitted."
+    },
+    {
+      "id": "clear-ghost-data",
+      "title": "How to clear ghost data",
+      "category": "Preparation",
+      "difficulty": "Beginner",
+      "summary": "\"Ghost data\" is invisible leftover data from a Pokémon that can appear after migrating Pokémon to gen 4 through Pal Park, or from glitches such as the Glitzer popping in Pokémon Emerald that unlocks ACE. \n- For Ruby, Sapphire or Emerald, you should clear invisible leftover data from last row of box 11 until box 14 last row, as that is the execution zone.\n- In Fire Red / Leaf Green, the execution zone is from the second row of box 13, until last row of box 14. \nAce codes read the content of these boxes, so any random Pokémon or leftover data may interupt the code and cause a freeze or crash.",
+      "introduction": "",
+      "video": "",
+      "body": "-Find a box full of Pokemon, or the fullest box you have.\n-Press \"select\" to go into multi-select option.\n-press and hold A on the corner of your box, and drag across to the other corner. Let go of A to pick up all selected Pokemon.\n-Drop them inside all of the slots inside box (11, 12, 13 and 14 - Emerald) or (13 + 14 - FR/LG). Make sure to move out Pokemon from here first.\n-Put your Pokemon back to where you had them, making sure boxes 11-14 are empty.\n\n-Now save and try the ace code again."
     }
   ],
   "pages": {
@@ -1488,7 +1492,7 @@ window.ACE_CUSTOM_CONTENT = {
     "faq": {
       "title": "Frequently asked questions",
       "introduction": "Common questions about compatibility, terminology, safety, and this archive will appear here.",
-      "body": "## Is crashing bad for my game?\nNo, a crash is safe, and a built in feature to protect the game from unintented behavior.\n\n## Is a Bad Egg bad for my save file or game?\nA Bad Egg is a Pokémon where the internal checksum does not match its data. The game flags that individual Pokémon as a Bad Egg. It does not corrupt the save file, and is considered harmless. However, it is adviced to reset the game or remove the bad egg if you have used a code where the bad egg was not intentional. Keep in mind that for FireRed and LeafGreen with the current ACE execution setup, a bad egg after executing an ACE code is a common side effect, and is completely harmless."
+      "body": "## Can I run ACE codes if my battery has run dry?\nYes! It won’t interfere with the codes, but if you ever spawn the mirage island with ACE it will stay for 65535 days instead of 24 hours, unless you use a code to remove it.\n\n\n## Is my device considered a console/new emulator, or an old emulator?\n- Consoles are the Nintendo handheld consoles such as the GBA and Nintendo DS.\n- New emulators are emulators that are considered accurate, such as the mGBA emulator, if the version is > 0.9.\n- Old emulators are the majority of mobile and PC emulators, like VBA, Delta, and MyBoy!. Analouge Pocket and other handhelds also use the old emulator setting for Ace codes.\n\n## Which devices/emulators are not compatible with gen 3 ACE?\n-DSi running through Twilight Menu with GBARunner2/3 (best option is GBARunner 3, but still might not work).\n-SkyEmu \n-gpSP: the egg method in Emerald doesn't work, you need to double-corrupt a stable ACE species, preferably 0x4167. EV train Dots like this: 65 Attack EVs, 103 HP EVs, and make sure it knows Flash for english or german versions. for italian: Nature power, spanish: hidden power, french: no fourth move. japanese: rock smash. \nonce you get a good egg with that (with the pomeg berry corruption part - either net ball OR premier ball in this case), you have to make clones of that egg and PLUSES again and do the corruption with that DOTS egg instead of the DOTS Seedot.\n-Pizza Boy GBA Pro - works for some codes like a few of E-sh4rk's codes, but struggle with recursive exit codes and Mettrich's codes\n-MyBoy if you provided a BIOS gba file. MyBoy should be run without BIOS if attempting ACE codes, but will make some codes that require BIOS unavailable.\n-Probably a few more!\n\n## The guy inside Mauville Pokémon center has a different hair color. Will this affect the code?\nThis is a strange, but cool little feature gamefreak included. His hair color changes based on your Trainer ID, and has no effect on the codes.\n\n## My DOTS egg hatched into a different color question mark. Does that mean I did something wrong?\nNo, the question mark that comes out of the Dots egg can have multiple colors, actually! Seems to be RNG for some codes.\n\n\n## Is crashing bad for my game?\nNo, a crash is safe, and a built in feature to protect the game from unintented behavior.\n\n## Is a Bad Egg bad for my save file or game?\nA Bad Egg is a Pokémon where the internal checksum does not match its data. The game flags that individual Pokémon as a Bad Egg. It does not corrupt the save file, and is considered harmless. However, it is adviced to reset the game or remove the bad egg if you have used a code where the bad egg was not intentional. Keep in mind that for FireRed and LeafGreen with the current ACE execution setup, a bad egg after executing an ACE code is a common side effect, and is completely harmless."
     }
   }
 };

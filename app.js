@@ -882,7 +882,14 @@
   $("#guide-list").addEventListener("click", (event) => { const id = event.target.closest("[data-guide-id]")?.dataset.guideId; if (id) openGuide(id); });
   $("#guide-list").addEventListener("keydown", (event) => { if (event.key === "Enter") openGuide(event.target.closest("[data-guide-id]")?.dataset.guideId); });
   elements.guideDialog.addEventListener("click", (event) => { if (event.target === elements.guideDialog) elements.guideDialog.close(); });
-  document.addEventListener("keydown", (event) => { if (event.key === "/" && document.activeElement.tagName !== "INPUT") { event.preventDefault(); elements.search.focus(); } });
+  document.addEventListener("keydown", (event) => {
+    const activeElement = document.activeElement;
+    const isEditingText = ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement?.tagName) || activeElement?.isContentEditable;
+    if (event.key === "/" && !isEditingText) {
+      event.preventDefault();
+      elements.search.focus();
+    }
+  });
 
   initSetup(); initDeveloperMode(); renderLibrary(); renderGuides(); renderPages();
   const sharedCodeId = window.location.hash.startsWith("#code=") ? decodeURIComponent(window.location.hash.slice(6)) : "";

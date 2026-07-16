@@ -81,9 +81,14 @@
     dialogContent: $("#dialog-content"), empty: $("#empty-state"), toast: $("#toast"),
     guideDialog: $("#guide-dialog"), guideDialogContent: $("#guide-dialog-content"),
   };
+  const SHARE_ICON = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.65.05l2.2-2.2a4 4 0 0 0-5.66-5.66l-1.26 1.26m1.87 3.75a4 4 0 0 0-5.65-.05l-2.2 2.2a4 4 0 0 0 5.66 5.66l1.25-1.25" /></svg>';
 
   function nameFor(collection, id) {
     return catalog[collection].find((entry) => entry.id === id)?.name || id;
+  }
+
+  function codeCountLabel(count) {
+    return `${count} code${count === 1 ? "" : "s"}`;
   }
 
   function loadLocalCollection(key, fallback) {
@@ -163,23 +168,148 @@
     elements.status.innerHTML = `<span>●</span> Showing entries verified for <strong>${game} · ${language} · ${platform}</strong>`;
     elements.count.textContent = codes.length;
     elements.empty.hidden = codes.length > 0;
-    elements.grid.innerHTML = codes.map((code) => `
+    elements.grid.innerHTML = codes.map((code) => {
+      const count = codeBlockCount(code);
+      const countTag = count > 1 ? `<span class="code-count-tag">${codeCountLabel(count)}</span>` : "";
+      return `
       <article class="code-card" data-id="${code.id}" tabindex="0">
         <div class="code-card-tags"><span class="category-tag">${code.category}</span>${code.recommended ? '<span class="recommended-tag">Recommended</span>' : ""}</div>
         <div class="code-list-copy"><h3>${code.title}</h3><p>${code.summary}</p></div>
-        <div class="card-meta"><span class="difficulty ${code.difficulty.toLowerCase()}">${code.difficulty}</span></div>
-      </article>`).join("");
+        <div class="card-meta"><span class="difficulty ${code.difficulty.toLowerCase()}">${code.difficulty}</span>${countTag}</div>
+      </article>`;
+    }).join("");
   }
 
   function getVariant(code) {
-    return code.variants[`${state.game}|${state.language}|${state.platform}`]
-      || code.variants[`${state.game}|${state.language}|*`]
-      || code.variants[`${state.game}|*|${state.platform}`]
-      || code.variants[`*|${state.language}|${state.platform}`]
-      || code.variants[`${state.language}|${state.platform}`]
-      || code.variants[`*|${state.platform}`]
-      || code.variants[`${state.language}|*`]
-      || code.variants.default;
+    const variants = code.variants || {};
+    return variants[`${state.game}|${state.language}|${state.platform}`]
+      || variants[`${state.game}|${state.language}|*`]
+      || variants[`${state.game}|*|${state.platform}`]
+      || variants[`*|${state.language}|${state.platform}`]
+      || variants[`${state.language}|${state.platform}`]
+      || variants[`*|${state.platform}`]
+      || variants[`${state.language}|*`]
+      || variants.default
+      || { template: [] };
+  }
+
+  function cleanCodeTemplate(template) {
+    return Array.isArray(template) ? template.map((line) => String(line).trim()).filter(Boolean) : [];
+  }
+
+  function isBoxCodeLine(line) {
+    return /^box\s*(?:1[0-4]|[1-9])\s*:/i.test(String(line || "").trim());
+  }
+
+  function cleanGuideText(value) {
+    return String(value || "").split(/\r?\n/).map((line) => line.trim()).join("\n").replace(/^\s+|\s+$/g, "");
+  }
+
+  function codeNoteFromLine(line) {
+    const match = String(line || "").trim().match(/^code\s+note\s*:(.*)$/i);
+    return match ? cleanGuideText(match[1]) : null;
+  }
+
+  function variantCodeBlocks(variant) {
+    const blocks = Array.isArray(variant?.codes)
+      ? variant.codes.map((block, index) => {
+        const hasCodeNote = Object.prototype.hasOwnProperty.call(block || {}, "codeNote");
+        return {
+          title: safeText(block?.title) || `Code ${index + 1}`,
+          note: cleanGuideText(block?.note || block?.description || ""),
+          codeNote: hasCodeNote ? cleanGuideText(block.codeNote) : null,
+          template: cleanCodeTemplate(block?.template),
+        };
+      }).filter((block) => block.template.length)
+      : [];
+    if (blocks.length) return blocks;
+    const template = cleanCodeTemplate(variant?.template);
+    return template.length ? [{ title: "Code 1", note: "", codeNote: null, template }] : [];
+  }
+
+  function codeBlockCount(code) {
+    return variantCodeBlocks(getVariant(code)).length;
+  }
+
+  function variantGuideAfter(variant) {
+    return cleanGuideText(variant?.guideAfter || variant?.after || "");
+  }
+
+  function parseCodeDraft(value) {
+    const blocks = [];
+    let noteBuffer = [];
+    let codeBuffer = [];
+    let codeNote = null;
+    let codeBoundaryPending = false;
+    let after = "";
+    const noteText = () => cleanGuideText(noteBuffer.join("\n"));
+    const pushBlock = () => {
+      const template = lines(codeBuffer.join("\n"));
+      if (template.length) {
+        const block = { title: `Code ${blocks.length + 1}`, note: noteText(), template };
+        if (codeNote !== null) block.codeNote = codeNote;
+        blocks.push(block);
+      }
+      noteBuffer = [];
+      codeBuffer = [];
+      codeNote = null;
+      codeBoundaryPending = false;
+    };
+    String(value || "").split(/\r?\n/).forEach((line) => {
+      const trimmed = line.trim();
+      const parsedCodeNote = codeBuffer.length ? codeNoteFromLine(line) : null;
+      if (/^-{3,}$/.test(trimmed)) {
+        pushBlock();
+      } else if (parsedCodeNote !== null) {
+        codeNote = parsedCodeNote;
+        codeBoundaryPending = true;
+      } else if (isBoxCodeLine(line)) {
+        if (codeBuffer.length && codeBoundaryPending) pushBlock();
+        codeBuffer.push(trimmed);
+        codeBoundaryPending = false;
+      } else if (!trimmed && codeBuffer.length) {
+        codeBoundaryPending = true;
+      } else {
+        if (codeBuffer.length) pushBlock();
+        if (trimmed || noteBuffer.length) noteBuffer.push(line);
+      }
+    });
+    if (codeBuffer.length) pushBlock();
+    else after = noteText();
+    return { blocks, after };
+  }
+
+  function parseCodeBlocks(value) {
+    return parseCodeDraft(value).blocks;
+  }
+
+  function formatCodeDraft(blocks, after = "") {
+    const parts = blocks.map((block) => {
+      const codeParts = [block.note, block.template.join("\n")].filter(Boolean);
+      if (block.codeNote !== null && block.codeNote !== undefined) codeParts.push(`Code note:${block.codeNote ? ` ${block.codeNote}` : ""}`);
+      return codeParts.join("\n");
+    });
+    if (after) parts.push(after);
+    return parts.join("\n\n");
+  }
+
+  function variantToEditorText(variant) {
+    return formatCodeDraft(variantCodeBlocks(variant), variantGuideAfter(variant));
+  }
+
+  function codeDraftSignature(blocks, after = "") {
+    return JSON.stringify({ blocks: blocks.map((block) => ({ note: block.note || "", codeNote: block.codeNote ?? null, template: block.template })), after: after || "" });
+  }
+
+  function variantFromCodeDraft(blocks, after, notes) {
+    const hasGuideText = blocks.some((block) => block.note) || Boolean(after);
+    const hasCodeNotes = blocks.some((block) => block.codeNote !== null && block.codeNote !== undefined);
+    if (blocks.length > 1 || hasGuideText || hasCodeNotes) {
+      const variant = { codes: blocks, notes };
+      if (after) variant.guideAfter = after;
+      return variant;
+    }
+    return { template: blocks[0]?.template || [], notes };
   }
 
   function controlFor(parameter) {
@@ -197,17 +327,21 @@
     const code = catalog.codes.find((entry) => entry.id === id);
     if (!code) return;
     const variant = getVariant(code);
-    const usedBoxCount = variant.template.length;
-    const remainingBoxText = usedBoxCount < 14
-      ? `${usedBoxCount === 13 ? "Box 14" : `Boxes ${usedBoxCount + 1}–14`} may have any name.`
-      : "";
+    const codeBlocks = variantCodeBlocks(variant);
+    const guideAfter = variantGuideAfter(variant);
+    const parameters = code.parameters || [];
     const usefulVariantNote = /^(Locally added developer entry|Game, language and platform-specific variation|Compatibility-specific override)\.?$/i.test(variant.notes || "") ? "" : (variant.notes || "");
-    const outputNotes = [remainingBoxText, usefulVariantNote].filter(Boolean);
-    const executionSteps = [
-      "Type in the code and save the game.",
-      "Execute the code.",
-      "If it crashes or nothing happens, read the troubleshooting section below.",
-    ];
+    const executionSteps = codeBlocks.length > 1
+      ? [
+        "Type in and execute each code in order, starting with Code 1.",
+        "Save before each execution unless the source or guide says otherwise.",
+        "If one code crashes or nothing happens, stop and read the troubleshooting section below.",
+      ]
+      : [
+        "Type in the code and save the game.",
+        "Execute the code.",
+        "If it crashes or nothing happens, read the troubleshooting section below.",
+      ];
     const troubleshootingItems = [
       "Make sure the code is typed correctly in the correct boxes.",
       "Read and make sure you meet the requirements for this code.",
@@ -215,13 +349,25 @@
       `Attempt to clear ghost data in boxes 11–14. <button type="button" class="inline-link" data-open-guide="clear-ghost-data">Click here</button> for a tutorial on how to do this.`,
       `Go to the <button type="button" class="inline-link" data-open-tab="troubleshooting">ACE troubleshooting tab</button> to see video examples of how to solve an ACE code problem.`,
     ];
-    const outputPanel = `<div class="output-panel"><div class="output-heading"><h3>${code.parameters.length ? "Generated code" : ""}</h3><button type="button" id="copy-code">Copy all</button></div>
-        <pre id="generated-code"></pre>${outputNotes.length ? `<div class="code-notes">${outputNotes.map((note) => `<p>${note}</p>`).join("")}</div>` : ""}</div>`;
-    const generatorArea = code.parameters.length
-      ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${code.parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
-      : `<form class="fixed-code-section" id="generator-form"><h3>Box name code</h3>${outputPanel}</form>`;
+    const outputPanels = codeBlocks.map((block, index) => {
+      const usedBoxCount = block.template.length;
+      const remainingBoxText = usedBoxCount < 14
+        ? `${usedBoxCount === 13 ? "Box 14" : `Boxes ${usedBoxCount + 1}–14`} may have any name.`
+        : "";
+      const displayedCodeNote = block.codeNote === null ? remainingBoxText : block.codeNote;
+      const outputNotes = [displayedCodeNote, index === codeBlocks.length - 1 ? usefulVariantNote : ""].filter(Boolean);
+      const heading = codeBlocks.length > 1 ? block.title : (parameters.length ? "Generated code" : "Box name code");
+      const guideNote = block.note ? `<div class="code-guide-note">${renderFormattedText(block.note)}</div>` : "";
+      return `${guideNote}<div class="output-panel code-output-panel"><div class="output-heading"><h3>${escapeHtml(heading)}</h3><button type="button" data-copy-code="${index}">${codeBlocks.length > 1 ? "Copy" : "Copy all"}</button></div>
+        <pre data-generated-code="${index}"></pre>${outputNotes.length ? `<div class="code-notes">${outputNotes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}</div>` : ""}</div>`;
+    }).join("");
+    const afterGuide = guideAfter ? `<div class="code-guide-note code-guide-note-after">${renderFormattedText(guideAfter)}</div>` : "";
+    const outputPanel = `<div class="code-output-stack">${codeBlocks.length > 1 ? `<div class="multi-code-toolbar"><span>${codeCountLabel(codeBlocks.length)}</span><button type="button" data-copy-code="all">Copy all</button></div>` : ""}${outputPanels}${afterGuide}</div>`;
+    const generatorArea = parameters.length
+      ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
+      : `<form class="fixed-code-section" id="generator-form">${outputPanel}</form>`;
     elements.dialogContent.innerHTML = `
-      <div class="dialog-header"><div><span class="category-tag">${code.category}</span><h2>${code.title}</h2><div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.65.05l2.2-2.2a4 4 0 0 0-5.66-5.66l-1.26 1.26m1.87 3.75a4 4 0 0 0-5.65-.05l-2.2 2.2a4 4 0 0 0 5.66 5.66l1.25-1.25" /></svg></button><button class="close-dialog" aria-label="Close">×</button></div></div>
+      <div class="dialog-header"><div><span class="category-tag">${code.category}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${code.title}</h2><div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("languages", state.language)}</span><span>✓ ${nameFor("platforms", state.platform)}</span></div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul></section>
       ${generatorArea}
@@ -235,7 +381,7 @@
     elements.dialogContent.querySelectorAll("[data-choice-search]").forEach((input) => {
       input.addEventListener("input", () => filterChoices(input));
     });
-    $("#copy-code").addEventListener("click", copyCode);
+    elements.dialogContent.querySelectorAll("[data-copy-code]").forEach((button) => button.addEventListener("click", copyCode));
     elements.dialogContent.querySelector("[data-open-guide]")?.addEventListener("click", (event) => {
       elements.dialog.close(); activateTab("guides"); openGuide(event.currentTarget.dataset.openGuide);
     });
@@ -260,9 +406,8 @@
     history.replaceState(null, "", codeShareUrl(id));
   }
 
-  async function shareCode(code) {
-    const url = codeShareUrl(code.id).href;
-    const button = $(".share-code", elements.dialogContent);
+  async function copyShareUrl(url, button) {
+    if (!button) return;
     try {
       await navigator.clipboard.writeText(url);
     } catch {
@@ -274,13 +419,39 @@
     button.classList.add("copied"); button.innerHTML = "<span aria-hidden=\"true\">✓</span>"; button.setAttribute("aria-label", "Share link copied"); button.title = "Share link copied";
     setTimeout(() => {
       if (!button.isConnected) return;
-      button.classList.remove("copied"); button.innerHTML = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.6 13.4a4 4 0 0 0 5.65.05l2.2-2.2a4 4 0 0 0-5.66-5.66l-1.26 1.26m1.87 3.75a4 4 0 0 0-5.65-.05l-2.2 2.2a4 4 0 0 0 5.66 5.66l1.25-1.25" /></svg>'; button.setAttribute("aria-label", "Copy share link"); button.title = "Copy share link";
+      button.classList.remove("copied"); button.innerHTML = SHARE_ICON; button.setAttribute("aria-label", "Copy share link"); button.title = "Copy share link";
     }, 1800);
+  }
+
+  async function shareCode(code) {
+    await copyShareUrl(codeShareUrl(code.id).href, $(".share-code", elements.dialogContent));
+  }
+
+  function guideShareUrl(id) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete("game"); url.searchParams.delete("language"); url.searchParams.delete("platform");
+    url.hash = `guide=${encodeURIComponent(id)}`;
+    return url;
+  }
+
+  function setGuideDeepLink(id) {
+    history.replaceState(null, "", guideShareUrl(id));
+  }
+
+  async function shareGuide(guide) {
+    await copyShareUrl(guideShareUrl(guide.id).href, $(".share-guide", elements.guideDialogContent));
   }
 
   function clearCodeDeepLink() {
     const url = new URL(window.location.href);
     url.searchParams.delete("game"); url.searchParams.delete("language"); url.searchParams.delete("platform");
+    url.hash = "";
+    history.replaceState(null, "", url);
+  }
+
+  function clearGuideDeepLink() {
+    const url = new URL(window.location.href);
+    if (!url.hash.startsWith("#guide=")) return;
     url.hash = "";
     history.replaceState(null, "", url);
   }
@@ -342,11 +513,15 @@
   function openGuide(id) {
     const guide = (catalog.guides || []).find((entry) => entry.id === id);
     if (!guide) return;
+    setGuideDeepLink(guide.id);
     if (guide.type === "interactive-setup") { openInteractiveGuide(guide); return; }
     elements.guideDialog.classList.remove("setup-guide-dialog");
+    elements.guideDialogContent.onclick = null;
+    elements.guideDialogContent.onchange = null;
     const guideBody = guide.body ? `<div class="formatted-content">${renderFormattedText(guide.body)}</div>` : (guide.sections || []).map((section) => `<section><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.text)}</p></section>`).join("");
-    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.summary)}</p></div><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}${guide.video ? `<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section>` : ""}</article>`;
+    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.summary)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}${guide.video ? `<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section>` : ""}</article>`;
     $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
+    $(".share-guide", elements.guideDialogContent).addEventListener("click", () => shareGuide(guide));
     elements.guideDialog.showModal();
   }
 
@@ -371,7 +546,7 @@
       const checked = new Set(progress.checks[activePhase] || []);
       const completedCount = progress.complete.length;
       const percent = Math.round((completedCount / guide.phases.length) * 100);
-      elements.guideDialogContent.innerHTML = `<div class="dialog-header setup-guide-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.introduction)}</p></div><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div>
+      elements.guideDialogContent.innerHTML = `<div class="dialog-header setup-guide-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.introduction)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div>
         <div class="setup-progress" aria-label="${completedCount} of ${guide.phases.length} phases completed"><div><span>${completedCount} of ${guide.phases.length} phases complete</span><strong>${percent}%</strong></div><div class="setup-progress-track"><i style="width:${percent}%"></i></div></div>
         <div class="setup-guide-layout"><nav class="setup-phase-nav" aria-label="Guide phases">${guide.phases.map((item, index) => `<button type="button" data-phase="${index}" class="${index === activePhase ? "active" : ""} ${progress.complete.includes(index) ? "complete" : ""}"><span>${progress.complete.includes(index) ? "✓" : index + 1}</span><b>${escapeHtml(item.shortTitle)}</b></button>`).join("")}</nav>
         <article class="setup-phase-content"><p class="setup-phase-number">Phase ${activePhase + 1} of ${guide.phases.length}</p><h2>${escapeHtml(phase.title)}</h2><p class="setup-objective">${escapeHtml(phase.objective)}</p>${phase.sections.map(renderSection).join("")}
@@ -379,6 +554,7 @@
         <section class="setup-checkpoint"><h3>Before continuing</h3>${phase.checks.map((item, index) => `<label><input type="checkbox" data-guide-check="${index}" ${checked.has(index) ? "checked" : ""} /><span>${escapeHtml(item)}</span></label>`).join("")}<button type="button" class="phase-complete-button ${progress.complete.includes(activePhase) ? "complete" : ""}" data-toggle-complete>${progress.complete.includes(activePhase) ? "✓ Phase completed" : "Mark phase as complete"}</button></section>
         <div class="setup-phase-actions"><button type="button" data-guide-back ${activePhase === 0 ? "disabled" : ""}>← Previous</button><button type="button" class="next" data-guide-next ${activePhase === guide.phases.length - 1 ? "disabled" : ""}>Next phase →</button></div><p class="guide-source-note">${escapeHtml(guide.sourceNote)}</p></article></div>`;
       $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
+      $(".share-guide", elements.guideDialogContent).addEventListener("click", () => shareGuide(guide));
     };
 
     elements.guideDialogContent.onclick = (event) => {
@@ -475,10 +651,10 @@
     const baselinePlatform = selectedPlatforms.includes("accurate") ? "accurate" : selectedPlatforms[0];
     $("#default-code-label").textContent = baselineGame && baselineLanguage && baselinePlatform
       ? `Default: ${nameFor("games", baselineGame)} · ${nameFor("languages", baselineLanguage)} · ${nameFor("platforms", baselinePlatform)} *`
-      : "Default console / accurate-emulator code * — one line per box";
+      : "Default console / accurate-emulator code * - one line per box";
     $("#default-code-help").textContent = baselineGame && baselineLanguage && baselinePlatform
-      ? "This baseline combination is saved automatically. Use the tabs only when another combination differs."
-      : "Select a game and language to define the baseline code.";
+      ? "This baseline is saved automatically. Write instructions between code groups; add 'Code note: your message' after a code to replace its small footer."
+      : "Select a game and language to define the baseline. Code lines start with Box 1: through Box 14:; per-code footers start with 'Code note:'.";
     const combinations = variationCombinations();
     combinations.forEach((combo) => {
       if (!variationDrafts.has(combo.key)) variationDrafts.set(combo.key, { value: "", edited: false });
@@ -508,7 +684,7 @@
     const [game, language, platform] = activeVariation.split("|");
     const draft = variationDrafts.get(activeVariation);
     const platformName = platform === "accurate+inaccurate" ? "GBA console / accurate emulator + old emulator" : nameFor("platforms", platform);
-    field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="Leave blank to use the default code"></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : "Uses default code"}</small>`;
+    field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="Leave blank to use the default code. Write instructions between code groups and add Code note: after any code that needs a custom footer."></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : "Uses default code"}</small>`;
     const textarea = field.querySelector("textarea");
     textarea.value = draft.value;
     textarea.addEventListener("input", () => {
@@ -544,14 +720,19 @@
       status.textContent = "Select at least one game, language, and platform.";
       return;
     }
-    const defaultTemplate = lines(data.get("code"));
-    const variants = { default: { template: defaultTemplate, notes: "Locally added developer entry." } };
+    const defaultDraft = parseCodeDraft(data.get("code"));
+    if (!defaultDraft.blocks.length) {
+      status.textContent = "Add at least one box-name code.";
+      return;
+    }
+    const defaultSignature = codeDraftSignature(defaultDraft.blocks, defaultDraft.after);
+    const variants = { default: variantFromCodeDraft(defaultDraft.blocks, defaultDraft.after, "Locally added developer entry.") };
     variationCombinations().forEach((combo) => {
       const draft = variationDrafts.get(combo.key);
-      const template = lines(draft?.value);
-      if (!template.length || template.join("\n") === defaultTemplate.join("\n")) return;
+      const codeDraft = parseCodeDraft(draft?.value);
+      if (!codeDraft.blocks.length || codeDraftSignature(codeDraft.blocks, codeDraft.after) === defaultSignature) return;
       combo.platformIds.forEach((platformId) => {
-        variants[`${combo.game}|${combo.language}|${platformId}`] = { template, notes: "Game, language and platform-specific variation." };
+        variants[`${combo.game}|${combo.language}|${platformId}`] = variantFromCodeDraft(codeDraft.blocks, codeDraft.after, "Game, language and platform-specific variation.");
       });
     });
     const title = safeText(data.get("title"));
@@ -580,7 +761,10 @@
 
   function renderLocalCodes() {
     const codes = [...catalog.codes].sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
-    $("#local-codes").innerHTML = codes.length ? codes.map((code) => `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.recommended ? " · Recommended" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`).join("") : "<p>No codes available.</p>";
+    $("#local-codes").innerHTML = codes.length ? codes.map((code) => {
+      const count = codeBlockCount(code);
+      return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
+    }).join("") : "<p>No codes available.</p>";
   }
 
   function handleDeveloperCodeAction(event) {
@@ -605,7 +789,7 @@
     form.elements.difficulty.value = code.difficulty || "Unrated";
     form.elements.recommended.checked = Boolean(code.recommended);
     form.elements.summary.value = code.summary || "";
-    form.elements.code.value = code.variants?.default?.template?.join("\n") || "";
+    form.elements.code.value = variantToEditorText(code.variants?.default);
     form.elements.requirements.value = (code.requirements || []).join("\n");
     form.elements.sourceCode.value = (code.sourceCode || []).join("\n");
     form.elements.sourceLabel.value = code.source?.label || "";
@@ -618,7 +802,7 @@
     $("#same-emulator-code").checked = false;
     variationDrafts.clear(); activeVariation = "";
     Object.entries(code.variants || {}).forEach(([key, variant]) => {
-      if (key.split("|").length === 3) variationDrafts.set(key, { value: variant.template.join("\n"), edited: true });
+      if (key.split("|").length === 3) variationDrafts.set(key, { value: variantToEditorText(variant), edited: true });
     });
     renderVariationTabs();
     $("#save-code-button").textContent = "Update code";
@@ -843,11 +1027,29 @@
     [...select.options].forEach((option) => { option.hidden = !option.text.toLowerCase().includes(query); });
   }
 
+  function renderCodeCharacters(value) {
+    return [...String(value || "")].map((character) => {
+      const escapedCharacter = escapeHtml(character);
+      if (character === "_") return `<span class="code-char-underscore" title="Underscore (space)">${escapedCharacter}</span>`;
+      if (character === "-") return `<span class="code-char-hyphen" title="Hyphen">${escapedCharacter}</span>`;
+      if (/[A-Z]/.test(character)) return `<span class="code-char-upper">${escapedCharacter}</span>`;
+      if (/[a-z]/.test(character)) return `<span class="code-char-lower">${escapedCharacter}</span>`;
+      if (/[0-9]/.test(character)) return `<span class="code-char-number">${escapedCharacter}</span>`;
+      return escapedCharacter;
+    }).join("");
+  }
+
+  function renderCodeLine(line) {
+    const match = String(line || "").match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)(.*)$/i);
+    if (!match) return renderCodeCharacters(line);
+    return `<span class="box-code-prefix">${escapeHtml(match[1])}</span>${renderCodeCharacters(match[2])}`;
+  }
+
   function renderGenerated(code) {
     const form = $("#generator-form");
     const variant = getVariant(code);
     const values = {};
-    code.parameters.forEach((parameter) => {
+    (code.parameters || []).forEach((parameter) => {
       const input = form.elements[parameter.id];
       if (parameter.type === "choice") {
         values[parameter.id] = catalog.choices[parameter.source].find((choice) => choice.id === input.value) || catalog.choices[parameter.source][0];
@@ -856,14 +1058,39 @@
         values[parameter.id] = { value: number, hex2: number.toString(16).toUpperCase().padStart(2, "0"), hex4: number.toString(16).toUpperCase().padStart(4, "0") };
       }
     });
-    const output = variant.template.map((line) => line.replace(/\{(\w+)\.(\w+)\}/g, (_, key, property) => values[key]?.[property] ?? "????"));
-    $("#generated-code").textContent = output.join("\n");
+    variantCodeBlocks(variant).forEach((block, index) => {
+      const output = block.template.map((line) => line.replace(/\{(\w+)\.(\w+)\}/g, (_, key, property) => values[key]?.[property] ?? "????"));
+      const target = elements.dialogContent.querySelector(`[data-generated-code="${index}"]`);
+      if (target) target.innerHTML = output.map(renderCodeLine).join("\n");
+    });
   }
 
-  async function copyCode() {
-    const output = $("#generated-code").textContent;
+  function compactCodeForClipboard(value) {
+    return String(value || "").split(/\r?\n/).map((line) => {
+      const match = line.match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)\s*(.*)$/i);
+      if (!match) return line.replace(/[ \t]+/g, "");
+      return `${match[1]} ${match[2].replace(/\s+/g, "")}`;
+    }).join("\n");
+  }
+
+  async function copyCode(event) {
+    const copyTarget = event.currentTarget.dataset.copyCode;
+    const outputs = copyTarget === "all"
+      ? [...elements.dialogContent.querySelectorAll("[data-generated-code]")]
+      : [elements.dialogContent.querySelector(`[data-generated-code="${copyTarget}"]`)].filter(Boolean);
+    const output = outputs.map((item) => compactCodeForClipboard(item.textContent)).join("\n\n");
     try { await navigator.clipboard.writeText(output); }
-    catch { const range = document.createRange(); range.selectNode($("#generated-code")); window.getSelection().removeAllRanges(); window.getSelection().addRange(range); }
+    catch {
+      const clipboardFallback = document.createElement("textarea");
+      clipboardFallback.value = output;
+      clipboardFallback.setAttribute("readonly", "");
+      clipboardFallback.style.position = "fixed";
+      clipboardFallback.style.opacity = "0";
+      document.body.appendChild(clipboardFallback);
+      clipboardFallback.select();
+      document.execCommand("copy");
+      clipboardFallback.remove();
+    }
     elements.toast.classList.add("show");
     setTimeout(() => elements.toast.classList.remove("show"), 1800);
   }
@@ -882,6 +1109,7 @@
   $("#guide-list").addEventListener("click", (event) => { const id = event.target.closest("[data-guide-id]")?.dataset.guideId; if (id) openGuide(id); });
   $("#guide-list").addEventListener("keydown", (event) => { if (event.key === "Enter") openGuide(event.target.closest("[data-guide-id]")?.dataset.guideId); });
   elements.guideDialog.addEventListener("click", (event) => { if (event.target === elements.guideDialog) elements.guideDialog.close(); });
+  elements.guideDialog.addEventListener("close", clearGuideDeepLink);
   document.addEventListener("keydown", (event) => {
     const activeElement = document.activeElement;
     const isEditingText = ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement?.tagName) || activeElement?.isContentEditable;
@@ -893,6 +1121,11 @@
 
   initSetup(); initDeveloperMode(); renderLibrary(); renderGuides(); renderPages();
   const sharedCodeId = window.location.hash.startsWith("#code=") ? decodeURIComponent(window.location.hash.slice(6)) : "";
+  const sharedGuideId = window.location.hash.startsWith("#guide=") ? decodeURIComponent(window.location.hash.slice(7)) : "";
   if (sharedCodeId && catalog.codes.some((code) => code.id === sharedCodeId && !code.deleted)) openCode(sharedCodeId);
+  else if (sharedGuideId && catalog.guides.some((guide) => guide.id === sharedGuideId && !guide.deleted)) {
+    activateTab("guides");
+    openGuide(sharedGuideId);
+  }
   $("#library-version").textContent = catalog.version;
 })();

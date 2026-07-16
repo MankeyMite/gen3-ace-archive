@@ -1167,6 +1167,106 @@ window.ACE_CUSTOM_CONTENT = {
         "label": "Locally added entry",
         "url": ""
       }
+    },
+    {
+      "id": "local-base64-writer-1784206541878",
+      "title": "Base64 writer",
+      "summary": "The Base64 writer called “Weldr” is a Metang containing code that allows you to write data efficiently using Base64 encoding. With this you may:\n\n- Spawn any Pokémon with ANY data in just 1 code using the Gen 3 ACE Pokémon builder website: https://mankeymite.github.io/Gen3ACEPokemonBuilder/",
+      "category": "Code enabler",
+      "difficulty": "Intermediate",
+      "recommended": true,
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en"
+      ],
+      "platforms": [
+        "accurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "codes": [
+            {
+              "title": "Code 1",
+              "note": "",
+              "template": [
+                "Box 1: B C U n p 0 E H [BCUnp0EH]",
+                "Box 2: G D H W F f … … [GDHWFf……]",
+                "Box 3: R V z _ h n     [RVz_hn]",
+                "Box 4: P T S f ♀     [PTSf♀]",
+                "Box 5: _ H B … E L Q ♂ [_HB…ELQ♂]",
+                "Box 6: R T I D Y J m ? [RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _ [?HTSg♀__]",
+                "Box 8: Y _ I k r       [Y_Ikr]",
+                "Box 9: I R H U K U G G [IRHUKUGG]",
+                "Box 10: D G A I I F K G [DGAIIFKG]",
+                "Box 11: I T P N I G L I [ITPNIGLI]",
+                "Box 12: F T K T I T F R [FTKTITFR]",
+                "Box 13: C Q L T I G F K [CQLTIGFK]",
+                "Box 14: P L K F M T L L [PLKFMTLL]"
+              ],
+              "codeNote": "Save the game and execute the code. A bad egg will spawn in box 10 slot 22. Leave it there. The next code will start on box 5, and jump to box 9. Count boxes carefully!"
+            },
+            {
+              "title": "Code 2",
+              "note": "",
+              "template": [
+                "Box 5: _ H B … c L Q ♂ [_HB…cLQ♂]",
+                "Box 9: I H F J D U I G [IHFJDUIG]",
+                "Box 10: C U J O I L L G [CUJOILLG]",
+                "Box 11: H N K O I J F Q [HNKOIJFQ]",
+                "Box 12: H N L O L T I F [HNLOLTIF]",
+                "Box 13: D T M F J L P F [DTMFJLPF]",
+                "Box 14: H G L H G Q G M [HGLHGQGM]"
+              ],
+              "codeNote": "Execute the code. The bad egg will not be visibly different. Keep going with the last code, again starting on box 5 and skipping to box 9."
+            },
+            {
+              "title": "Code 3",
+              "note": "",
+              "template": [
+                "Box 5: _ H B … 6 L Q ♂ [_HB…6LQ♂]",
+                "Box 9: H K G F I F H U [HKGFIFHU]",
+                "Box 10: H R E G B U G H [HREGBUGH]",
+                "Box 11: E G D U E L D T [EGDUELDT]",
+                "Box 12: D R H U I F I F [DRHUIFIF]",
+                "Box 13: E F D K K I C H [EFDKKICH]",
+                "Box 14: K L C I I H G F [KLCIIHGF]"
+              ],
+              "codeNote": "After executing this code, the bad egg will turn  into Weldr the Metang if you did the three codes correctly. This is your Base64 writer. Move this to Box 14 slot 28. Catch or rename any Pokémon with the nickname \"J-FKVC\", and place it in box 14 slot 29. You are now ready to do the test code below. It should be a bulbasaur and spawn in box 14 slot 30. If your bad egg is still a bad egg, move it away and redo all three codes."
+            },
+            {
+              "title": "Code 4",
+              "note": "",
+              "template": [
+                "Box 1: A Q D ? P w _ _ [AQD?Pw__]"
+              ],
+              "codeNote": "If you successfully got Bulbasaur after executing this code, you should delete it, as its missing a lot of data to be a complete Pokémon. You are now ready to use the website to create codes for any Pokémon you want:"
+            }
+          ],
+          "notes": "Locally added developer entry.",
+          "guideAfter": "https://mankeymite.github.io/Gen3ACEPokemonBuilder/"
+        }
+      },
+      "requirements": [
+        "Stable ACE Species.",
+        "Box 10 slot 22 must be empty before typing code 1."
+      ],
+      "sourceCode": [],
+      "video": "",
+      "troubleshooting": [],
+      "instructions": [
+        "Back up your save.",
+        "Confirm every requirement above.",
+        "Enter and execute the code exactly as documented."
+      ],
+      "source": {
+        "label": "Locally added entry",
+        "url": ""
+      }
     }
   ],
   "guides": [

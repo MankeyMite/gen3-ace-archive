@@ -4,6 +4,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-stable-ace-species-0x410e-1783794759018",
       "title": "Stable ARM species 0x410e",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "- English stable ACE species.\n- The stable species will be generated inside the PC in Box 10 Slot 19. Keep this slot free before executing this code.   \n- This code can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615). \n- After this code executes, the sprite of the Pokémon (stable or unstable) will become invisible; this means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash). \n- Also, this code will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it. \n- If you have hatched a Dots egg to execute this code, you must delete the hatched glitch-mon by putting it first in your party, then entering Deposit mode in the PC and deleting it. Scrolling into its sprite may crash the game. \n\nThe stable ACE species 0x410e is the first code you should execute after getting the Dots egg, as it allows you to execute codes by viewing the summary of the species and also unlocks more codes than the Dots egg can access. You should from now on use this species that spawns in box 10 to execute new codes for your language by viewing its summary. You may place it anywhere within box 1-10 or your party. The Dots eggs are no longer needed, but it is adviced to keep a copy just in case.",
       "category": "Code enabler",
       "difficulty": "Beginner",
@@ -101,9 +103,12 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-unlock-birth-island-via-mystery-gift-1783797085032",
       "title": "Unlock Birth Island via Mystery Gift",
+      "author": "Sleipnir17, adapted by Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "Get the AuroraTicket for catching Deoxys on Birth Island. \nThe code must be executed inside the Mauville Pkmn center. Talk to the man in the top left for the ticket.",
       "category": "Event",
       "difficulty": "Beginner",
+      "recommended": false,
       "games": [
         "emerald"
       ],
@@ -124,8 +129,8 @@ window.ACE_CUSTOM_CONTENT = {
         "default": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n 0 N B n\t[U–n0NBn] ← zero",
-            "Box  3: A A q O R n\t[AAqORn] ← capital \"o\"",
+            "Box  2: U – n 0 N B n\t[U–n0NBn]",
+            "Box  3: A A q O R n\t[AAqORn]",
             "Box  4: A f R R n\t[AfRRn]",
             "Box  5: 3 F R n _ N ! q\t[3FRn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -136,8 +141,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|de|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n ü O B n\t[U–nüOBn] ← capital \"o\"",
-            "Box  3: A A 8 O B n\t[AA8OBn] ← capital \"o\"",
+            "Box  2: U – n ü O B n\t[U–nüOBn]",
+            "Box  3: A A 8 O B n\t[AA8OBn]",
             "Box  4: A e S B n\t[AeSBn]",
             "Box  5: Z F B n _ N ! q\t[ZFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -148,8 +153,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|de|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n ü O B n\t[U–nüOBn] ← capital \"o\"",
-            "Box  3: A A 8 O B n\t[AA8OBn] ← capital \"o\"",
+            "Box  2: U – n ü O B n\t[U–nüOBn]",
+            "Box  3: A A 8 O B n\t[AA8OBn]",
             "Box  4: A e S B n\t[AeSBn]",
             "Box  5: Z F B n _ N ! q\t[ZFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -160,8 +165,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|fr|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n z O B n\t[U–nzOBn] ← capital \"o\"",
-            "Box  3: A A ? O B n\t[AA?OBn] ← capital \"o\"",
+            "Box  2: U – n z O B n\t[U–nzOBn]",
+            "Box  3: A A ? O B n\t[AA?OBn]",
             "Box  4: A 3 R B n\t[A3RBn]",
             "Box  5: a F B n _ N ! q\t[aFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -172,8 +177,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|fr|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n z O B n\t[U–nzOBn] ← capital \"o\"",
-            "Box  3: A A ? O B n\t[AA?OBn] ← capital \"o\"",
+            "Box  2: U – n z O B n\t[U–nzOBn]",
+            "Box  3: A A ? O B n\t[AA?OBn]",
             "Box  4: A 3 R B n\t[A3RBn]",
             "Box  5: a F B n _ N ! q\t[aFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -184,8 +189,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|es|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n z O B n\t[U–nzOBn] ← capital \"o\"",
-            "Box  3: A A – O B n\t[AA–OBn] ← capital \"o\"",
+            "Box  2: U – n z O B n\t[U–nzOBn]",
+            "Box  3: A A – O B n\t[AA–OBn]",
             "Box  4: A – T B n\t[A–TBn]",
             "Box  5: F H B n _ N ! q\t[FHBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -196,8 +201,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|es|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n z O B n\t[U–nzOBn] ← capital \"o\"",
-            "Box  3: A A – O B n\t[AA–OBn] ← capital \"o\"",
+            "Box  2: U – n z O B n\t[U–nzOBn]",
+            "Box  3: A A – O B n\t[AA–OBn]",
             "Box  4: A – T B n\t[A–TBn]",
             "Box  5: F H B n _ N ! q\t[FHBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -208,8 +213,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|it|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n z O B n\t[U–nzOBn] ← capital \"o\"",
-            "Box  3: A A ? O B n\t[AA?OBn] ← capital \"o\"",
+            "Box  2: U – n z O B n\t[U–nzOBn]",
+            "Box  3: A A ? O B n\t[AA?OBn]",
             "Box  4: A . S B n\t[A.SBn]",
             "Box  5: M F B n _ N ! q\t[MFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -220,8 +225,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|it|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: U – n z O B n\t[U–nzOBn] ← capital \"o\"",
-            "Box  3: A A ? O B n\t[AA?OBn] ← capital \"o\"",
+            "Box  2: U – n z O B n\t[U–nzOBn]",
+            "Box  3: A A ? O B n\t[AA?OBn]",
             "Box  4: A . S B n\t[A.SBn]",
             "Box  5: M F B n _ N ! q\t[MFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -294,6 +299,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-stable-ace-species-0x4130-1783821222024",
       "title": "Stable ARM species 0x4130",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "- German stable ACE species.\n- The stable species will be generated inside the PC in Box 10 Slot 19. Keep this slot free before executing this code.   \n- This code can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615). \n- After this code executes, the sprite of the Pokémon (stable or unstable) will become invisible; this means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash). \n- Also, this code will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it. \n- If you have hatched a Dots egg to execute this code, you must delete the hatched glitch-mon by putting it first in your party, then entering Deposit mode in the PC and deleting it. Scrolling into its sprite may crash the game. \n\nThe stable ACE species 0x410e is the first code you should execute after getting the Dots egg, as it allows you to execute codes by viewing the summary of the species and also unlocks more codes than the Dots egg can access. You should from now on use this species that spawns in box 10 to execute regular codes for your language, unless otherwise specified.You may place it anywhere within box 1-10 or your party. The Dots eggs are no longer needed, but it is adviced to keep a copy just in case.",
       "category": "Code enabler",
       "difficulty": "Beginner",
@@ -403,6 +410,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-metastable-ace-species-0x415e-1783821736516",
       "title": "Metastable ARM species 0x415e",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "- Italian Stable ACE species.\n- The metastable species will be generated inside the PC in Box 10 Slot 19. Keep this slot free before executing this code.   \n- This code can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615). \n- After this code executes, the sprite of the Pokémon (stable or unstable) will become invisible; this means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash). \n- Also, this code will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it. \n- If you have hatched a Dots egg to execute this code, you must delete the hatched glitch-mon by putting it first in your party, then entering Deposit mode in the PC and deleting it. Scrolling into its sprite may crash the game. \n\nThe metastable ARM species allows you to execute codes by viewing the stats summary of an adjacent Pokémon, then scrolling up or down into the metastable species. It also unlocks more codes than the Dots egg can access. You should from now on use this species that spawns in box 10 to execute new codes. You may place it anywhere within box 1-10 or your party. The Dots eggs are no longer needed, but it is adviced to keep a copy just in case.",
       "category": "Code enabler",
       "difficulty": "Beginner",
@@ -512,6 +521,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-metastable-arm-species-0x599-1783822153620",
       "title": "Metastable ARM species 0x599",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "- Spanish stable ACE species.\n- The metastable species will be generated inside the PC in Box 10 Slot 19. Keep this slot free before executing this code.   \n- This code can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615). \n- After this code executes, the sprite of the Pokémon (stable or unstable) will become invisible; this means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash). \n- Also, this code will unlock the Eon ticket, so you can go upstairs in any Pokecenter to claim it. \n- If you have hatched a Dots egg to execute this code, you must delete the hatched glitch-mon by putting it first in your party, then entering Deposit mode in the PC and deleting it. Scrolling into its sprite may crash the game. \n\nThe metastable ARM species allows you to execute codes by viewing the stats summary of an adjacent Pokémon, then scrolling up or down into the metastable species. It also unlocks more codes than the Dots egg can access. You should from now on use this species that spawns in box 10 to execute regular codes for your language, unless otherwise specified. You may place it anywhere within box 1-10 or your party. The Dots eggs are no longer needed, but it is adviced to keep a copy just in case.",
       "category": "Code enabler",
       "difficulty": "Beginner",
@@ -599,6 +610,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-pseudostable-thumb-species-0x40ed-1783822853818",
       "title": "Pseudostable THUMB species 0x40ed",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "- French stable ACE species.\n- The psuedostable species will be generated inside the PC in Box 10 Slot 19. Keep this slot free before executing this code.   \n- This code can be executed with both a stable ACE species AND any ARM ACE egg (so the usual 0x0611/0x0615). \n- After this code executes, the sprite of the Pokémon (stable or unstable) will become invisible; this means that it worked, even if you get asked to nickname the hatched egg (DON'T try to nickname it, it will crash). \n- Executing this code will also spawn a THUMB - ARM Bootstrap bad egg in box 12 slot 4.\n- It is recommended to fortify the bootstrap by moving it to slot 7 of box 12, then replace the T with a U in box 6 and run the code again. This will prevent the bootstrap from being accidentally deleted with group selection. You need this bootstrap bad egg in box 12-14 for your ace codes to work, for this particular version of the stable ace.\n- If you have hatched a Dots egg to execute this code, you must delete the hatched glitch-mon by putting it first in your party, then entering Deposit mode in the PC and deleting it. Scrolling into its sprite may crash the game. \n\nThe pseudostable THUMB species allows you to execute codes by viewing the stats summary of an adjacent Pokémon, then scrolling up or down into the ace species. It also unlocks more codes than the Dots egg can access. You should from now on use this species that spawns in box 10 to execute new codes for your language. You may place it anywhere within box 1-10 or your party. The Dots eggs are no longer needed, but it is adviced to keep a copy just in case.",
       "category": "Code enabler",
       "difficulty": "Beginner",
@@ -631,7 +644,7 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|fr|inaccurate": {
           "template": [
             "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ h n z O D F Q\t[ hnzODFP]",
+            "Box  2: _ h n z O D F Q\t[ hnzODFQ]",
             "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
             "Box  4: o z … A n\t[oz…An]",
             "Box  5: / … P m D … P m\t[/…PmD…Pm]",
@@ -719,9 +732,12 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-unlock-navel-rock-via-mystery-gift-1783963552289",
       "title": "Unlock Navel Rock via Mystery Gift",
+      "author": "Sleipnir17, adapted by Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "This code must be executed inside the Mauville Pokémon center and after talking to the spiky-hair person with glasses, you are given the MysticTicket, and unlocks the event for you to travel to Navel Rock to capture Ho-Oh and Lugia.",
       "category": "Event",
       "difficulty": "Beginner",
+      "recommended": false,
       "games": [
         "emerald"
       ],
@@ -742,8 +758,8 @@ window.ACE_CUSTOM_CONTENT = {
         "default": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A . O B n\t[AA.OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A . O B n\t[AA.OBn]",
             "Box  4: A 9 S B n\t[A9SBn]",
             "Box  5: 3 F B n _ N ! q\t[3FBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -778,8 +794,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|fr|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A – O B n\t[AA–OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A – O B n\t[AA–OBn]",
             "Box  4: A 6 S B n\t[A6SBn]",
             "Box  5: M F B n _ N ! q\t[MFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -790,8 +806,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|fr|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A – O B n\t[AA–OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A – O B n\t[AA–OBn]",
             "Box  4: A 6 S B n\t[A6SBn]",
             "Box  5: M F B n _ N ! q\t[MFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -802,8 +818,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|es|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A ! O B n\t[AA!OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A ! O B n\t[AA!OBn]",
             "Box  4: A V R B n\t[AVRBn]",
             "Box  5: O F B n _ N ! q\t[OFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -814,8 +830,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|es|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A ! O B n\t[AA!OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A ! O B n\t[AA!OBn]",
             "Box  4: A V R B n\t[AVRBn]",
             "Box  5: O F B n _ N ! q\t[OFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -826,8 +842,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|it|accurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A ? O B n\t[AA?OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A ? O B n\t[AA?OBn]",
             "Box  4: A J S B n\t[AJSBn]",
             "Box  5: E F B n _ N ! q\t[EFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -838,8 +854,8 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald|it|inaccurate": {
           "template": [
             "Box  1: B B U n / … Q n\t[BBUn/…Qn]",
-            "Box  2: A A A z O D n\t[AAAzODn] ← capital \"o\"",
-            "Box  3: A A ? O B n\t[AA?OBn] ← capital \"o\"",
+            "Box  2: A A A z O D n\t[AAAzODn]",
+            "Box  3: A A ? O B n\t[AA?OBn]",
             "Box  4: A J S B n\t[AJSBn]",
             "Box  5: E F B n _ N ! q\t[EFBn N!q]",
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
@@ -896,6 +912,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-unlock-southern-island-1783985829348",
       "title": "Unlock Southern Island via Mystery Gift",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "Unlocks the Eon Ticket for Southern Island, where you can catch Latios or Latias, the opposite of your chosen roamer. \nExecute this code inside the Mauville Pokémon center, then after executing, go upstairs and talk to the NPC to the top left for the ticket. \nYou can also unlock Southern Island together with the code to get the stable ACE species (in all languages except French). So if you still do not have the stable ACE species for your game, it is highly recommended to do that instead of this code, as you will need a stable ACE to use this code anyways.",
       "category": "Event",
       "difficulty": "Beginner",
@@ -996,6 +1014,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-unlock-faraway-island-via-mystery-gift-1783987523627",
       "title": "Unlock Faraway Island via Mystery Gift",
+      "author": "Sleipnir17, adapted by Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "Execute the code inside Mauville Pokémon center, and talk to the spiky-haired NPC for the Old Sea Map, that allows you to travel to Faraway Island to encounter Mew.",
       "category": "Event",
       "difficulty": "Beginner",
@@ -1171,6 +1191,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "local-base64-writer-1784206541878",
       "title": "Base64 writer",
+      "author": "Mettrich",
+      "addedOn": "2026-07-17",
       "summary": "The Base64 writer called “Weldr” is a Metang containing code that allows you to write data efficiently using Base64 encoding. With this you may:\n\n- Spawn any Pokémon with ANY data in just 1 code using the Gen 3 ACE Pokémon builder website: https://mankeymite.github.io/Gen3ACEPokemonBuilder/",
       "category": "Code enabler",
       "difficulty": "Intermediate",
@@ -1276,6 +1298,8 @@ window.ACE_CUSTOM_CONTENT = {
     {
       "id": "emerald-ace-setup",
       "title": "ACE Setup guide for Emerald",
+      "author": "",
+      "addedOn": "2026-07-17",
       "category": "Setup",
       "difficulty": "Advanced",
       "summary": "Set up ACE from the in-game trades through a verified stable ACE species.",
@@ -1292,7 +1316,7 @@ window.ACE_CUSTOM_CONTENT = {
               "title": "What ACE does",
               "paragraphs": [
                 "ACE is short for Arbitrary Code Execution. With the help of a glitch species, it allows you to manipulate the game's memory by executing codes from your PC box names and other potential payloads.",
-                "The full setup should take around 1 hour on consoles, if you do everything correctly and get average luck. The recommended route is post-elite 4, because the chances will be much higher when you have access to cloning in the battle tower. You can do this pre-elite 4, as soon as you have HM surf and obtain Pomeg Berries from the Berry Master's house on Route 123, however, completing the elite 4 first is strongly recommended because the last part requires some luck, and the Battle Tower cloning glitch makes retries a 7 out of 32 chance instead of 1 out of 32, and each retry takes around 3 minutes. Access to cloning will also become useful if you mess up some of the steps and need to retry."
+                "The full setup should take around 1 hour on consoles, if you do everything correctly and get average luck. The recommended route is post-elite 4, because the chances will be much higher when you have access to cloning in the battle tower. You can do this pre-elite 4, as soon as you have HM surf and obtain Pomeg Berries from the Berry Master's house on Route 123, however, completing the elite 4 first is strongly recommended because the last part requires some luck, and the Battle Tower cloning glitch makes retries a 7/32 chance instead of 1/32, and each retry takes around 3 minutes. Access to cloning will also become useful if you mess up some of the steps and need to retry."
               ]
             },
             {
@@ -1573,25 +1597,68 @@ window.ACE_CUSTOM_CONTENT = {
     },
     {
       "id": "clear-ghost-data",
-      "title": "How to clear ghost data",
+      "title": "How to clear ghost data in Pokémon RSE and FR/LG",
+      "author": "",
+      "addedOn": "2026-07-18",
       "category": "Preparation",
       "difficulty": "Beginner",
-      "summary": "\"Ghost data\" is invisible leftover data from a Pokémon that can appear after migrating Pokémon to gen 4 through Pal Park, or from glitches such as the Glitzer popping in Pokémon Emerald that unlocks ACE. \n- For Ruby, Sapphire or Emerald, you should clear invisible leftover data from last row of box 11 until box 14 last row, as that is the execution zone.\n- In Fire Red / Leaf Green, the execution zone is from the second row of box 13, until last row of box 14. \nAce codes read the content of these boxes, so any random Pokémon or leftover data may interupt the code and cause a freeze or crash.",
+      "summary": "\"Ghost data\" is invisible leftover data from a Pokémon that can appear after migrating Pokémon to gen 4 through Pal Park, or from glitches such as the Glitzer popping in Pokémon Emerald that unlocks ACE. For Ruby, Sapphire or Emerald, you should clear invisible leftover data from last row of box 11 until box 14 last row, as that is the execution zone. In Fire Red / Leaf Green, the execution zone is from the second row of box 13, until last row of box 14. \nAce codes read the content of these boxes, so any random Pokémon or leftover data may interupt the code and cause a freeze or crash.",
       "introduction": "",
-      "video": "",
-      "body": "-Find a box full of Pokemon, or the fullest box you have.\n-Press \"select\" to go into multi-select option.\n-press and hold A on the corner of your box, and drag across to the other corner. Let go of A to pick up all selected Pokemon.\n-Drop them inside all of the slots inside box (11, 12, 13 and 14 - Emerald) or (13 + 14 - FR/LG). Make sure to move out Pokemon from here first.\n-Put your Pokemon back to where you had them, making sure boxes 11-14 are empty.\n\n-Now save and try the ace code again."
+      "video": "https://youtu.be/rlokXgSXGaI",
+      "body": "-Make sure boxes 11-14 are empty (box 13 and 14 for FR/LG). \n-Find a box full of Pokemon, or the fullest box you have.\n-Press \"select\" to go into multi-select option. The hand will become yellow.\n-press and hold A on a Pokémon in the corner of your box, and drag across to the opposite corner. Let go of A to pick up all selected Pokémon.\n-Drop them inside all of the slots inside the mentioned boxes.\n-Put these Pokémon back to where you had them, making sure boxes 11-14 are empty.\n\n-If you are doing this because of a code that isn't working, or is causing a freeze or crash, you should now save and try the ACE code again. If the code still isn't working, you can at least be sure it was not because of ghost data. Follow the troubleshooting page for more info on how to fix your code."
+    },
+    {
+      "id": "guide-how-to-execute-codes-with-the-0x410e-stable-arm-species-1784293726776",
+      "title": "Using the 0x410e Stable ARM species for ACE codes",
+      "author": "",
+      "addedOn": "2026-07-18",
+      "category": "Code execution",
+      "difficulty": "Beginner",
+      "summary": "About the stable ARM species 0x410e and how to use it to execute ACE codes in Pokémon Emerald for the English language version.",
+      "introduction": "The 0x410e is a Stable ARM species found by Mettrich. Because it is ARM and not THUMB, we do not need a THUMB - ARM bootstrap for this species, unlike the stable 0x40e9 that is a stable THUMB species. Because it is stable, it also allows us to view the summary without the game crashing. It also has access to some modern/shortened codes that the unstable Dots egg 0x611 ARM species cannot execute.",
+      "video": "https://youtu.be/dRo4bpyWQXw",
+      "body": "- You may execute codes with the Stable ARM 0x410e species anywhere, unless a code requires a specific location. \n- You can execute codes from your party or inside the pc; anywhere you can open the summary of the species. \n- Like most regular ACE codes, you need box 11 last row, until last row of box 14 to be empty. \n- If you are using special codes that require specific bootstraps or payloads, you will generally put these somewhere within boxes 12-14, but box 12 slot 9 and 10 must be empty no matter what.\n\nWhile viewing its summary, wait until the sprite disappears (around 1 second). If you close the summary too fast, a code may never be triggered."
     }
   ],
   "pages": {
     "troubleshooting": {
-      "title": "Find out why a code did not run.",
-      "introduction": "General diagnostic guides and video examples will live here.",
-      "body": "how to lalala\n\ntesting testing\nlike this"
+      "title": "Troubleshoot an ACE code",
+      "introduction": "Choose your game, then work through these checks in order. Note that changing nothing will not magically make the code work.  The problem could be one or multiple of the following checks. That is why you should go through these steps in order, and anytime you make a change, save the game before executing, so you don't have to redo a step.",
+      "games": {
+        "emerald": {
+          "testCode": {
+            "title": "Emerald executor test code",
+            "template": [
+              "Box 1: r P D n V S B n [rPDnVSBn]",
+              "Box 2: B T o j _ B n 2 [BToj Bn2]",
+              "Box 3: A n [An]"
+            ],
+            "note": "For non-Japanese Emerald: a correctly prepared 0x0611 DOTS Egg should reach the nickname prompt for the hatched glitch Pokémon. A crash can also be caused by ghost data or blocked execution slots, so check the execution area before concluding that the executor is wrong."
+          },
+          "body": "## 1. Use the code for your exact setup\n\n- If you used a code from this website, make sure you selected Pokémon Emerald and your exact game language and platform that matches your console or emulator. Accurate and older emulators sometimes require different box names.\n- Never substitute a code generated for another language, game, or platform, even when most of its box names look similar.\n\n[[compatibility-faq]]\n\n## 2. Clear the execution area\n\nBefore executing a regular box-name ACE code, move every visible Pokémon out of Box 11, Slots 25-30 (the last row), and every slot in Boxes 12, 13, and 14. A specific setup guide may tell you to retain a required bootstrap or other data; follow that guide exactly.\n\nA slot can look empty while still containing ghost data left by migration or glitches. If the code crashes, freezes, or has no effect, clear ghost data before retyping the code.\n\n[[clear-ghost-data-guide]]\n\n## 3. Confirm the ACE species is correct and that you are using it correctly.\n\nUse the ACE species required by the code. Some Emerald codes may be executed with a 0x0611 DOTS Egg or the 0x0615 species for japanese, but most of the codes on this site require a stable ACE species. Check ACE codes to find the one recommended for your language. Regular codes that require a stable ACE species should be executed with the correct stable or metastable equivalent for your language.\n\nExamples used by this archive include 0x410E for English, 0x4130 for German, 0x415E for Italian, 0x0599 for Spanish, and 0x40ED for French. Some language-specific executors, particularly Thumb species such as French 0x40ED, require a bootstrap bad egg, so follow the setup guide for that language. If your species is a Metastable ACE, you must view the stat page of any adjacent Pokémon to the Ace species, before scrolling into the summary of it to avoid crashing when executing a code.\n\nAt this point, you can run the test code below for all non-japanese versions to confirm your ACE species is correct. This is mostly useful for the DOTS egg 0x611 species. It should ask to nickname your hatched glitchmon if your 0x611 is correctly EV trained, otherwise it should crash. Keep in mind that crashing also can be due to ghost data or Pokémon blocking the code in boxes 11-14, incompatible device, emulator or ROM. Check the FAQ to read about which emulators are not compatible with ACE.\n\n[[code]]\nCode title: Emerald DOTS egg 0x611 species test\nBox  1: r P D n V S B n    [rPDnVSBn]\nBox  2: B T o j _ B n 2    [BToj Bn2]\nBox  3: A n            [An]\nCode note: Boxes 4-14 may have any name.\n[[/code]]\n\n## 4. Retype every box name carefully\n\n- Check the box number before checking its characters. You can do this by entering deposit mode and selecting a Pokémon. The first box option will always be box 1. TIP: Change the wallpaper of box 1 to remember in the future.  \n- Treat uppercase and lowercase letters as different characters.\n- Distinguish zero from uppercase O, one from uppercase I or lowercase l, and hyphens from spaces. The codes on this website are color-coded to match the background color in-game. Blue for upper-case, red for lower-case and green for symbols. White is for comma, period and spaces, as it doesn't matter where these are entered from. \n- Check left and right quotation marks, apostrophes, the ellipsis, gender symbols, punctuation, and every intentional space.\n- Spaces are important. If the code specifies spaces at the end, always type them. If not, do not type spaces at the end. Instead, press start and confirm to end the box name early.\n- Compare one box at a time from the first character to the last. Do not rely on the overall shape of the line.\n\n## 5. Check the cartridge, ROM, and device\n\nUse an authentic cartridge or clean, unmodified ROM whenever possible. Reproduction cartridges, ROM hacks, randomizers, and patched ROMs may not share the expected memory layout. Confirm that the selected emulator profile matches the emulator and whether the code requires a GBA BIOS file.\n\n## 6. Ask for help\n\nFor example, you can join my (MankeyMite) Discord server and paste pictures/videos of your boxes and mention which code you're struggling with, and wait for someone to help you. Find my Discord invite link in the \"About\" tab on this website."
+        },
+        "frlg": {
+          "testCode": {
+            "title": "FR/LG executor test code",
+            "template": [
+              "Box 1: C C U n n R E o [CCUnnREo]",
+              "Box 2: P R o / G w m [PRo/Gwm]",
+              "Box 3: A A T S , m [AATS,m]",
+              "Box 4: A / F Q m [A/FQm]",
+              "Box 5: D F Q m [DFQm]",
+              "Box 6: _ F o H I o o r [ FoHIoor]",
+              "Box 7: x n [xn]"
+            ],
+            "note": "Older / inaccurate emulators: replace the / in Box 2 with uppercase B. Enter Box 2 as P R o B G w m [PRoBGwm]."
+          },
+          "body": "## 1. Use the code for your exact setup\n\n- If you used a code from this website, make sure you selected Pokémon FireRed/LeafGreen and your exact game language and platform that matches your console or emulator. Accurate and older emulators sometimes require different box names.\n- Never substitute a code generated for another language, game, or platform, even when most of its box names look similar.\n\n[[compatibility-faq]]\n\n\n\n## 2. Clear the execution area\n\nFor regular codes that don't require a special payload to function, move visible Pokémon out of Box 13 from Slot 7 onward (the second row through the last row) and every slot in Box 14, unless the specific guide tells you to keep required bootstrap or exit-code data there.\n\nEmpty-looking slots may still contain ghost data. Clear the area using the guide below, then restore only the setup data explicitly required by your FireRed/LeafGreen method.\n\n[[clear-ghost-data-guide]]\n\n## 3. Confirm the ACE species is correct and that you are using it correctly.\n\nIf you have the 0x351 species, you should confirm its name looks the same as in the guide you read/watched. Confirm that you have all requirements mentioned in the code. Use the Grab method to execute codes with the 0x351: Pick up 0x351 and swap it twice with a Pokémon next to it, or the other way around.\n\nIf you haven't already, you can run the test code below for all non-japanese versions to confirm your ACE species is correct. It should give you a Bulbasaur in box 9 slot 30. Keep that slot empty before running the code. Keep in mind that crashing also can be due to ghost data or Pokémon blocking the code in boxes 11-14, incompatible device, emulator or ROM. Check the FAQ to read about which emulators are not compatible with ACE.\n\n[[code]]\nCode title: FireRed / LeafGreen 0x351 species test\nBox 1:C C U n n R E o[CCUnnREo]\nBox 2:P R o / G w m[PRo/Gwm]\nBox 3:A A T S , m[AATS,m]\nBox 4:A / F Q m[A/FQm]\nBox 5:D F Q m[DFQm]\nBox 6:_ F o H I o o r[ FoHIoor]\nBox 7:x n[xn]\nCode note: For inaccurate/old emulators, use B instead of / in box 2. Boxes 8-14 may have any name. Keep box 9 slot 30 empty before running this code.\n[[/code]]\n\n## 4. Retype every box name carefully\n\n- Check the box number before checking its characters. You can do this by entering deposit mode and selecting a Pokémon. The first box option will always be box 1. TIP: Change the wallpaper of box 1 to remember in the future.  \n- Treat uppercase and lowercase letters as different characters.\n- Distinguish zero from uppercase O, one from uppercase I or lowercase l, and hyphens from spaces. The codes on this website are color-coded to match the background color in-game. Blue for upper-case, red for lower-case and green for symbols. White is for comma, period and spaces, as it doesn't matter where these are entered from. \n- Check left and right quotation marks, apostrophes, the ellipsis, gender symbols, punctuation, and every intentional space.\n- Spaces are important. If the code specifies spaces at the end, always type them. If not, do not type spaces at the end. Instead, press start and confirm to end the box name early.\n- Compare one box at a time from the first character to the last. Do not rely on the overall shape of the line.\n\n## 5. Check the cartridge, ROM, and device\n\nUse an authentic cartridge or clean, unmodified ROM whenever possible. Reproduction cartridges, ROM hacks, randomizers, and patched ROMs may not share the expected memory layout. Confirm that the selected emulator profile matches the emulator and whether the code requires a GBA BIOS file.\n\n## 6. Ask for help\n\nFor example, you can join my (MankeyMite) Discord server and paste pictures/videos of your boxes and mention which code you're struggling with, and wait for someone to help you. Find my Discord invite link in the \"About\" tab on this website."
+        }
+      }
     },
     "faq": {
       "title": "Frequently asked questions",
-      "introduction": "Common questions about compatibility, terminology, safety, and this archive will appear here.",
-      "body": "## Can I run ACE codes if my battery has run dry?\nYes! It won’t interfere with the codes, but if you ever spawn the mirage island with ACE it will stay for 65535 days instead of 24 hours, unless you use a code to remove it.\n\n\n## Is my device considered a console/new emulator, or an old emulator?\n- Consoles are the Nintendo handheld consoles such as the GBA and Nintendo DS.\n- New emulators are emulators that are considered accurate, such as the mGBA emulator, if the version is > 0.9.\n- Old emulators are the majority of mobile and PC emulators, like VBA, Delta, and MyBoy!. Analouge Pocket and other handhelds also use the old emulator setting for Ace codes.\n\n## Which devices/emulators are not compatible with gen 3 ACE?\n-DSi running through Twilight Menu with GBARunner2/3 (best option is GBARunner 3, but still might not work).\n-SkyEmu \n-gpSP: the egg method in Emerald doesn't work, you need to double-corrupt a stable ACE species, preferably 0x4167. EV train Dots like this: 65 Attack EVs, 103 HP EVs, and make sure it knows Flash for english or german versions. for italian: Nature power, spanish: hidden power, french: no fourth move. japanese: rock smash. \nonce you get a good egg with that (with the pomeg berry corruption part - either net ball OR premier ball in this case), you have to make clones of that egg and PLUSES again and do the corruption with that DOTS egg instead of the DOTS Seedot.\n-Pizza Boy GBA Pro - works for some codes like a few of E-sh4rk's codes, but struggle with recursive exit codes and Mettrich's codes\n-MyBoy if you provided a BIOS gba file. MyBoy should be run without BIOS if attempting ACE codes, but will make some codes that require BIOS unavailable.\n-Probably a few more!\n\n## The guy inside Mauville Pokémon center has a different hair color. Will this affect the code?\nThis is a strange, but cool little feature gamefreak included. His hair color changes based on your Trainer ID, and has no effect on the codes.\n\n## My DOTS egg hatched into a different color question mark. Does that mean I did something wrong?\nNo, the question mark that comes out of the Dots egg can have multiple colors, actually! Seems to be RNG for some codes.\n\n\n## Is crashing bad for my game?\nNo, a crash is safe, and a built in feature to protect the game from unintented behavior.\n\n## Is a Bad Egg bad for my save file or game?\nA Bad Egg is a Pokémon where the internal checksum does not match its data. The game flags that individual Pokémon as a Bad Egg. It does not corrupt the save file, and is considered harmless. However, it is adviced to reset the game or remove the bad egg if you have used a code where the bad egg was not intentional. Keep in mind that for FireRed and LeafGreen with the current ACE execution setup, a bad egg after executing an ACE code is a common side effect, and is completely harmless."
+      "introduction": "Common questions about gen 3 ACE (Arbitrary Code Execution).",
+      "body": "## Can I run ACE codes if my battery has run dry?\nGames: Emerald\nYes! It won’t interfere with the codes, but if you ever spawn the mirage island with ACE it will stay for 65535 days instead of 24 hours, unless you use a code to remove it.\n\n\n## Is my device considered a console/new emulator, or an old emulator?\n- Consoles are the Nintendo handheld consoles such as the GBA and Nintendo DS.\n- New emulators are emulators that are considered accurate, such as the mGBA emulator, if the version is > 0.9.\n- Old emulators are the majority of mobile and PC emulators, like VBA, Delta, and MyBoy!. Analouge Pocket and other handhelds also use the old emulator setting for Ace codes.\n\n## Which devices/emulators are not compatible with gen 3 ACE?\n-DSi running through Twilight Menu with GBARunner2/3 (best option is GBARunner 3, but still might not work).\n-SkyEmu \n-gpSP: the egg method in Emerald doesn't work, you need to double-corrupt a stable ACE species, preferably 0x4167. EV train Dots like this: 65 Attack EVs, 103 HP EVs, and make sure it knows Flash for english or german versions. for italian: Nature power, spanish: hidden power, french: no fourth move. japanese: rock smash. \nonce you get a good egg with that (with the pomeg berry corruption part - either net ball OR premier ball in this case), you have to make clones of that egg and PLUSES again and do the corruption with that DOTS egg instead of the DOTS Seedot.\n-Pizza Boy GBA Pro - works for some codes like a few of E-sh4rk's codes, but struggle with recursive exit codes and Mettrich's codes\n-MyBoy if you provided a BIOS gba file. MyBoy should be run without BIOS if attempting ACE codes, but will make some codes that require BIOS unavailable.\n-Probably a few more!\n\n## My game crashed after attempting to delete the hatched glitchmon from the 0x611 Dots egg. What did I do wrong?\nGames: Emerald\nTo properly delete this, you must move it to the front of your party while outisde of the PC, then enter the deposit mode in the PC and delete it right away without scrolling back into it. \n\n## The guy inside Mauville Pokémon center has a different hair color. Will this affect the code?\nGames: Emerald, Ruby, Sapphire\nThis is a strange, but cool little feature gamefreak included. His hair color changes based on your Trainer ID, and has no effect on the codes.\n\n## My DOTS egg hatched into a different color question mark. Does that mean I did something wrong?\nGames: Emerald\nNo, the question mark that comes out of the Dots egg can have multiple colors, actually! Seems to be RNG for some codes.\n\n\n## Is crashing bad for my game?\nNo, a crash is a built in feature to protect the game from unintented behavior. Turning off and on, or soft resetting, will revert to your \"safe\" save state.\n\n## Is a Bad Egg bad for my save file or game?\nA Bad Egg is a Pokémon where the internal checksum does not match its data. The game flags that individual Pokémon as a Bad Egg. It does not corrupt the save file, and is considered harmless. However, it is adviced to reset the game or remove the bad egg if you have used a code where the bad egg was not intentional. Keep in mind that for FireRed and LeafGreen with the current ACE execution setup, a bad egg after executing an ACE code is a common side effect, and is completely harmless.\n\n## A bad egg appeared in box 13 in FireRed/LeafGreen after executing a code, how do I get rid of it?\nGames: FireRed/LeafGreen\nThis bad egg has a chance to spawn after hovering over the 0x351 ace species, but will not interfere with your codes or do any harm to your save file. As long as you want to keep doing Ace codes, you should just let it be, but if you really want to delete it, there are two main ways:\n\n1. Use the multiselect option (press select or Y on switch), then hold down A on the bad egg, and move one step to any empty space next to it, and let go of A to pick up. Move the bad egg at least one space in any direction and put it down. The bad egg should now disappear. If not, look at step 2:\n\n2. Create a decloning species and delete it using that. Here is a guide for it: https://www.youtube.com/watch?v=XRbUgP0Xb9o&t=175s"
     }
   }
 };

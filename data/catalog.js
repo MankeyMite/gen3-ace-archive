@@ -6,8 +6,6 @@
  * below is deliberately fictional and is only present to demonstrate the UI.
  */
 window.ACE_CATALOG = {
-  version: "Prototype · July 2026",
-
   games: [
     { id: "emerald", name: "Emerald", group: "Hoenn" },
     { id: "ruby", name: "Ruby", group: "Hoenn" },
@@ -26,7 +24,7 @@ window.ACE_CATALOG = {
   ],
 
   platforms: [
-    { id: "accurate", name: "GBA console / accurate emulator", shortName: "GBA / accurate emulator" },
+    { id: "accurate", name: "Console / accurate emulator", shortName: "Console / accurate emulator" },
     { id: "inaccurate", name: "Older / inaccurate emulator", shortName: "Old emulator" },
     { id: "switch", name: "Nintendo Switch", shortName: "Nintendo Switch", games: ["firered", "leafgreen"] },
   ],

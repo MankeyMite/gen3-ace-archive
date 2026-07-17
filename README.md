@@ -36,6 +36,16 @@ Guide and page-body fields support lightweight formatting: begin a line with `##
 a section heading, `### ` for a smaller heading, or `- ` for a list item. Separate
 paragraphs with a blank line.
 
+Guide and code video fields accept a YouTube URL, a YouTube video ID, or a local video
+path. Put local files in `assets/videos/` and enter a project-relative path such as
+`assets/videos/clear-ghost-data.mp4`. MP4 with H.264 video is the most broadly
+supported format; WebM and Ogg are also accepted. Local videos use the browser's
+built-in player and do not autoplay.
+
+In the Guides editor, **Choose a local video** fills this project-relative path
+automatically. The browser cannot move or upload the selected file, so copy it into
+`assets/videos/` before choosing it.
+
 Because a static browser page cannot write directly into project files, new entries
 are initially stored in that browser's `localStorage`. Click **Export project file**
 to download a ready-made `custom-codes.js`, then replace `data/custom-codes.js` in the

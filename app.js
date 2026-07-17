@@ -59,10 +59,21 @@
   localStorage.setItem(LOCAL_GUIDES_KEY, JSON.stringify(localGuides));
   const pageContent = {
     troubleshooting: { title: "Find out why a code did not run.", introduction: "General diagnostic guides and video examples will live here.", body: "" },
-    faq: { title: "Frequently asked questions", introduction: "Common questions about compatibility, terminology, safety, and this archive will appear here.", body: "" },
+    faq: { title: "Frequently asked questions", introduction: "Common questions about ACE in gen 3.", body: "" },
     ...projectPages,
     ...localPages,
   };
+  if (projectPages.troubleshooting?.games) {
+    const localTroubleshooting = localPages.troubleshooting?.games ? localPages.troubleshooting : {};
+    pageContent.troubleshooting = {
+      ...projectPages.troubleshooting,
+      ...localTroubleshooting,
+      games: Object.fromEntries(Object.keys(projectPages.troubleshooting.games).map((gameId) => [
+        gameId,
+        { ...projectPages.troubleshooting.games[gameId], ...(localTroubleshooting.games?.[gameId] || {}) },
+      ])),
+    };
+  }
   const variationDrafts = new Map();
   let activeVariation = "";
   let editingCodeId = "";
@@ -76,13 +87,22 @@
     category: "All",
     search: "",
   };
+  const FAQ_GAME_FILTERS = [
+    { id: "all", label: "All" },
+    { id: "ruby-sapphire", label: "Ruby & Sapphire" },
+    { id: "emerald", label: "Emerald" },
+    { id: "frlg", label: "FireRed / LeafGreen" },
+  ];
+  let activeFaqGame = localStorage.getItem("ace-faq-game") || "all";
+  if (!FAQ_GAME_FILTERS.some((filter) => filter.id === activeFaqGame)) activeFaqGame = "all";
   const incomingUrl = new URL(window.location.href);
   const sharedGame = incomingUrl.searchParams.get("game");
   const sharedLanguage = incomingUrl.searchParams.get("language");
   const sharedPlatform = incomingUrl.searchParams.get("platform");
-  if (catalog.games.some((item) => item.id === sharedGame)) state.game = sharedGame;
+  if (catalog.games.some((item) => item.id === sharedGame) && gameHasPublishedCodes(sharedGame)) state.game = sharedGame;
   if (catalog.languages.some((item) => item.id === sharedLanguage)) state.language = sharedLanguage;
   if (catalog.platforms.some((item) => item.id === sharedPlatform)) state.platform = sharedPlatform;
+  if (!gameHasPublishedCodes(state.game)) state.game = catalog.games.find((game) => gameHasPublishedCodes(game.id))?.id || catalog.games[0]?.id;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const elements = {
@@ -98,6 +118,10 @@
     return catalog[collection].find((entry) => entry.id === id)?.name || id;
   }
 
+  function gameHasPublishedCodes(gameId) {
+    return catalog.codes.some((code) => !code.deleted && code.games?.includes(gameId));
+  }
+
   function codeCountLabel(count) {
     return `${count} code${count === 1 ? "" : "s"}`;
   }
@@ -110,11 +134,15 @@
   }
 
   function initSetup() {
-    elements.game.innerHTML = catalog.games.map((game) => `<option value="${game.id}">${game.name}</option>`).join("");
+    elements.game.innerHTML = catalog.games.map((game) => {
+      const available = gameHasPublishedCodes(game.id);
+      return `<option value="${game.id}" ${available ? "" : "disabled"}>${game.name}${available ? "" : " - Coming soon"}</option>`;
+    }).join("");
     elements.language.innerHTML = catalog.languages.map((language) => `<option value="${language.id}">${language.name}</option>`).join("");
     elements.platform.innerHTML = catalog.platforms.map((platform) =>
       `<option value="${platform.id}">${platform.name}</option>`).join("");
     elements.game.value = state.game;
+    localStorage.setItem("ace-game", state.game);
     elements.language.value = state.language;
     updatePlatformAvailability();
     elements.platform.value = state.platform;
@@ -154,7 +182,7 @@
   function visibleCodes() {
     const query = state.search.trim().toLowerCase();
     return catalog.codes.filter((code) => {
-      const text = [code.title, code.summary, code.category, ...(code.tags || [])].join(" ").toLowerCase();
+      const text = [code.title, code.author, code.summary, code.category, ...(code.tags || [])].join(" ").toLowerCase();
       return isCompatible(code) && (state.category === "All" || code.category === state.category) && (!query || text.includes(query));
     }).sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
   }
@@ -218,6 +246,11 @@
 
   function codeNoteFromLine(line) {
     const match = String(line || "").trim().match(/^code\s+note\s*:(.*)$/i);
+    return match ? cleanGuideText(match[1]) : null;
+  }
+
+  function codeTitleFromLine(line) {
+    const match = String(line || "").trim().match(/^code\s+title\s*:(.*)$/i);
     return match ? cleanGuideText(match[1]) : null;
   }
 
@@ -353,10 +386,15 @@
         "Execute the code.",
         "If it crashes or nothing happens, read the troubleshooting section below.",
       ];
+    const executionAreaReminder = state.game === "emerald"
+      ? "Keep Pokémon out of Box 11, Slots 25-30 (the last row), and all of Boxes 12-14 unless this code requires specific setup data there."
+      : ["firered", "leafgreen"].includes(state.game)
+        ? "Clear the FireRed/LeafGreen execution area documented by this code's setup, including Box 13 from Slot 7 onward and Box 14 unless required setup data belongs there."
+        : "Clear the execution area documented for this game and code before trying again.";
     const troubleshootingItems = [
       "Make sure the code is typed correctly in the correct boxes.",
       "Read and make sure you meet the requirements for this code.",
-      "Keep Pokémon out of the last row of box 11, and all of boxes 12–14.",
+      executionAreaReminder,
       `Attempt to clear ghost data in boxes 11–14. <button type="button" class="inline-link" data-open-guide="clear-ghost-data">Click here</button> for a tutorial on how to do this.`,
       `Go to the <button type="button" class="inline-link" data-open-tab="troubleshooting">ACE troubleshooting tab</button> to see video examples of how to solve an ACE code problem.`,
     ];
@@ -378,7 +416,7 @@
       ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
       : `<form class="fixed-code-section" id="generator-form">${outputPanel}</form>`;
     elements.dialogContent.innerHTML = `
-      <div class="dialog-header"><div><span class="category-tag">${code.category}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${code.title}</h2><div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
+      <div class="dialog-header"><div><span class="category-tag">${code.category}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${code.title}</h2>${contentMetaMarkup(code, "Code")}<div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("languages", state.language)}</span><span>✓ ${nameFor("platforms", state.platform)}</span></div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul></section>
       ${generatorArea}
@@ -467,11 +505,47 @@
     history.replaceState(null, "", url);
   }
 
+  function todayIsoDate() {
+    const now = new Date();
+    const offsetDate = new Date(now.getTime() - now.getTimezoneOffset() * 60000);
+    return offsetDate.toISOString().slice(0, 10);
+  }
+
+  function safeAddedDate(value) {
+    const match = String(value || "").match(/^(\d{4})-(\d{2})-(\d{2})$/);
+    if (!match) return "";
+    const year = Number(match[1]), month = Number(match[2]), day = Number(match[3]);
+    const date = new Date(Date.UTC(year, month - 1, day));
+    return date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day ? match[0] : "";
+  }
+
+  function formatAddedDate(value) {
+    const date = safeAddedDate(value);
+    if (!date) return "";
+    const [year, month, day] = date.split("-").map(Number);
+    const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+    const remainder = day % 100;
+    const suffix = remainder >= 11 && remainder <= 13 ? "th" : ({ 1: "st", 2: "nd", 3: "rd" }[day % 10] || "th");
+    return `${months[month - 1]} ${day}${suffix}, ${year}`;
+  }
+
+  function contentMetaMarkup(item, type) {
+    const author = String(item.author || "").trim();
+    const date = safeAddedDate(item.addedOn);
+    const parts = [];
+    if (author) parts.push(`<span>${type} by <strong>${escapeHtml(author)}</strong></span>`);
+    if (date) parts.push(`<span>Added on <time datetime="${date}">${formatAddedDate(date)}</time></span>`);
+    return parts.length ? `<p class="content-meta">${parts.join('<i aria-hidden="true">·</i>')}</p>` : "";
+  }
+
   function videoMarkup(video) {
-    if (!video) return `<div class="video-placeholder"><span>▶</span><p>Tutorial video will appear here</p></div>`;
-    const match = String(video).match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/) || String(video).match(/^([\w-]{11})$/);
-    if (!match) return `<div class="video-placeholder"><p>Video link needs a valid YouTube URL.</p></div>`;
-    return `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${match[1]}" title="Video tutorial" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+    if (!video) return `<div class="video-placeholder coming-soon-placeholder"><span class="coming-soon-tag">Coming soon</span><p>A video tutorial will be added here.</p></div>`;
+    const source = String(video).trim().replace(/\\/g, "/");
+    const youtubeMatch = source.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/) || source.match(/^([\w-]{11})$/);
+    if (youtubeMatch) return `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}" title="Video tutorial" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
+    const localVideo = /^(?:\.\/)?assets\/videos\/[^?#]+\.(?:mp4|webm|ogg)$/i.test(source) && !source.split("/").includes("..");
+    if (localVideo) return `<div class="video-frame local-video-frame"><video src="${escapeHtml(source)}" controls preload="metadata" playsinline aria-label="Video tutorial"></video></div>`;
+    return `<div class="video-placeholder"><p>Use a YouTube URL or a local path such as assets/videos/example.mp4.</p></div>`;
   }
 
   function renderGuides() {
@@ -503,9 +577,101 @@
   function renderPages() {
     ["troubleshooting", "faq"].forEach((pageId) => {
       const page = pageContent[pageId];
-      const body = pageId === "faq" ? renderFaqContent(page.body) : `<div class="formatted-content">${renderFormattedText(page.body)}</div>`;
+      const body = pageId === "faq" ? renderFaqContent(page.body) : renderTroubleshootingContent(page);
       $(`#${pageId}-content`).innerHTML = `<p class="step-label">${pageId === "faq" ? "FAQ" : "TROUBLESHOOTING"}</p><h1>${escapeHtml(page.title)}</h1>${page.introduction ? `<p class="page-introduction">${escapeHtml(page.introduction)}</p>` : ""}${body}`;
     });
+  }
+
+  function renderTroubleshootingBody(value, gameData = {}) {
+    const codeBlocks = [];
+    const addCodeBlock = (code) => {
+      const index = codeBlocks.push(code.trim()) - 1;
+      return `\n@@ACE_TROUBLESHOOTING_CODE_${index}@@\n`;
+    };
+    let content = String(value || "").replace(/\[\[code\]\]([\s\S]*?)\[\[\/code\]\]/gi, (_, code) => addCodeBlock(code));
+    content = content.split(/\r?\n/).map((line) => {
+      const trimmed = line.trim();
+      if (!/^\[\s*\[\s*Box\s*(?:1[0-4]|[1-9])\s*:/i.test(trimmed) || !/\]\s*\]\s*$/.test(trimmed)) return line;
+      return addCodeBlock(trimmed.replace(/^\[\s*\[\s*/, "").replace(/\]\s*\]\s*$/, ""));
+    }).join("\n");
+    return content.split(/(\[\[(?:clear-ghost-data-guide|compatibility-faq|executor-test-code)\]\]|@@ACE_TROUBLESHOOTING_CODE_\d+@@)/).map((part) => {
+      if (part === "[[clear-ghost-data-guide]]") return `<button type="button" class="troubleshooting-resource-link" data-open-troubleshooting-guide="clear-ghost-data">Open the guide: How to clear ghost data <span aria-hidden="true">→</span></button>`;
+      if (part === "[[compatibility-faq]]") return `<button type="button" class="troubleshooting-resource-link" data-open-troubleshooting-tab="faq">Check device and emulator compatibility in the FAQ <span aria-hidden="true">→</span></button>`;
+      if (part === "[[executor-test-code]]") {
+        return gameData.testCode
+          ? troubleshootingCodeMarkup(gameData.testCode.template, gameData.testCode)
+          : `<aside class="troubleshooting-pending"><strong>Executor test code needed</strong><p>A verified test code will be added here once it is provided. Do not use an unverified payload to diagnose your setup.</p></aside>`;
+      }
+      const codeMatch = part.match(/^@@ACE_TROUBLESHOOTING_CODE_(\d+)@@$/);
+      if (codeMatch) return troubleshootingCodeMarkup(codeBlocks[Number(codeMatch[1])]);
+      return `<div class="formatted-content">${renderFormattedText(part)}</div>`;
+    }).join("");
+  }
+
+  function troubleshootingCodeMarkup(value, options = {}) {
+    const source = Array.isArray(value) ? value.join("\n") : String(value || "");
+    let inlineNote = null;
+    let inlineTitle = null;
+    const codeSource = source.split(/\r?\n/).filter((line) => {
+      const parsedNote = codeNoteFromLine(line);
+      if (parsedNote !== null) {
+        inlineNote = parsedNote;
+        return false;
+      }
+      const parsedTitle = codeTitleFromLine(line);
+      if (parsedTitle !== null) {
+        inlineTitle = parsedTitle;
+        return false;
+      }
+      return true;
+    }).join("\n");
+    const codeLines = [...codeSource.matchAll(/(Box\s*(?:1[0-4]|[1-9])\s*:[\s\S]*?)(?=\s+Box\s*(?:1[0-4]|[1-9])\s*:|$)/gi)]
+      .map((match) => match[1].replace(/\s*\r?\n\s*/g, " ").trim());
+    if (!codeLines.length) return "";
+    const title = options.title || inlineTitle || "Executor test code";
+    const noteText = options.note ?? inlineNote;
+    const note = noteText ? `<div class="code-notes"><p>${escapeHtml(noteText)}</p></div>` : "";
+    return `<div class="output-panel code-output-panel troubleshooting-code-panel"><div class="output-heading"><h3>${escapeHtml(title)}</h3><button type="button" data-copy-troubleshooting-code>Copy</button></div><pre>${codeLines.map(renderCodeLine).join("\n")}</pre>${note}</div>`;
+  }
+
+  function renderTroubleshootingContent(page) {
+    const games = [
+      { id: "emerald", label: "Pokémon Emerald" },
+      { id: "frlg", label: "FireRed / LeafGreen" },
+    ];
+    const savedGame = localStorage.getItem("ace-troubleshooting-game");
+    const activeGame = games.some((game) => game.id === savedGame) ? savedGame : "emerald";
+    return `<div class="troubleshooting-workspace"><div class="troubleshooting-game-tabs" role="tablist" aria-label="Choose a game">${games.map((game) => `<button type="button" id="troubleshooting-tab-${game.id}" role="tab" aria-selected="${game.id === activeGame}" aria-controls="troubleshooting-panel-${game.id}" tabindex="${game.id === activeGame ? "0" : "-1"}" class="${game.id === activeGame ? "active" : ""}" data-troubleshooting-game="${game.id}">${game.label}</button>`).join("")}</div>${games.map((game) => {
+      const gameData = page.games?.[game.id] || {};
+      const body = gameData.body || (game.id === "emerald" ? page.body : "");
+      return `<section id="troubleshooting-panel-${game.id}" class="troubleshooting-game-panel" role="tabpanel" aria-labelledby="troubleshooting-tab-${game.id}" ${game.id === activeGame ? "" : "hidden"}>${renderTroubleshootingBody(body, gameData)}</section>`;
+    }).join("")}</div>`;
+  }
+
+  function activateTroubleshootingGame(gameId) {
+    const root = $("#troubleshooting-content");
+    if (!root.querySelector(`[data-troubleshooting-game="${gameId}"]`)) return;
+    root.querySelectorAll("[data-troubleshooting-game]").forEach((button) => {
+      const active = button.dataset.troubleshootingGame === gameId;
+      button.classList.toggle("active", active); button.setAttribute("aria-selected", active); button.tabIndex = active ? 0 : -1;
+    });
+    root.querySelectorAll(".troubleshooting-game-panel").forEach((panel) => { panel.hidden = panel.id !== `troubleshooting-panel-${gameId}`; });
+    localStorage.setItem("ace-troubleshooting-game", gameId);
+  }
+
+  function faqGameId(value) {
+    const key = String(value || "").toLowerCase().replace(/[^a-z]/g, "");
+    if (["ruby", "sapphire", "rubysapphire", "rs"].includes(key)) return "ruby-sapphire";
+    if (["emerald", "e"].includes(key)) return "emerald";
+    if (["firered", "leafgreen", "fireredleafgreen", "frlg"].includes(key)) return "frlg";
+    return "";
+  }
+
+  function faqGamesFromLine(line) {
+    const match = String(line || "").trim().match(/^games?\s*:\s*(.*)$/i);
+    if (!match) return null;
+    if (!match[1].trim() || /^all(?:\s+games)?$/i.test(match[1].trim())) return [];
+    return [...new Set(match[1].split(/[,;]+/).map(faqGameId).filter(Boolean))];
   }
 
   function renderFaqContent(value) {
@@ -513,12 +679,26 @@
     let current = null;
     String(value || "").split(/\r?\n/).forEach((line) => {
       if (line.trim().startsWith("## ")) {
-        current = { question: line.trim().slice(3), answer: [] };
+        current = { question: line.trim().slice(3), answer: [], games: [] };
         questions.push(current);
-      } else if (current) current.answer.push(line);
+      } else if (current) {
+        const games = faqGamesFromLine(line);
+        if (games === null) current.answer.push(line);
+        else current.games = games;
+      }
     });
     if (!questions.length) return `<div class="faq-empty">Add FAQ questions in Developer mode using <strong>## Question</strong>.</div>`;
-    return `<div class="faq-list">${questions.map((item) => `<details class="faq-item"><summary><span>${escapeHtml(item.question)}</span><b aria-hidden="true">+</b></summary><div class="faq-answer formatted-content">${renderFormattedText(item.answer.join("\n"))}</div></details>`).join("")}</div>`;
+    const visibleQuestions = activeFaqGame === "all"
+      ? questions
+      : questions.filter((item) => !item.games.length || item.games.includes(activeFaqGame));
+    const filters = `<div class="faq-filter-bar"><span>Filter by game</span><div class="faq-game-filters" role="group" aria-label="Filter FAQ questions by game">${FAQ_GAME_FILTERS.map((filter) => `<button type="button" class="${filter.id === activeFaqGame ? "active" : ""}" aria-pressed="${filter.id === activeFaqGame}" data-faq-game="${filter.id}">${escapeHtml(filter.label)}</button>`).join("")}</div></div>`;
+    if (!visibleQuestions.length) return `${filters}<div class="faq-empty">No FAQ questions are tagged for this game yet.</div>`;
+    const items = visibleQuestions.map((item) => {
+      const tags = item.games.map((gameId) => FAQ_GAME_FILTERS.find((filter) => filter.id === gameId)).filter(Boolean);
+      const tagMarkup = tags.length ? `<span class="faq-game-tags">${tags.map((tag) => `<span>${escapeHtml(tag.label)}</span>`).join("")}</span>` : "";
+      return `<details class="faq-item"><summary><span class="faq-summary-content"><span>${escapeHtml(item.question)}</span>${tagMarkup}</span><b aria-hidden="true">+</b></summary><div class="faq-answer formatted-content">${renderFormattedText(item.answer.join("\n"))}</div></details>`;
+    }).join("");
+    return `${filters}<div class="faq-list">${items}</div>`;
   }
 
   function openGuide(id) {
@@ -530,7 +710,7 @@
     elements.guideDialogContent.onclick = null;
     elements.guideDialogContent.onchange = null;
     const guideBody = guide.body ? `<div class="formatted-content">${renderFormattedText(guide.body)}</div>` : (guide.sections || []).map((section) => `<section><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.text)}</p></section>`).join("");
-    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.summary)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}${guide.video ? `<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section>` : ""}</article>`;
+    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2>${contentMetaMarkup(guide, "Guide")}<p>${escapeHtml(guide.summary)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section></article>`;
     $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
     $(".share-guide", elements.guideDialogContent).addEventListener("click", () => shareGuide(guide));
     elements.guideDialog.showModal();
@@ -557,11 +737,13 @@
       const checked = new Set(progress.checks[activePhase] || []);
       const completedCount = progress.complete.length;
       const percent = Math.round((completedCount / guide.phases.length) * 100);
-      elements.guideDialogContent.innerHTML = `<div class="dialog-header setup-guide-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2><p>${escapeHtml(guide.introduction)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div>
+      const imageDescription = String(phase.image || "").replace(/^(?:required image placeholder|suggested image)\s*:\s*/i, "");
+      const phaseImage = imageDescription ? `<figure class="guide-image-placeholder coming-soon-placeholder"><span class="coming-soon-tag">Coming soon</span><figcaption>${escapeHtml(imageDescription)}</figcaption><small>A visual guide will be added here.</small></figure>` : "";
+      elements.guideDialogContent.innerHTML = `<div class="dialog-header setup-guide-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2>${contentMetaMarkup(guide, "Guide")}<p>${escapeHtml(guide.introduction)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div>
         <div class="setup-progress" aria-label="${completedCount} of ${guide.phases.length} phases completed"><div><span>${completedCount} of ${guide.phases.length} phases complete</span><strong>${percent}%</strong></div><div class="setup-progress-track"><i style="width:${percent}%"></i></div></div>
         <div class="setup-guide-layout"><nav class="setup-phase-nav" aria-label="Guide phases">${guide.phases.map((item, index) => `<button type="button" data-phase="${index}" class="${index === activePhase ? "active" : ""} ${progress.complete.includes(index) ? "complete" : ""}"><span>${progress.complete.includes(index) ? "✓" : index + 1}</span><b>${escapeHtml(item.shortTitle)}</b></button>`).join("")}</nav>
         <article class="setup-phase-content"><p class="setup-phase-number">Phase ${activePhase + 1} of ${guide.phases.length}</p><h2>${escapeHtml(phase.title)}</h2><p class="setup-objective">${escapeHtml(phase.objective)}</p>${phase.sections.map(renderSection).join("")}
-        <figure class="guide-image-placeholder"><div aria-hidden="true">▧</div><figcaption>${escapeHtml(phase.image)}</figcaption><small>Image placeholder — add the relevant screenshot later</small></figure>
+        ${phaseImage}
         <section class="setup-checkpoint"><h3>Before continuing</h3>${phase.checks.map((item, index) => `<label><input type="checkbox" data-guide-check="${index}" ${checked.has(index) ? "checked" : ""} /><span>${escapeHtml(item)}</span></label>`).join("")}<button type="button" class="phase-complete-button ${progress.complete.includes(activePhase) ? "complete" : ""}" data-toggle-complete>${progress.complete.includes(activePhase) ? "✓ Phase completed" : "Mark phase as complete"}</button></section>
         <div class="setup-phase-actions"><button type="button" data-guide-back ${activePhase === 0 ? "disabled" : ""}>← Previous</button><button type="button" class="next" data-guide-next ${activePhase === guide.phases.length - 1 ? "disabled" : ""}>Next phase →</button></div><p class="guide-source-note">${escapeHtml(guide.sourceNote)}</p></article></div>`;
       $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
@@ -611,6 +793,10 @@
     $("#delete-code-edit").addEventListener("click", deleteEditingCode);
     $("#developer-form").querySelectorAll('input[type="checkbox"]').forEach((input) => input.addEventListener("change", renderVariationTabs));
     $("#developer-form").elements.code.addEventListener("input", syncDefaultCodeToVariations);
+    $("#developer-form").elements.sourceCode.addEventListener("input", syncCodeAuthorFromSource);
+    $("#developer-form").elements.author.addEventListener("input", (event) => {
+      if (event.currentTarget.value !== event.currentTarget.dataset.derivedAuthor) delete event.currentTarget.dataset.derivedAuthor;
+    });
     $("#combination-tabs").addEventListener("click", selectVariationTab);
     $(".developer-content-tabs").addEventListener("click", (event) => {
       const button = event.target.closest("[data-dev-tab]"); if (!button) return;
@@ -618,6 +804,7 @@
       document.querySelectorAll("[data-dev-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.devPanel === button.dataset.devTab));
     });
     $("#guide-developer-form").addEventListener("submit", saveDeveloperGuide);
+    $("#guide-video-picker").addEventListener("change", selectGuideLocalVideo);
     $("#developer-guides").addEventListener("click", handleDeveloperGuideAction);
     $("#cancel-guide-edit").addEventListener("click", resetGuideDeveloperForm);
     $("#delete-guide-edit").addEventListener("click", deleteEditingGuide);
@@ -629,6 +816,8 @@
     renderLocalCodes();
     renderDeveloperGuides();
     loadPageDeveloperForm();
+    $("#developer-form").elements.addedOn.value = todayIsoDate();
+    $("#guide-developer-form").elements.addedOn.value = todayIsoDate();
   }
 
   function selectedDeveloperValues(name) {
@@ -694,7 +883,7 @@
     }
     const [game, language, platform] = activeVariation.split("|");
     const draft = variationDrafts.get(activeVariation);
-    const platformName = platform === "accurate+inaccurate" ? "GBA console / accurate emulator + old emulator" : nameFor("platforms", platform);
+    const platformName = platform === "accurate+inaccurate" ? "Console / accurate emulator + old emulator" : nameFor("platforms", platform);
     field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="Leave blank to use the default code. Write instructions between code groups and add Code note: after any code that needs a custom footer."></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : "Uses default code"}</small>`;
     const textarea = field.querySelector("textarea");
     textarea.value = draft.value;
@@ -719,6 +908,23 @@
 
   function safeText(value) {
     return String(value || "").replace(/[<>]/g, "").trim();
+  }
+
+  function authorFromSourceCode(value) {
+    const source = Array.isArray(value) ? value.join("\n") : String(value || "");
+    const match = source.match(/^\s*@@\s*author\s*=\s*(?:"([^"]+)"|'([^']+)'|([^\r\n]+?))\s*$/im);
+    return safeText(match?.[1] || match?.[2] || match?.[3] || "");
+  }
+
+  function syncCodeAuthorFromSource() {
+    const form = $("#developer-form");
+    const authorInput = form.elements.author;
+    const previousDerivedAuthor = authorInput.dataset.derivedAuthor || "";
+    if (authorInput.value.trim() && authorInput.value !== previousDerivedAuthor) return;
+    const detectedAuthor = authorFromSourceCode(form.elements.sourceCode.value);
+    authorInput.value = detectedAuthor;
+    if (detectedAuthor) authorInput.dataset.derivedAuthor = detectedAuthor;
+    else delete authorInput.dataset.derivedAuthor;
   }
 
   function saveDeveloperCode(event) {
@@ -748,12 +954,13 @@
     });
     const title = safeText(data.get("title"));
     const existingCode = editingCodeId ? catalog.codes.find((entry) => entry.id === editingCodeId) : null;
+    const sourceCode = lines(data.get("sourceCode"));
     const code = {
       id: editingCodeId || `local-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
-      title, summary: safeText(data.get("summary")), category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
+      title, author: safeText(data.get("author")) || authorFromSourceCode(sourceCode), addedOn: safeAddedDate(data.get("addedOn")) || existingCode?.addedOn || todayIsoDate(), summary: safeText(data.get("summary")), category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
       recommended: data.get("recommended") === "on",
       games, languages, platforms, tags: existingCode?.tags || [], parameters: existingCode?.parameters || [], variants,
-      requirements: lines(data.get("requirements")).map(safeText), sourceCode: lines(data.get("sourceCode")),
+      requirements: lines(data.get("requirements")).map(safeText), sourceCode,
       video: safeText(data.get("video")), troubleshooting: lines(data.get("troubleshooting")).map(safeText),
       instructions: existingCode?.instructions || ["Back up your save.", "Confirm every requirement above.", "Enter and execute the code exactly as documented."],
       source: { label: safeText(data.get("sourceLabel")) || "Locally added entry", url: safeText(data.get("sourceUrl")) },
@@ -776,7 +983,7 @@
     const codes = [...catalog.codes].sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
     $("#local-codes").innerHTML = codes.length ? codes.map((code) => {
       const count = codeBlockCount(code);
-      return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
+      return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.author ? ` · Code by ${escapeHtml(code.author)}` : ""}${code.addedOn ? ` · Added ${formatAddedDate(code.addedOn)}` : ""}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
     }).join("") : "<p>No codes available.</p>";
   }
 
@@ -798,6 +1005,8 @@
     const form = $("#developer-form");
     editingCodeId = code.id;
     form.elements.title.value = code.title || "";
+    form.elements.author.value = code.author || "";
+    form.elements.addedOn.value = safeAddedDate(code.addedOn) || todayIsoDate();
     form.elements.category.value = code.category || "Utilities";
     form.elements.difficulty.value = code.difficulty || "Unrated";
     form.elements.recommended.checked = Boolean(code.recommended);
@@ -805,6 +1014,8 @@
     form.elements.code.value = variantToEditorText(code.variants?.default);
     form.elements.requirements.value = (code.requirements || []).join("\n");
     form.elements.sourceCode.value = (code.sourceCode || []).join("\n");
+    delete form.elements.author.dataset.derivedAuthor;
+    if (!code.author) syncCodeAuthorFromSource();
     form.elements.sourceLabel.value = code.source?.label || "";
     form.elements.sourceUrl.value = code.source?.url || "";
     form.elements.video.value = code.video || "";
@@ -828,6 +1039,8 @@
   function resetDeveloperForm() {
     const form = $("#developer-form");
     form.reset(); editingCodeId = ""; variationDrafts.clear(); activeVariation = "";
+    delete form.elements.author.dataset.derivedAuthor;
+    form.elements.addedOn.value = todayIsoDate();
     renderVariationTabs();
     $("#save-code-button").textContent = "Save code to local library";
     $("#cancel-code-edit").hidden = true;
@@ -863,7 +1076,7 @@
     if (isInteractive) syncInteractivePhaseFromFields();
     const guide = {
       id: editingGuideId || `guide-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
-      title, category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
+      title, author: safeText(data.get("author")), addedOn: safeAddedDate(data.get("addedOn")) || existing?.addedOn || todayIsoDate(), category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
       summary: safeText(data.get("summary")), introduction: safeText(data.get("introduction")),
       video: safeText(data.get("video")), locallyAdded: true,
     };
@@ -880,16 +1093,35 @@
     $("#guide-developer-status").textContent = `${action} “${title}”.`;
   }
 
+  function selectGuideLocalVideo(event) {
+    const file = event.currentTarget.files[0];
+    if (!file) return;
+    const help = $("#guide-video-picker-help");
+    if (!/\.(?:mp4|webm|ogg)$/i.test(file.name) || /[?#]/.test(file.name)) {
+      help.textContent = "Choose an MP4, WebM, or Ogg file whose filename does not contain ? or #.";
+      event.currentTarget.value = "";
+      return;
+    }
+    const path = `assets/videos/${file.name}`;
+    $("#guide-developer-form").elements.video.value = path;
+    help.textContent = `Selected ${file.name}. The guide will use ${path}.`;
+    event.currentTarget.value = "";
+  }
+
   function renderDeveloperGuides() {
     const guides = [...catalog.guides].sort(compareTitles);
-    $("#developer-guides").innerHTML = guides.map((guide) => `<div><span><strong>${escapeHtml(guide.title)}</strong><small>${escapeHtml(guide.category)} · ${escapeHtml(guide.difficulty)}${guide.type === "interactive-setup" ? " · Interactive" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-guide="${guide.id}">Edit</button></span></div>`).join("");
+    $("#developer-guides").innerHTML = guides.map((guide) => `<div><span><strong>${escapeHtml(guide.title)}</strong><small>${escapeHtml(guide.category)} · ${escapeHtml(guide.difficulty)}${guide.author ? ` · Guide by ${escapeHtml(guide.author)}` : ""}${guide.addedOn ? ` · Added ${formatAddedDate(guide.addedOn)}` : ""}${guide.type === "interactive-setup" ? " · Interactive" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-guide="${guide.id}">Edit</button></span></div>`).join("");
   }
 
   function handleDeveloperGuideAction(event) {
     const id = event.target.dataset.editGuide; if (!id) return;
     const guide = catalog.guides.find((entry) => entry.id === id); if (!guide) return;
     const form = $("#guide-developer-form"); editingGuideId = id;
-    ["title", "category", "difficulty", "summary", "introduction", "video"].forEach((name) => { form.elements[name].value = guide[name] || ""; });
+    ["title", "author", "category", "difficulty", "summary", "introduction", "video"].forEach((name) => { form.elements[name].value = guide[name] || ""; });
+    form.elements.addedOn.value = safeAddedDate(guide.addedOn) || todayIsoDate();
+    $("#guide-video-picker-help").textContent = guide.video?.startsWith("assets/videos/")
+      ? `Current local video: ${guide.video.slice("assets/videos/".length)}.`
+      : "Choose a video already placed in assets/videos. Its project path will be filled in below.";
     const isInteractive = guide.type === "interactive-setup";
     $("#interactive-guide-editor").hidden = !isInteractive;
     $("#normal-guide-body-field").hidden = isInteractive;
@@ -903,6 +1135,8 @@
 
   function resetGuideDeveloperForm() {
     $("#guide-developer-form").reset(); editingGuideId = ""; $("#save-guide-button").textContent = "Save guide";
+    $("#guide-developer-form").elements.addedOn.value = todayIsoDate();
+    $("#guide-video-picker-help").textContent = "Choose a video already placed in assets/videos. Its project path will be filled in below.";
     $("#cancel-guide-edit").hidden = true; $("#delete-guide-edit").hidden = true;
     $("#interactive-guide-editor").hidden = true; $("#normal-guide-body-field").hidden = false; $("#guide-developer-form").elements.body.required = true;
     interactivePhaseDrafts = []; activeInteractivePhase = 0;
@@ -978,15 +1212,27 @@
 
   function loadPageDeveloperForm() {
     const form = $("#page-developer-form"), page = pageContent[form.elements.page.value];
-    form.elements.title.value = page.title || ""; form.elements.introduction.value = page.introduction || ""; form.elements.body.value = page.body || "";
+    form.elements.title.value = page.title || ""; form.elements.introduction.value = page.introduction || "";
     const isFaq = form.elements.page.value === "faq";
-    form.elements.body.placeholder = isFaq ? "## What is the question?\n\nWrite the answer here.\n\n## Another question?\n\nWrite the next answer here." : "## Section heading\n\nWrite a paragraph here.\n\n- First list item\n- Second list item";
-    $("#page-format-help").textContent = isFaq ? "Start every question with ##, then write its answer below. Each question becomes an expandable pill." : "Use ## for headings, - for lists, and blank lines between paragraphs.";
+    $("#page-default-body-field").hidden = !isFaq;
+    $("#troubleshooting-page-fields").hidden = isFaq;
+    form.elements.body.value = isFaq ? (page.body || "") : "";
+    form.elements.emeraldBody.value = page.games?.emerald?.body || (!isFaq ? page.body || "" : "");
+    form.elements.frlgBody.value = page.games?.frlg?.body || "";
+    form.elements.body.placeholder = isFaq ? "## What is the question?\nGames: Emerald, FireRed/LeafGreen\n\nWrite the answer here.\n\n## A question for every game?\n\nOmit the Games line for universal questions." : "## Section heading\n\nWrite a paragraph here.\n\n- First list item\n- Second list item";
+    $("#page-format-help").textContent = isFaq ? "Start every question with ##. On the next line, optionally add Games: Ruby & Sapphire, Emerald, FireRed/LeafGreen. Separate multiple game groups with commas; omit the Games line to show the question for every game." : "Use ## for headings, - for lists, and blank lines between paragraphs.";
   }
 
   function saveDeveloperPage(event) {
     event.preventDefault(); const form = event.currentTarget; const data = new FormData(form); const id = data.get("page");
-    const page = { title: safeText(data.get("title")), introduction: safeText(data.get("introduction")), body: String(data.get("body") || "").trim() };
+    const existingPage = pageContent[id] || {};
+    const page = { title: safeText(data.get("title")), introduction: safeText(data.get("introduction")) };
+    if (id === "troubleshooting") {
+      page.games = {
+        emerald: { ...(existingPage.games?.emerald || {}), body: String(data.get("emeraldBody") || "").trim() },
+        frlg: { ...(existingPage.games?.frlg || {}), body: String(data.get("frlgBody") || "").trim() },
+      };
+    } else page.body = String(data.get("body") || "").trim();
     pageContent[id] = page; localPages[id] = page; localStorage.setItem(LOCAL_PAGES_KEY, JSON.stringify(localPages)); renderPages();
     $("#page-developer-status").textContent = `Saved ${id === "faq" ? "FAQ" : "ACE troubleshooting"} page text.`;
   }
@@ -1009,6 +1255,17 @@
     });
     const permanentGuides = mergeExportCollection(projectGuides, localGuides);
     const permanentPages = { ...projectPages, ...localPages };
+    if (projectPages.troubleshooting?.games) {
+      const localTroubleshooting = localPages.troubleshooting?.games ? localPages.troubleshooting : {};
+      permanentPages.troubleshooting = {
+        ...projectPages.troubleshooting,
+        ...localTroubleshooting,
+        games: Object.fromEntries(Object.keys(projectPages.troubleshooting.games).map((gameId) => [
+          gameId,
+          { ...projectPages.troubleshooting.games[gameId], ...(localTroubleshooting.games?.[gameId] || {}) },
+        ])),
+      };
+    }
     const contents = `/* Generated by the ACE Archive Developer editor. */\nwindow.ACE_CUSTOM_CONTENT = ${JSON.stringify({ codes: permanentCodes, guides: permanentGuides, pages: permanentPages }, null, 2)};\n`;
     const blob = new Blob([contents], { type: "text/javascript" });
     const link = document.createElement("a");
@@ -1112,6 +1369,15 @@
       ? [...elements.dialogContent.querySelectorAll("[data-generated-code]")]
       : [elements.dialogContent.querySelector(`[data-generated-code="${copyTarget}"]`)].filter(Boolean);
     const output = outputs.map((item) => compactCodeForClipboard(item.textContent)).join("\n\n");
+    await writeClipboardText(output);
+  }
+
+  async function copyTroubleshootingCode(button) {
+    const output = compactCodeForClipboard(button.closest(".troubleshooting-code-panel")?.querySelector("pre")?.textContent || "");
+    if (output) await writeClipboardText(output);
+  }
+
+  async function writeClipboardText(output) {
     try { await navigator.clipboard.writeText(output); }
     catch {
       const clipboardFallback = document.createElement("textarea");
@@ -1128,12 +1394,17 @@
     setTimeout(() => elements.toast.classList.remove("show"), 1800);
   }
 
+  function stopDialogMedia(dialog) {
+    dialog.querySelectorAll("video, audio").forEach((media) => media.pause());
+    dialog.querySelectorAll("iframe").forEach((frame) => frame.removeAttribute("src"));
+  }
+
   elements.categories.addEventListener("click", (event) => { if (event.target.dataset.category) { state.category = event.target.dataset.category; renderLibrary(); } });
   elements.search.addEventListener("input", (event) => { state.search = event.target.value; renderLibrary(); });
   elements.grid.addEventListener("click", (event) => { const id = event.target.closest("[data-id]")?.dataset.id; if (id) openCode(id); });
   elements.grid.addEventListener("keydown", (event) => { if (event.key === "Enter") openCode(event.target.closest("[data-id]")?.dataset.id); });
   elements.dialog.addEventListener("click", (event) => { if (event.target === elements.dialog) elements.dialog.close(); });
-  elements.dialog.addEventListener("close", clearCodeDeepLink);
+  elements.dialog.addEventListener("close", () => { stopDialogMedia(elements.dialog); clearCodeDeepLink(); });
   document.querySelector(".section-tabs").addEventListener("click", (event) => {
     const tab = event.target.closest("[data-tab]");
     if (!tab) return;
@@ -1142,7 +1413,33 @@
   $("#guide-list").addEventListener("click", (event) => { const id = event.target.closest("[data-guide-id]")?.dataset.guideId; if (id) openGuide(id); });
   $("#guide-list").addEventListener("keydown", (event) => { if (event.key === "Enter") openGuide(event.target.closest("[data-guide-id]")?.dataset.guideId); });
   elements.guideDialog.addEventListener("click", (event) => { if (event.target === elements.guideDialog) elements.guideDialog.close(); });
-  elements.guideDialog.addEventListener("close", clearGuideDeepLink);
+  elements.guideDialog.addEventListener("close", () => { stopDialogMedia(elements.guideDialog); clearGuideDeepLink(); });
+  $("#troubleshooting-content").addEventListener("click", (event) => {
+    const gameButton = event.target.closest("[data-troubleshooting-game]");
+    if (gameButton) { activateTroubleshootingGame(gameButton.dataset.troubleshootingGame); return; }
+    const copyButton = event.target.closest("[data-copy-troubleshooting-code]");
+    if (copyButton) { copyTroubleshootingCode(copyButton); return; }
+    const guideButton = event.target.closest("[data-open-troubleshooting-guide]");
+    if (guideButton) { openGuide(guideButton.dataset.openTroubleshootingGuide); return; }
+    const tabButton = event.target.closest("[data-open-troubleshooting-tab]");
+    if (tabButton) activateTab(tabButton.dataset.openTroubleshootingTab);
+  });
+  $("#troubleshooting-content").addEventListener("keydown", (event) => {
+    const current = event.target.closest("[data-troubleshooting-game]");
+    if (!current || !["ArrowLeft", "ArrowRight"].includes(event.key)) return;
+    event.preventDefault();
+    const tabs = [...$("#troubleshooting-content").querySelectorAll("[data-troubleshooting-game]")];
+    const direction = event.key === "ArrowRight" ? 1 : -1;
+    const next = tabs[(tabs.indexOf(current) + direction + tabs.length) % tabs.length];
+    activateTroubleshootingGame(next.dataset.troubleshootingGame); next.focus();
+  });
+  $("#faq-content").addEventListener("click", (event) => {
+    const filter = event.target.closest("[data-faq-game]");
+    if (!filter || filter.dataset.faqGame === activeFaqGame) return;
+    activeFaqGame = filter.dataset.faqGame;
+    localStorage.setItem("ace-faq-game", activeFaqGame);
+    renderPages();
+  });
   document.addEventListener("keydown", (event) => {
     const activeElement = document.activeElement;
     const isEditingText = ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement?.tagName) || activeElement?.isContentEditable;
@@ -1160,5 +1457,4 @@
     activateTab("guides");
     openGuide(sharedGuideId);
   }
-  $("#library-version").textContent = catalog.version;
 })();

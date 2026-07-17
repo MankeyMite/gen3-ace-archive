@@ -1244,11 +1244,10 @@ window.ACE_CUSTOM_CONTENT = {
               "template": [
                 "Box 1: A Q D ? P w _ _ [AQD?Pw__]"
               ],
-              "codeNote": "If you successfully got Bulbasaur after executing this code, you should delete it, as its missing a lot of data to be a complete Pokémon. You are now ready to use the website to create codes for any Pokémon you want:"
+              "codeNote": "If you successfully got Bulbasaur after executing this code, you should delete it, as its missing a lot of data to be a complete Pokémon. You are now ready to use the website to create codes for any Pokémon you want: https://mankeymite.github.io/Gen3ACEPokemonBuilder/"
             }
           ],
-          "notes": "Locally added developer entry.",
-          "guideAfter": "https://mankeymite.github.io/Gen3ACEPokemonBuilder/"
+          "notes": "Locally added developer entry."
         }
       },
       "requirements": [

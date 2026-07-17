@@ -7,5 +7,5 @@
  * Set this back to 0 before publishing the site.
  */
 window.ACE_DEVELOPER_CONFIG = {
-  showDeveloperMode: 1,
+  showDeveloperMode: 0,
 };

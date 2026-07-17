@@ -5,6 +5,7 @@
   const LOCAL_CODES_KEY = "ace-developer-codes";
   const LOCAL_GUIDES_KEY = "ace-developer-guides";
   const LOCAL_PAGES_KEY = "ace-developer-pages";
+  const LOCAL_CODE_PROJECT_SIGNATURE = "_baseProjectSignature";
   const customContent = window.ACE_CUSTOM_CONTENT || {};
   const projectCodes = Array.isArray(customContent.codes) ? customContent.codes : (Array.isArray(window.ACE_CUSTOM_CODES) ? window.ACE_CUSTOM_CODES : []);
   const projectGuides = Array.isArray(customContent.guides) ? customContent.guides : [];
@@ -25,7 +26,17 @@
     else catalog.codes.push(code);
   }
   projectCodes.forEach(mergeCode);
-  localCodes.forEach(mergeCode);
+  localCodes.filter(localCodeCanOverrideProject).forEach(mergeCode);
+
+  function projectCodeSignature(code) {
+    return JSON.stringify(code, (key, value) => ["locallyAdded", LOCAL_CODE_PROJECT_SIGNATURE].includes(key) ? undefined : value);
+  }
+
+  function localCodeCanOverrideProject(code) {
+    const projectCode = projectCodes.find((entry) => entry.id === code.id);
+    if (!projectCode) return true;
+    return code[LOCAL_CODE_PROJECT_SIGNATURE] === projectCodeSignature(projectCode);
+  }
   function normalizeGuide(guide) {
     if (guide.type === "interactive-setup" && Array.isArray(guide.phases)) {
       guide.phases = guide.phases.filter((phase) => Boolean(
@@ -748,6 +759,8 @@
       source: { label: safeText(data.get("sourceLabel")) || "Locally added entry", url: safeText(data.get("sourceUrl")) },
       locallyAdded: true,
     };
+    const matchingProjectCode = projectCodes.find((entry) => entry.id === code.id);
+    if (matchingProjectCode) code[LOCAL_CODE_PROJECT_SIGNATURE] = projectCodeSignature(matchingProjectCode);
     const localIndex = localCodes.findIndex((entry) => entry.id === code.id);
     if (localIndex >= 0) localCodes[localIndex] = code;
     else localCodes.push(code);
@@ -828,7 +841,12 @@
     const id = editingCodeId;
     const needsPersistentDeletion = builtInCodeIds.has(id) || projectCodes.some((entry) => entry.id === id);
     localCodes = localCodes.filter((entry) => entry.id !== id);
-    if (needsPersistentDeletion) localCodes.push({ id, deleted: true, locallyAdded: true });
+    if (needsPersistentDeletion) {
+      const deletion = { id, deleted: true, locallyAdded: true };
+      const matchingProjectCode = projectCodes.find((entry) => entry.id === id);
+      if (matchingProjectCode) deletion[LOCAL_CODE_PROJECT_SIGNATURE] = projectCodeSignature(matchingProjectCode);
+      localCodes.push(deletion);
+    }
     const catalogIndex = catalog.codes.findIndex((entry) => entry.id === id);
     if (catalogIndex >= 0) catalog.codes.splice(catalogIndex, 1);
     localStorage.setItem(LOCAL_CODES_KEY, JSON.stringify(localCodes));
@@ -981,9 +999,10 @@
 
   function exportLocalCodes() {
     const permanentCodes = [...projectCodes];
-    localCodes.forEach((code) => {
+    localCodes.filter(localCodeCanOverrideProject).forEach((code) => {
       const cleanCode = { ...code };
       delete cleanCode.locallyAdded;
+      delete cleanCode[LOCAL_CODE_PROJECT_SIGNATURE];
       const existingIndex = permanentCodes.findIndex((entry) => entry.id === cleanCode.id);
       if (existingIndex >= 0) permanentCodes[existingIndex] = cleanCode;
       else permanentCodes.push(cleanCode);
@@ -1008,7 +1027,12 @@
       const imported = JSON.parse(jsonText);
       const importedContent = Array.isArray(imported) ? { codes: imported, guides: [], pages: {} } : imported;
       if (!Array.isArray(importedContent.codes)) throw new Error("Expected content data");
-      localCodes = importedContent.codes.map((code) => ({ ...code, locallyAdded: true }));
+      localCodes = importedContent.codes.map((code) => {
+        const localCode = { ...code, locallyAdded: true };
+        const matchingProjectCode = projectCodes.find((entry) => entry.id === code.id);
+        if (matchingProjectCode) localCode[LOCAL_CODE_PROJECT_SIGNATURE] = projectCodeSignature(matchingProjectCode);
+        return localCode;
+      });
       localGuides = (importedContent.guides || []).map((guide) => ({ ...guide, locallyAdded: true }));
       localPages = importedContent.pages || {};
       catalog.codes.splice(0, catalog.codes.length, ...catalog.codes.filter((code) => !code.locallyAdded));
@@ -1030,10 +1054,16 @@
   function renderCodeCharacters(value) {
     return [...String(value || "")].map((character) => {
       const escapedCharacter = escapeHtml(character);
+      if (/\s/u.test(character)) return escapedCharacter;
+      if (character === "." || character === ",") {
+        return `<span class="code-char-flexible" title="Available on multiple keyboards">${escapedCharacter}</span>`;
+      }
       if (character === "_") return `<span class="code-char-underscore" title="Underscore (space)">${escapedCharacter}</span>`;
-      if (character === "-") return `<span class="code-char-hyphen" title="Hyphen">${escapedCharacter}</span>`;
-      if (/[A-Z]/.test(character)) return `<span class="code-char-upper">${escapedCharacter}</span>`;
-      if (/[a-z]/.test(character)) return `<span class="code-char-lower">${escapedCharacter}</span>`;
+      if (character === "[" || character === "]") return `<span class="code-char-bracket">${escapedCharacter}</span>`;
+      if (character === "-") return `<span class="code-char-symbol code-char-hyphen" title="Hyphen">${escapedCharacter}</span>`;
+      if (/[\p{P}\p{S}]/u.test(character)) return `<span class="code-char-symbol">${escapedCharacter}</span>`;
+      if (/[\p{Lu}\p{Lt}]/u.test(character)) return `<span class="code-char-upper">${escapedCharacter}</span>`;
+      if (/\p{Ll}/u.test(character)) return `<span class="code-char-lower">${escapedCharacter}</span>`;
       if (/[0-9]/.test(character)) return `<span class="code-char-number">${escapedCharacter}</span>`;
       return escapedCharacter;
     }).join("");
@@ -1042,7 +1072,10 @@
   function renderCodeLine(line) {
     const match = String(line || "").match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)(.*)$/i);
     if (!match) return renderCodeCharacters(line);
-    return `<span class="box-code-prefix">${escapeHtml(match[1])}</span>${renderCodeCharacters(match[2])}`;
+    const annotationMatch = match[2].match(/^\s*(.*?)\s*(\[[^\]]*\].*)$/);
+    const codeBody = annotationMatch ? annotationMatch[1] : match[2].trim();
+    const annotation = annotationMatch ? `<span class="code-line-annotation">${renderCodeCharacters(annotationMatch[2])}</span>` : "";
+    return `<span class="box-code-prefix">${escapeHtml(match[1])}</span><span class="code-line-main">${renderCodeCharacters(codeBody)}</span>${annotation}`;
   }
 
   function renderGenerated(code) {

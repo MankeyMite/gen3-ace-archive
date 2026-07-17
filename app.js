@@ -93,6 +93,7 @@
     { id: "emerald", label: "Emerald" },
     { id: "frlg", label: "FireRed / LeafGreen" },
   ];
+  const PUBLIC_TAB_IDS = ["codes", "guides", "troubleshooting", "faq", "resources", "about"];
   let activeFaqGame = localStorage.getItem("ace-faq-game") || "all";
   if (!FAQ_GAME_FILTERS.some((filter) => filter.id === activeFaqGame)) activeFaqGame = "all";
   const incomingUrl = new URL(window.location.href);
@@ -491,18 +492,34 @@
     await copyShareUrl(guideShareUrl(guide.id).href, $(".share-guide", elements.guideDialogContent));
   }
 
-  function clearCodeDeepLink() {
+  function tabShareUrl(tabId) {
     const url = new URL(window.location.href);
-    url.searchParams.delete("game"); url.searchParams.delete("language"); url.searchParams.delete("platform");
-    url.hash = "";
-    history.replaceState(null, "", url);
+    url.search = "";
+    if (tabId === "codes") {
+      url.searchParams.set("game", state.game);
+      url.searchParams.set("language", state.language);
+      url.searchParams.set("platform", state.platform);
+    }
+    url.hash = `tab=${encodeURIComponent(tabId)}`;
+    return url;
+  }
+
+  function setTabDeepLink(tabId) {
+    if (PUBLIC_TAB_IDS.includes(tabId)) history.replaceState(null, "", tabShareUrl(tabId));
+  }
+
+  async function shareTab(tabId, button) {
+    if (PUBLIC_TAB_IDS.includes(tabId)) await copyShareUrl(tabShareUrl(tabId).href, button);
+  }
+
+  function clearCodeDeepLink() {
+    setTabDeepLink("codes");
   }
 
   function clearGuideDeepLink() {
     const url = new URL(window.location.href);
     if (!url.hash.startsWith("#guide=")) return;
-    url.hash = "";
-    history.replaceState(null, "", url);
+    setTabDeepLink("guides");
   }
 
   function todayIsoDate() {
@@ -578,7 +595,8 @@
     ["troubleshooting", "faq"].forEach((pageId) => {
       const page = pageContent[pageId];
       const body = pageId === "faq" ? renderFaqContent(page.body) : renderTroubleshootingContent(page);
-      $(`#${pageId}-content`).innerHTML = `<p class="step-label">${pageId === "faq" ? "FAQ" : "TROUBLESHOOTING"}</p><h1>${escapeHtml(page.title)}</h1>${page.introduction ? `<p class="page-introduction">${escapeHtml(page.introduction)}</p>` : ""}${body}`;
+      const pageLabel = pageId === "faq" ? "FAQ" : "TROUBLESHOOTING";
+      $(`#${pageId}-content`).innerHTML = `<div class="info-title-row"><div><p class="step-label">${pageLabel}</p><h1>${escapeHtml(page.title)}</h1></div><button class="share-code panel-share-button" type="button" data-share-tab="${pageId}" aria-label="Copy link to ${pageLabel.toLowerCase()}" title="Copy link to ${pageLabel.toLowerCase()}">${SHARE_ICON}</button></div>${page.introduction ? `<p class="page-introduction">${escapeHtml(page.introduction)}</p>` : ""}${body}`;
     });
   }
 
@@ -772,6 +790,7 @@
   function activateTab(name) {
     document.querySelectorAll("[data-tab]").forEach((button) => button.classList.toggle("active", button.dataset.tab === name));
     document.querySelectorAll("[data-panel]").forEach((panel) => panel.classList.toggle("active", panel.dataset.panel === name));
+    setTabDeepLink(name);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
@@ -1440,6 +1459,10 @@
     localStorage.setItem("ace-faq-game", activeFaqGame);
     renderPages();
   });
+  document.addEventListener("click", (event) => {
+    const button = event.target.closest("[data-share-tab]");
+    if (button) shareTab(button.dataset.shareTab, button);
+  });
   document.addEventListener("keydown", (event) => {
     const activeElement = document.activeElement;
     const isEditingText = ["INPUT", "TEXTAREA", "SELECT"].includes(activeElement?.tagName) || activeElement?.isContentEditable;
@@ -1452,9 +1475,10 @@
   initSetup(); initDeveloperMode(); renderLibrary(); renderGuides(); renderPages();
   const sharedCodeId = window.location.hash.startsWith("#code=") ? decodeURIComponent(window.location.hash.slice(6)) : "";
   const sharedGuideId = window.location.hash.startsWith("#guide=") ? decodeURIComponent(window.location.hash.slice(7)) : "";
+  const sharedTabId = window.location.hash.startsWith("#tab=") ? decodeURIComponent(window.location.hash.slice(5)) : "";
   if (sharedCodeId && catalog.codes.some((code) => code.id === sharedCodeId && !code.deleted)) openCode(sharedCodeId);
   else if (sharedGuideId && catalog.guides.some((guide) => guide.id === sharedGuideId && !guide.deleted)) {
     activateTab("guides");
     openGuide(sharedGuideId);
-  }
+  } else if (PUBLIC_TAB_IDS.includes(sharedTabId)) activateTab(sharedTabId);
 })();

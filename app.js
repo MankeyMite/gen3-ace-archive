@@ -577,15 +577,20 @@
   function renderFormattedText(value) {
     const lines = String(value || "").split(/\r?\n/);
     let html = "", listOpen = false, paragraph = [];
-    const closeParagraph = () => { if (paragraph.length) { html += `<p>${paragraph.map(escapeHtml).join(" ")}</p>`; paragraph = []; } };
+    // Keep ordinary whitespace from the editor. CSS preserves the spaces and line
+    // breaks in each paragraph, while blank lines still start a new paragraph.
+    const closeParagraph = () => { if (paragraph.length) { html += `<p>${paragraph.map(escapeHtml).join("\n")}</p>`; paragraph = []; } };
     const closeList = () => { if (listOpen) { html += "</ul>"; listOpen = false; } };
     lines.forEach((line) => {
       const trimmed = line.trim();
-      if (trimmed.startsWith("## ")) { closeParagraph(); closeList(); html += `<h2>${escapeHtml(trimmed.slice(3))}</h2>`; }
-      else if (trimmed.startsWith("### ")) { closeParagraph(); closeList(); html += `<h3>${escapeHtml(trimmed.slice(4))}</h3>`; }
-      else if (/^-\s*/.test(trimmed)) { closeParagraph(); if (!listOpen) { html += "<ul>"; listOpen = true; } html += `<li>${escapeHtml(trimmed.replace(/^-\s*/, ""))}</li>`; }
+      const heading2 = line.match(/^\s*## (.*)$/);
+      const heading3 = line.match(/^\s*### (.*)$/);
+      const listItem = line.match(/^\s*-\s?(.*)$/);
+      if (heading2) { closeParagraph(); closeList(); html += `<h2>${escapeHtml(heading2[1])}</h2>`; }
+      else if (heading3) { closeParagraph(); closeList(); html += `<h3>${escapeHtml(heading3[1])}</h3>`; }
+      else if (listItem) { closeParagraph(); if (!listOpen) { html += "<ul>"; listOpen = true; } html += `<li>${escapeHtml(listItem[1])}</li>`; }
       else if (!trimmed) { closeParagraph(); closeList(); }
-      else { closeList(); paragraph.push(trimmed); }
+      else { closeList(); paragraph.push(line); }
     });
     closeParagraph(); closeList();
     return html;
@@ -1103,7 +1108,7 @@
       guide.type = "interactive-setup";
       guide.phases = interactivePhaseDrafts;
       guide.sourceNote = existing?.sourceNote || "Edited in the ACE Archive Developer editor.";
-    } else guide.body = String(data.get("body") || "").trim();
+    } else guide.body = String(data.get("body") || "");
     const localIndex = localGuides.findIndex((entry) => entry.id === guide.id);
     if (localIndex >= 0) localGuides[localIndex] = guide; else localGuides.push(guide);
     mergeGuide(guide); localStorage.setItem(LOCAL_GUIDES_KEY, JSON.stringify(localGuides));

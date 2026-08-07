@@ -376,17 +376,6 @@
     const guideAfter = variantGuideAfter(variant);
     const parameters = code.parameters || [];
     const usefulVariantNote = /^(Locally added developer entry|Game, language and platform-specific variation|Compatibility-specific override)\.?$/i.test(variant.notes || "") ? "" : (variant.notes || "");
-    const executionSteps = codeBlocks.length > 1
-      ? [
-        "Type in and execute each code in order, starting with Code 1.",
-        "Save before each execution unless the source or guide says otherwise.",
-        "If one code crashes or nothing happens, stop and read the troubleshooting section below.",
-      ]
-      : [
-        "Type in the code and save the game.",
-        "Execute the code.",
-        "If it crashes or nothing happens, read the troubleshooting section below.",
-      ];
     const executionAreaReminder = state.game === "emerald"
       ? "Keep Pokémon out of Box 11, Slots 25-30 (the last row), and all of Boxes 12-14 unless this code requires specific setup data there."
       : ["firered", "leafgreen"].includes(state.game)
@@ -421,9 +410,8 @@
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("languages", state.language)}</span><span>✓ ${nameFor("platforms", state.platform)}</span></div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul></section>
       ${generatorArea}
-      <div class="instructions"><h3>Steps</h3><ol>${executionSteps.map((step) => `<li>${step}</li>`).join("")}</ol></div>
       <details class="source-code"><summary>Show source code</summary><pre>${(code.sourceCode || ["Source code not added yet."]).join("\n")}</pre><p class="source">Source: ${code.source.url ? `<a href="${code.source.url}" target="_blank" rel="noreferrer">${code.source.label}</a>` : code.source.label}</p></details>
-      <section class="tutorial-video"><h3>Video tutorial</h3>${videoMarkup(code.video)}</section>
+      ${videoSectionMarkup(code.video, "tutorial-video")}
       <section class="quick-check"><h3>Quick troubleshooting checklist</h3><ol>${troubleshootingItems.map((item) => `<li>${item}</li>`).join("")}</ol></section>`;
     $(".close-dialog", elements.dialogContent).addEventListener("click", () => elements.dialog.close());
     $(".share-code", elements.dialogContent).addEventListener("click", () => shareCode(code));
@@ -556,13 +544,20 @@
   }
 
   function videoMarkup(video) {
-    if (!video) return `<div class="video-placeholder coming-soon-placeholder"><span class="coming-soon-tag">Coming soon</span><p>A video tutorial will be added here.</p></div>`;
+    if (!video) return "";
     const source = String(video).trim().replace(/\\/g, "/");
     const youtubeMatch = source.match(/(?:youtu\.be\/|youtube\.com\/(?:watch\?v=|embed\/|shorts\/))([\w-]{11})/) || source.match(/^([\w-]{11})$/);
     if (youtubeMatch) return `<div class="video-frame"><iframe src="https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}" title="Video tutorial" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe></div>`;
     const localVideo = /^(?:\.\/)?assets\/videos\/[^?#]+\.(?:mp4|webm|ogg)$/i.test(source) && !source.split("/").includes("..");
     if (localVideo) return `<div class="video-frame local-video-frame"><video src="${escapeHtml(source)}" controls preload="metadata" playsinline aria-label="Video tutorial"></video></div>`;
-    return `<div class="video-placeholder"><p>Use a YouTube URL or a local path such as assets/videos/example.mp4.</p></div>`;
+    return "";
+  }
+
+  function videoSectionMarkup(video, className = "") {
+    const videoContent = videoMarkup(video);
+    if (!videoContent) return "";
+    const classAttribute = className ? ` class="${className}"` : "";
+    return `<section${classAttribute}><h3>Video tutorial</h3>${videoContent}</section>`;
   }
 
   function renderGuides() {
@@ -733,7 +728,7 @@
     elements.guideDialogContent.onclick = null;
     elements.guideDialogContent.onchange = null;
     const guideBody = guide.body ? `<div class="formatted-content">${renderFormattedText(guide.body)}</div>` : (guide.sections || []).map((section) => `<section><h3>${escapeHtml(section.title)}</h3><p>${escapeHtml(section.text)}</p></section>`).join("");
-    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2>${contentMetaMarkup(guide, "Guide")}<p>${escapeHtml(guide.summary)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}<section><h3>Video tutorial</h3>${videoMarkup(guide.video)}</section></article>`;
+    elements.guideDialogContent.innerHTML = `<div class="dialog-header"><div><span class="category-tag">${escapeHtml(guide.category)}</span><h2>${escapeHtml(guide.title)}</h2>${contentMetaMarkup(guide, "Guide")}<p>${escapeHtml(guide.summary)}</p></div><div class="dialog-actions"><button class="share-code share-guide" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-guide-dialog close-dialog" aria-label="Close">×</button></div></div><article class="guide-content"><p class="guide-introduction">${escapeHtml(guide.introduction)}</p>${guideBody}${videoSectionMarkup(guide.video)}</article>`;
     $(".close-guide-dialog", elements.guideDialogContent).addEventListener("click", () => elements.guideDialog.close());
     $(".share-guide", elements.guideDialogContent).addEventListener("click", () => shareGuide(guide));
     elements.guideDialog.showModal();
@@ -1344,19 +1339,32 @@
       if (character === "-") return `<span class="code-char-symbol code-char-hyphen" title="Hyphen">${escapedCharacter}</span>`;
       if (/[\p{P}\p{S}]/u.test(character)) return `<span class="code-char-symbol">${escapedCharacter}</span>`;
       if (/[\p{Lu}\p{Lt}]/u.test(character)) return `<span class="code-char-upper">${escapedCharacter}</span>`;
+      if (character === "q") return `<span class="code-char-lower code-char-q">${escapedCharacter}</span>`;
       if (/\p{Ll}/u.test(character)) return `<span class="code-char-lower">${escapedCharacter}</span>`;
       if (/[0-9]/.test(character)) return `<span class="code-char-number">${escapedCharacter}</span>`;
       return escapedCharacter;
     }).join("");
   }
 
-  function renderCodeLine(line) {
-    const match = String(line || "").match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)(.*)$/i);
-    if (!match) return renderCodeCharacters(line);
+  function parseCodeLine(line) {
+    const value = String(line || "");
+    const match = value.match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)(.*)$/i);
+    if (!match) return { isBoxLine: false, prefix: "", body: value };
     const annotationMatch = match[2].match(/^\s*(.*?)\s*(\[[^\]]*\].*)$/);
-    const codeBody = annotationMatch ? annotationMatch[1] : match[2].trim();
-    const annotation = annotationMatch ? `<span class="code-line-annotation">${renderCodeCharacters(annotationMatch[2])}</span>` : "";
-    return `<span class="box-code-prefix">${escapeHtml(match[1])}</span><span class="code-line-main">${renderCodeCharacters(codeBody)}</span>${annotation}`;
+    return {
+      isBoxLine: true,
+      prefix: match[1],
+      body: annotationMatch ? annotationMatch[1] : match[2].trim(),
+    };
+  }
+
+  function renderCodeLine(line) {
+    const parsedLine = parseCodeLine(line);
+    if (!parsedLine.isBoxLine) return renderCodeCharacters(parsedLine.body);
+    const helper = parsedLine.body.includes("q")
+      ? `<span class="code-line-helper" data-note="Lowercase q, not g." aria-label="Lowercase q, not g."></span>`
+      : "";
+    return `<span class="box-code-prefix">${escapeHtml(parsedLine.prefix)}</span><span class="code-line-main">${renderCodeCharacters(parsedLine.body)}</span>${helper}`;
   }
 
   function renderGenerated(code) {
@@ -1381,9 +1389,9 @@
 
   function compactCodeForClipboard(value) {
     return String(value || "").split(/\r?\n/).map((line) => {
-      const match = line.match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)\s*(.*)$/i);
-      if (!match) return line.replace(/[ \t]+/g, "");
-      return `${match[1]} ${match[2].replace(/\s+/g, "")}`;
+      const parsedLine = parseCodeLine(line);
+      if (!parsedLine.isBoxLine) return parsedLine.body.replace(/[ \t]+/g, "");
+      return `${parsedLine.prefix} ${parsedLine.body.replace(/\s+/g, "")}`;
     }).join("\n");
   }
 

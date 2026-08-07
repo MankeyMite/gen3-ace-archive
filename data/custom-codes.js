@@ -1288,6 +1288,87 @@ window.ACE_CUSTOM_CONTENT = {
         "label": "Locally added entry",
         "url": ""
       }
+    },
+    {
+      "id": "local-swap-tid-and-sid-1786095013108",
+      "title": "Swap TID and SID",
+      "author": "Mettrich",
+      "addedOn": "2026-08-07",
+      "summary": "Find out your SID (Secret ID). It's useful for shiny hunting with RNG manipulation, or for creating Pokémon that appear to be yours by matching your player's TID, SID, and OT name.\n\nAfter executing the code, your SID will now be your TID shown on the trainer card. Write it down, and reset the game to undo the code, or execute it again to swap it back.",
+      "category": "SID",
+      "difficulty": "Beginner",
+      "recommended": false,
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "de",
+        "fr",
+        "es",
+        "it"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "codes": [
+            {
+              "title": "Code 1",
+              "note": "Save before running this code!",
+              "template": [
+                "Box  1:    F I U o W B R n",
+                "Box  2:    E E E A F g m",
+                "Box  3:    E E C _ g m",
+                "Box  4:    E A _ Q m",
+                "Box  5:    C F Q m",
+                "Box  6:    R j o D Y J m ?",
+                "Box  7:    B n"
+              ]
+            }
+          ],
+          "notes": "Locally added developer entry.",
+          "guideAfter": "Check your trainer card for the SID. Reset or execute again to revert changes."
+        }
+      },
+      "requirements": [
+        "Stable ACE species"
+      ],
+      "sourceCode": [
+        "@@ title = \"Swap TID/SID\"",
+        "@@ author = \"Mettrich\"",
+        "@@ filler0 = 0xffffffff",
+        "@@ filler1 = 0xbfbfbfff",
+        "@@ filler2 = 0xbfbfffff",
+        "@@ filler3 = 0xbfffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "@@",
+        "bic r12, r15, #3",
+        "sbc r11, r12, #0xd100",
+        "ldrh r12, [r11, #11]",
+        "ldrh r0, [r11, #13]",
+        "strh r0, [r11, #11]",
+        "strh r12, [r11, #13]",
+        "bics r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adcs r15, r12, #0x2b0"
+      ],
+      "video": "",
+      "troubleshooting": [],
+      "instructions": [
+        "Back up your save.",
+        "Confirm every requirement above.",
+        "Enter and execute the code exactly as documented."
+      ],
+      "source": {
+        "label": "Locally added entry",
+        "url": ""
+      }
     }
   ],
   "guides": [

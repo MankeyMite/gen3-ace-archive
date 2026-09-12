@@ -23,17 +23,29 @@ window.ACE_CUSTOM_CONTENT = {
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
+        "emerald|*|accurate": {
           "template": [
             "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ R n – B U n P\t[ Rn–BUnP]",
-            "Box  3: 9 q / w Q m B R\t[9q/wQmBR]",
+            "Box  2: _ R n – B U n P\t[ Rn–BUnP] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q / w Q m B R\t[9q/wQmBR] ← on old emulators, replace \"/\" with \"B\"",
             "Box  4: o B U R n\t[oBURn]",
             "Box  5: / F P m D F P m\t[/FPmDFPm]",
             "Box  6: B T o D Y J m 2\t[BToDYJm2]",
             "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: p . U n P T D n\t[p.UnPTDn]",
+            "Box  2: _ R n – B U n Q\t[ Rn–BUnQ] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q B w Q m B R\t[9qBwQmBR] ← on old emulators, replace \"/\" with \"B\"",
+            "Box  4: o B U R n\t[oBURn]",
+            "Box  5: / F P m D F P m\t[/FPmDFPm]",
+            "Box  6: B T o D Y J m 2\t[BToDYJm2]",
+            "Box  7: ! n\t        [!n]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
         }
       },
       "requirements": [
@@ -45,11 +57,13 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ exit = null",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "; This code creates a (meta)stable species",
         "; in box 10 slot 19 for English, Italian and German.",
         "; It also gives you access to the eon ticket:",
         "; just go upstairs in any pokecenter and you",
         "; will be given the ticket.",
+        "",
         "old_emu = 0",
         "lang = 2",
         "; (1 - JP) not supported by this code",
@@ -58,13 +72,19 @@ window.ACE_CUSTOM_CONTENT = {
         "; 4 - IT ; 0x415e (metastable)",
         "; 5 - DE ; 0x4130 (stable)",
         "; (7 - ES) not supported by this code",
+        "",
         "@@",
+        "",
         "sbc r10, r15, #0x3900 ; addressing 1/2",
         "adcs r12, r14, #0xca0 ; exit code 1/2",
         "sbc r0, r12, #0xff ; exit code 2/2",
+        "",
         "sbc r11, r15, #0xae00 ; eon ticket 1/2",
+        "",
         "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+        "",
         "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+        "",
         "{lang == 2 ? 0xe3ffccbc :\\",
         "(lang == 4 ? 0xe3ffccbc :\\",
         "(lang == 5 ? 0xe3ffccbe : 0xbbffbbbb))} ; species 1/2",
@@ -73,6 +93,7 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: 0xbc00",
         "; DE: 0xbe00",
         "; else: filler",
+        "",
         "sbc r12, r12, #{\\",
         "(lang == 2 ? 0x2f0 :\\",
         "(lang == 4 ? 0x2a0 :\\",
@@ -82,8 +103,10 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: 0x2a1",
         "; DE: 0xcf",
         "; else: 0x01",
+        "",
         "strh r12, [r10, #10] ; store checksum",
         "strh r12, [r10, #14] ; store species",
+        "",
         "bic r11, r14, #0xff00 ; jump 1/2",
         "strh r13, [r4, #0x3e] ; completely redundant",
         "adc r15, r11, #0x28c ; jump 2/2"
@@ -96,8 +119,17 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-arm-species"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#getting-a-stable-arm-species"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "it": 4,
+        "de": 5
       }
     },
     {
@@ -136,7 +168,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|de|accurate": {
           "template": [
@@ -148,7 +180,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|de|inaccurate": {
           "template": [
@@ -160,7 +192,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|fr|accurate": {
           "template": [
@@ -172,7 +204,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|fr|inaccurate": {
           "template": [
@@ -184,7 +216,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|es|accurate": {
           "template": [
@@ -196,7 +228,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|es|inaccurate": {
           "template": [
@@ -208,7 +240,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|it|accurate": {
           "template": [
@@ -220,7 +252,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|it|inaccurate": {
           "template": [
@@ -232,7 +264,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         }
       },
       "requirements": [
@@ -247,23 +279,28 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ filler3 = 0xbbffffff",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "lang = 7",
         "; 2 - English",
         "; 3 - French",
         "; 4 - Italian",
         "; 5 - German",
         "; 7 - Spanish",
+        "",
         "address = (lang == 2 ? 0x0867533C :\\",
-        "(lang == 3 ? 0x086792B8 :\\",
-        "(lang == 4 ? 0x086719EA :\\",
-        "(lang == 5 ? 0x086864F7 :\\",
-        "(lang == 7 ? 0x086778CF : 0)))))",
+        "          (lang == 3 ? 0x086792B8 :\\",
+        "          (lang == 4 ? 0x086719EA :\\",
+        "          (lang == 5 ? 0x086864F7 :\\",
+        "          (lang == 7 ? 0x086778CF : 0)))))",
+        "",
         "@@",
+        "",
         "sbc r11, r15, #0xBC00",
         "sbc r11, r11, #0xBA",
         "adc r12, r14, #0x3fc",
         "adc r12, r12, #{address - 0x080069e7 - 0x3fc} ?",
         "str r12, [r11, #0x800]!",
+        "",
         "bic r12, r14, #0xff00",
         "strh r13, [r4, #0x3e]",
         "adcs r15, r12, #0x2b0"
@@ -276,8 +313,15 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#unlock-birth-island-via-mystery-gift"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#unlock-birth-island-via-mystery-gift"
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "fr": 3,
+        "it": 4,
+        "de": 5,
+        "es": 7
       }
     },
     {
@@ -318,29 +362,29 @@ window.ACE_CUSTOM_CONTENT = {
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
+        "emerald|*|accurate": {
           "template": [
             "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ R n – B U n P\t[ Rn–BUnP]",
-            "Box  3: 9 q / w Q m D R\t[9q/wQmDR]",
+            "Box  2: _ R n – B U n P\t[ Rn–BUnP] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q / w Q m D R\t[9q/wQmDR] ← on old emulators, replace \"/\" with \"B\"",
             "Box  4: o T F R n\t[oTFRn]",
             "Box  5: / F P m D F P m\t[/FPmDFPm]",
             "Box  6: B T o D Y J m 2\t[BToDYJm2]",
             "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "Console / accurate emulator (old_emu = 0)."
         },
-        "emerald|de|inaccurate": {
+        "emerald|*|inaccurate": {
           "template": [
             "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ R n – B U n Q\t[ Rn–BUnQ]",
-            "Box  3: 9 q B w Q m D R\t[9qBwQmDR]",
+            "Box  2: _ R n – B U n Q\t[ Rn–BUnQ] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q B w Q m D R\t[9qBwQmDR] ← on old emulators, replace \"/\" with \"B\"",
             "Box  4: o T F R n\t[oTFRn]",
             "Box  5: / F P m D F P m\t[/FPmDFPm]",
             "Box  6: B T o D Y J m 2\t[BToDYJm2]",
             "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
         }
       },
       "requirements": [
@@ -352,11 +396,13 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ exit = null",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "; This code creates a (meta)stable species",
         "; in box 10 slot 19 for English, Italian and German.",
         "; It also gives you access to the eon ticket:",
         "; just go upstairs in any pokecenter and you",
         "; will be given the ticket.",
+        "",
         "old_emu = 0",
         "lang = 2",
         "; (1 - JP) not supported by this code",
@@ -365,13 +411,19 @@ window.ACE_CUSTOM_CONTENT = {
         "; 4 - IT ; 0x415e (metastable)",
         "; 5 - DE ; 0x4130 (stable)",
         "; (7 - ES) not supported by this code",
+        "",
         "@@",
+        "",
         "sbc r10, r15, #0x3900 ; addressing 1/2",
         "adcs r12, r14, #0xca0 ; exit code 1/2",
         "sbc r0, r12, #0xff ; exit code 2/2",
+        "",
         "sbc r11, r15, #0xae00 ; eon ticket 1/2",
+        "",
         "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+        "",
         "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+        "",
         "{lang == 2 ? 0xe3ffccbc :\\",
         "(lang == 4 ? 0xe3ffccbc :\\",
         "(lang == 5 ? 0xe3ffccbe : 0xbbffbbbb))} ; species 1/2",
@@ -380,6 +432,7 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: 0xbc00",
         "; DE: 0xbe00",
         "; else: filler",
+        "",
         "sbc r12, r12, #{\\",
         "(lang == 2 ? 0x2f0 :\\",
         "(lang == 4 ? 0x2a0 :\\",
@@ -389,8 +442,10 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: 0x2a1",
         "; DE: 0xcf",
         "; else: 0x01",
+        "",
         "strh r12, [r10, #10] ; store checksum",
         "strh r12, [r10, #14] ; store species",
+        "",
         "bic r11, r14, #0xff00 ; jump 1/2",
         "strh r13, [r4, #0x3e] ; completely redundant",
         "adc r15, r11, #0x28c ; jump 2/2"
@@ -403,8 +458,17 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-ace-species"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#getting-a-stable-arm-species"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "it": 4,
+        "de": 5
       }
     },
     {
@@ -429,29 +493,29 @@ window.ACE_CUSTOM_CONTENT = {
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
+        "emerald|*|accurate": {
           "template": [
-            "Box  1: p . U n P T D n   [p.UnPTDn]",
-            "Box  2: _ R n – B U n P   [ Rn–BUnP]",
-            "Box  3: 9 q / w Q m B R   [9q/wQmBR]",
-            "Box  4: o 7 U R n         [o7URn]",
-            "Box  5: / F P m D F P m   [/FPmDFPm]",
-            "Box  6: B T o D Y J m 2   [BToDYJm2]",
-            "Box  7: ! n               [!n]"
+            "Box  1: p . U n P T D n\t[p.UnPTDn]",
+            "Box  2: _ R n – B U n P\t[ Rn–BUnP] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q / w Q m B R\t[9q/wQmBR] ← on old emulators, replace \"/\" with \"B\"",
+            "Box  4: o 7 U R n\t[o7URn]",
+            "Box  5: / F P m D F P m\t[/FPmDFPm]",
+            "Box  6: B T o D Y J m 2\t[BToDYJm2]",
+            "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "Console / accurate emulator (old_emu = 0)."
         },
-        "emerald|it|inaccurate": {
+        "emerald|*|inaccurate": {
           "template": [
-            "Box  1: p . U n P T D n   [p.UnPTDn]",
-            "Box  2: _ R n – B U n Q   [ Rn–BUnQ]",
-            "Box  3: 9 q B w Q m B R   [9qBwQmBR]",
-            "Box  4: o 7 U R n         [o7URn]",
-            "Box  5: / F P m D F P m   [/FPmDFPm]",
-            "Box  6: B T o D Y J m 2   [BToDYJm2]",
-            "Box  7: ! n               [!n]"
+            "Box  1: p . U n P T D n\t[p.UnPTDn]",
+            "Box  2: _ R n – B U n Q\t[ Rn–BUnQ] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q B w Q m B R\t[9qBwQmBR] ← on old emulators, replace \"/\" with \"B\"",
+            "Box  4: o 7 U R n\t[o7URn]",
+            "Box  5: / F P m D F P m\t[/FPmDFPm]",
+            "Box  6: B T o D Y J m 2\t[BToDYJm2]",
+            "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
         }
       },
       "requirements": [
@@ -463,26 +527,34 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ exit = null",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "; This code creates a (meta)stable species",
         "; in box 10 slot 19 for English, Italian and German.",
         "; It also gives you access to the eon ticket:",
         "; just go upstairs in any pokecenter and you",
         "; will be given the ticket.",
+        "",
         "old_emu = 0",
-        "lang = 4",
+        "lang = 2",
         "; (1 - JP) not supported by this code",
         "; 2 - EN ; 0x410e (stable)",
         "; (3 - FR) not supported by this code",
         "; 4 - IT ; 0x415e (metastable)",
         "; 5 - DE ; 0x4130 (stable)",
         "; (7 - ES) not supported by this code",
+        "",
         "@@",
+        "",
         "sbc r10, r15, #0x3900 ; addressing 1/2",
         "adcs r12, r14, #0xca0 ; exit code 1/2",
         "sbc r0, r12, #0xff ; exit code 2/2",
+        "",
         "sbc r11, r15, #0xae00 ; eon ticket 1/2",
+        "",
         "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+        "",
         "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+        "",
         "{lang == 2 ? 0xe3ffccbc :\\",
         "(lang == 4 ? 0xe3ffccbc :\\",
         "(lang == 5 ? 0xe3ffccbe : 0xbbffbbbb))} ; species 1/2",
@@ -491,6 +563,7 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: 0xbc00",
         "; DE: 0xbe00",
         "; else: filler",
+        "",
         "sbc r12, r12, #{\\",
         "(lang == 2 ? 0x2f0 :\\",
         "(lang == 4 ? 0x2a0 :\\",
@@ -500,8 +573,10 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: 0x2a1",
         "; DE: 0xcf",
         "; else: 0x01",
+        "",
         "strh r12, [r10, #10] ; store checksum",
         "strh r12, [r10, #14] ; store species",
+        "",
         "bic r11, r14, #0xff00 ; jump 1/2",
         "strh r13, [r4, #0x3e] ; completely redundant",
         "adc r15, r11, #0x28c ; jump 2/2"
@@ -514,8 +589,17 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-ace-species"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#getting-a-metastable-arm-species"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "it": 4,
+        "de": 5
       }
     },
     {
@@ -540,29 +624,29 @@ window.ACE_CUSTOM_CONTENT = {
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
+        "emerald|*|accurate": {
           "template": [
             "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ R n – B k n P\t[ Rn–BknP]",
-            "Box  3: 9 q / w Q m\t[9q/wQm]",
+            "Box  2: _ R n – B k n P\t[ Rn–BknP] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q / w Q m\t[9q/wQm] ← on old emulators, replace \"/\" with \"B\"",
             "Box  4: A H U . o\t[AHU.o]",
             "Box  5: 3 U B n / F P m\t[3UBn/FPm]",
             "Box  6: B T o D F P m 2\t[BToDFPm2]",
             "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "Console / accurate emulator (old_emu = 0)."
         },
-        "emerald|es|inaccurate": {
+        "emerald|*|inaccurate": {
           "template": [
             "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ R n – B k n Q\t[ Rn–BknQ]",
-            "Box  3: 9 q B w Q m\t[9qBwQm]",
+            "Box  2: _ R n – B k n Q\t[ Rn–BknQ] ← on old emulators, replace \"P\" with \"Q\"",
+            "Box  3: 9 q B w Q m\t[9qBwQm] ← on old emulators, replace \"/\" with \"B\"",
             "Box  4: A H U . o\t[AHU.o]",
             "Box  5: 3 U B n / F P m\t[3UBn/FPm]",
             "Box  6: B T o D F P m 2\t[BToDFPm2]",
             "Box  7: ! n\t        [!n]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
         }
       },
       "requirements": [
@@ -575,22 +659,32 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ filler3 = 0xbbffffff",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "; This code creates a metastable (ARM) species",
         "; in box 10 slot 19 for Spanish (0x0599).",
         "; It also gives you access to the eon ticket:",
         "; just go upstairs in any pokecenter and you",
         "; will be given the ticket.",
+        "",
         "old_emu = 0",
+        "",
         "@@",
+        "",
         "sbc r10, r15, #0x3900 ; addressing 1/2",
         "adcs r12, r14, #0xca0 ; exit code 1/2",
         "sbc r0, r12, #0xff ; exit code 2/2",
+        "",
         "sbcs r11, r15, #0xae00 ; eon ticket 1/2",
+        "",
         "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; addressing 2/2",
+        "",
         "strh r14, [r11, #{old_emu?0xbc:0xba}] ; eon ticket 2/2",
+        "",
         "mov r12, #0x308 ; species 1/2",
         "adcs r12, r12, #0x290 ; species 2/2",
+        "",
         "strh r12, [r10, #10] ; store checksum",
+        "",
         "bic r11, r14, #0xff00 ; jump 1/2",
         "strh r12, [r10, #14] ; store species",
         "adc r15, r11, #0x28c ; jump 2/2"
@@ -603,8 +697,12 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-stable-ace-species"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#getting-a-metastable-arm-species"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
       }
     },
     {
@@ -629,29 +727,69 @@ window.ACE_CUSTOM_CONTENT = {
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
-          "template": [
-            "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ h n z O D F P\t[ hnzODFP]",
-            "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
-            "Box  4: o z … A n\t[oz…An]",
-            "Box  5: / … P m D … P m\t[/…PmD…Pm]",
-            "Box  6: B j o _ T 9 q 2\t[Bjo T9q2]",
-            "Box  7: A n\t        [An]"
-          ],
-          "notes": "Locally added developer entry."
+        "emerald|fr|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
+                "Box  4: o z … A n\t[oz…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
+                "Box  4: o z … A n\t[oz…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
         },
         "emerald|fr|inaccurate": {
-          "template": [
-            "Box  1: p . U n P T D n\t[p.UnPTDn]",
-            "Box  2: _ h n z O D F Q\t[ hnzODFQ]",
-            "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
-            "Box  4: o z … A n\t[oz…An]",
-            "Box  5: / … P m D … P m\t[/…PmD…Pm]",
-            "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
-            "Box  7: A n\t        [An]"
-          ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
+                "Box  4: o z … A n\t[oz…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n F B\t[9qOKBnFB]",
+                "Box  4: o z … A n\t[oz…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
         }
       },
       "requirements": [
@@ -663,10 +801,13 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ exit = null",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "; This code creates a (meta)stable Thumb species",
         "; in box 10 slot 19 for all languages,",
         "; and a Thumb->ARM bootstrap in Box 12 Slot 4.",
+        "",
         "old_emu = 0",
+        "",
         "lang = 2",
         "; (1 - JP) not supported by this code",
         "; 2 - EN ; 0x45bb (metastable)",
@@ -674,21 +815,29 @@ window.ACE_CUSTOM_CONTENT = {
         "; 4 - IT ; 0x45b7 (pseodostable)",
         "; 5 - DE ; 0x44f1 (metastable)",
         "; 7 - ES ; 0x45db (metastable)",
+        "",
         "fortify = 0",
         "; set this to 1 for the second execution to",
         "; \"fortify\" the bootstrap (so you don't accidentally overwrite it, since it's pretty fragile otherwise).",
         "; only box 6 should change slightly, you can keep the rest the same.",
         "; before executing the fortify code, move the bootstrap (bad egg)",
         "; to Box 12 Slot 7 (Row 2, Column 1).",
+        "",
+        "",
         "@@",
+        "",
         "sbc r10, r15, #0x3900 ; addressing",
         "adcs r12, r14, #0xca0 ; exit code 1/2",
         "sbcs r0, r12, #0xff ; exit code 2/2",
+        "",
         "; generate `bx r15` in the high bits here...",
         "adcgts r12, r14, r14, ror #19",
+        "",
         "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; set hasSpecies to 1",
+        "",
         "; and finish it here, have the low bits be nonzero",
         "adcs r12, r12, #0x32400000",
+        "",
         "{lang == 2 ? 0xe3ffbcbb :\\",
         "(lang == 3 ? 0xe3ffbcc0 :\\",
         "(lang == 4 ? 0xe3ffbcbe :\\",
@@ -700,6 +849,7 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: mvns r11, 0xbe00",
         "; DE: mvns r11, 0xbc00",
         "; ES: mvns r11, 0xbb00",
+        "",
         "{lang == 2 ? 0xE2BBB0BC :\\",
         "(lang == 3 ? 0xE2BBB0EE :\\",
         "(lang == 4 ? 0xE2BBBFEE :\\",
@@ -711,8 +861,10 @@ window.ACE_CUSTOM_CONTENT = {
         "; IT: adcs r11, r11, #0x3b8",
         "; DE: adcs r11, r11, #0xf2",
         "; ES: adcs r11, r11, #0xdc",
+        "",
         "strh r11, [r10, #10] ; store checksum",
         "strh r11, [r10, #14] ; store species",
+        "",
         "bic r11, r14, #0xff00",
         "str r12, [r10, #{fortify?0xf00:0xe00}]! ; store bootstrap in PID/flags",
         "adc r15, r11, #0x28c"
@@ -725,8 +877,19 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#getting-a-metastable-thumb-species"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#getting-a-metastable-thumb-species"
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "fr": 3,
+        "it": 4,
+        "de": 5,
+        "es": 7
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
       }
     },
     {
@@ -765,7 +928,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|de|accurate": {
           "template": [
@@ -777,7 +940,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|de|inaccurate": {
           "template": [
@@ -789,7 +952,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|fr|accurate": {
           "template": [
@@ -801,7 +964,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|fr|inaccurate": {
           "template": [
@@ -813,7 +976,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|es|accurate": {
           "template": [
@@ -825,7 +988,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|es|inaccurate": {
           "template": [
@@ -837,7 +1000,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|it|accurate": {
           "template": [
@@ -849,7 +1012,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         },
         "emerald|it|inaccurate": {
           "template": [
@@ -861,7 +1024,7 @@ window.ACE_CUSTOM_CONTENT = {
             "Box  6: R T o D Y J m ?\t[RToDYJm?]",
             "Box  7: B n\t\t[Bn]"
           ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
         }
       },
       "requirements": [
@@ -877,22 +1040,27 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ filler3 = 0xbbffffff",
         "@@ filler4 = 0xffffffff",
         "@@ fill = false",
+        "",
         "lang = 7",
         "; 2 - English",
         "; 3 - French",
         "; 4 - Italian",
         "; 5 - German",
         "; 7 - Spanish",
+        "",
         "address = (lang == 2 ? 0x0867550B :\\",
-        "(lang == 3 ? 0x0867946E :\\",
-        "(lang == 4 ? 0x08671BA6 :\\",
-        "(lang == 5 ? 0x086866DC :\\",
-        "(lang == 7 ? 0x08677AB0 : 0)))))",
+        "          (lang == 3 ? 0x0867946E :\\",
+        "          (lang == 4 ? 0x08671BA6 :\\",
+        "          (lang == 5 ? 0x086866DC :\\",
+        "          (lang == 7 ? 0x08677AB0 : 0)))))",
+        "",
         "@@",
+        "",
         "sbc r11, r15, #0xBC00",
         "sbc r11, r11, #0xBA",
         "adc r12, r14, #{address - 0x080069e7} ?",
         "str r12, [r11, #0x800]!",
+        "",
         "bic r12, r14, #0xff00",
         "strh r13, [r4, #0x3e]",
         "adcs r15, r12, #0x2b0"
@@ -905,8 +1073,15 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#unlock-navel-rock-via-mystery-gift"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#unlock-navel-rock-via-mystery-gift"
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "fr": 3,
+        "it": 4,
+        "de": 5,
+        "es": 7
       }
     },
     {
@@ -935,53 +1110,21 @@ window.ACE_CUSTOM_CONTENT = {
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
+        "emerald|*|accurate": {
           "template": [
-            "Box  1: – B U n ♀ x Q m    [–BUn♀xQm]",
+            "Box  1: – B U n ♀ x Q m    [–BUn♀xQm] ← replace \"♀\" with \",\" on old emulators",
             "Box  2: R T o D Y J m ?    [RToDYJm?]",
             "Box  3: ? n                [?n]"
           ],
-          "notes": "Locally added developer entry."
+          "notes": "Console / accurate emulator (old_emu = 0)."
         },
-        "emerald|en|inaccurate": {
+        "emerald|*|inaccurate": {
           "template": [
-            "Box  1: – B U n , x Q m    [–BUn,xQm]",
+            "Box  1: – B U n , x Q m    [–BUn,xQm] ← replace \"♀\" with \",\" on old emulators",
             "Box  2: R T o D Y J m ?    [RToDYJm?]",
             "Box  3: ? n                [?n]"
           ],
-          "notes": "Game, language and platform-specific variation."
-        },
-        "emerald|de|inaccurate": {
-          "template": [
-            "Box  1: – B U n , x Q m    [–BUn,xQm]",
-            "Box  2: R T o D Y J m ?    [RToDYJm?]",
-            "Box  3: ? n                [?n]"
-          ],
-          "notes": "Game, language and platform-specific variation."
-        },
-        "emerald|fr|inaccurate": {
-          "template": [
-            "Box  1: – B U n , x Q m    [–BUn,xQm]",
-            "Box  2: R T o D Y J m ?    [RToDYJm?]",
-            "Box  3: ? n                [?n]"
-          ],
-          "notes": "Game, language and platform-specific variation."
-        },
-        "emerald|es|inaccurate": {
-          "template": [
-            "Box  1: – B U n , x Q m    [–BUn,xQm]",
-            "Box  2: R T o D Y J m ?    [RToDYJm?]",
-            "Box  3: ? n                [?n]"
-          ],
-          "notes": "Game, language and platform-specific variation."
-        },
-        "emerald|it|inaccurate": {
-          "template": [
-            "Box  1: – B U n , x Q m    [–BUn,xQm]",
-            "Box  2: R T o D Y J m ?    [RToDYJm?]",
-            "Box  3: ? n                [?n]"
-          ],
-          "notes": "Game, language and platform-specific variation."
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
         }
       },
       "requirements": [
@@ -991,10 +1134,14 @@ window.ACE_CUSTOM_CONTENT = {
         "@@ title = \"Unlock Southern Island\"",
         "@@ author = \"Mettrich\"",
         "@@ exit = null",
+        "",
         "old_emu=0",
+        "",
         "@@",
+        "",
         "sbc r11, r15, #0xae00",
         "strh r14, [r11, #{old_emu?0xc8:0xc6}]",
+        "",
         "bic r12, r14, #0xff00",
         "strh r13, [r4, #0x3e]",
         "adc r15, r12, #0x2b0"
@@ -1007,8 +1154,12 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c#unlock-southern-island"
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#unlock-southern-island"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
       }
     },
     {
@@ -1201,80 +1352,169 @@ window.ACE_CUSTOM_CONTENT = {
         "emerald"
       ],
       "languages": [
-        "en"
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
       ],
       "platforms": [
-        "accurate"
+        "accurate",
+        "inaccurate"
       ],
       "tags": [],
       "parameters": [],
       "variants": {
-        "default": {
+        "emerald|*|accurate": {
+          "notes": "Console / accurate emulator.",
           "codes": [
             {
               "title": "Code 1",
-              "note": "",
               "template": [
-                "Box 1: B C U n p 0 E H [BCUnp0EH]",
-                "Box 2: G D H W F f … … [GDHWFf……]",
-                "Box 3: R V z _ h n     [RVz_hn]",
-                "Box 4: P T S f ♀     [PTSf♀]",
-                "Box 5: _ H B … E L Q ♂ [_HB…ELQ♂]",
-                "Box 6: R T I D Y J m ? [RTIDYJm?]",
-                "Box 7: ? H T S g ♀ _ _ [?HTSg♀__]",
-                "Box 8: Y _ I k r       [Y_Ikr]",
-                "Box 9: I R H U K U G G [IRHUKUGG]",
-                "Box 10: D G A I I F K G [DGAIIFKG]",
-                "Box 11: I T P N I G L I [ITPNIGLI]",
-                "Box 12: F T K T I T F R [FTKTITFR]",
-                "Box 13: C Q L T I G F K [CQLTIGFK]",
-                "Box 14: P L K F M T L L [PLKFMTLL]"
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: R T I D Y J m ?\t[RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
               ],
-              "codeNote": "Save the game and execute the code. A bad egg will spawn in box 10 slot 22. Leave it there. The next code will start on box 5, and jump to box 9. Count boxes carefully!"
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
             },
             {
               "title": "Code 2",
-              "note": "",
               "template": [
-                "Box 5: _ H B … c L Q ♂ [_HB…cLQ♂]",
-                "Box 9: I H F J D U I G [IHFJDUIG]",
-                "Box 10: C U J O I L L G [CUJOILLG]",
-                "Box 11: H N K O I J F Q [HNKOIJFQ]",
-                "Box 12: H N L O L T I F [HNLOLTIF]",
-                "Box 13: D T M F J L P F [DTMFJLPF]",
-                "Box 14: H G L H G Q G M [HGLHGQGM]"
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: R T I D Y J m ?\t[RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
               ],
-              "codeNote": "Execute the code. The bad egg will not be visibly different. Keep going with the last code, again starting on box 5 and skipping to box 9."
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
             },
             {
               "title": "Code 3",
-              "note": "",
               "template": [
-                "Box 5: _ H B … 6 L Q ♂ [_HB…6LQ♂]",
-                "Box 9: H K G F I F H U [HKGFIFHU]",
-                "Box 10: H R E G B U G H [HREGBUGH]",
-                "Box 11: E G D U E L D T [EGDUELDT]",
-                "Box 12: D R H U I F I F [DRHUIFIF]",
-                "Box 13: E F D K K I C H [EFDKKICH]",
-                "Box 14: K L C I I H G F [KLCIIHGF]"
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: R T I D Y J m ?\t[RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
               ],
-              "codeNote": "After executing this code, the bad egg will turn  into Weldr the Metang if you did the three codes correctly. This is your Base64 writer. Move this to Box 14 slot 28. Catch or rename any Pokémon with the nickname \"J-FKVC\", and place it in box 14 slot 29. You are now ready to do the test code below. It should be a bulbasaur and spawn in box 14 slot 30. If your bad egg is still a bad egg, move it away and redo all three codes."
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J-FKVC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
             },
             {
-              "title": "Code 4",
-              "note": "",
+              "title": "Test WELDR",
               "template": [
-                "Box 1: A Q D ? P w _ _ [AQD?Pw__]"
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
               ],
-              "codeNote": "If you successfully got Bulbasaur after executing this code, you should delete it, as its missing a lot of data to be a complete Pokémon. You are now ready to use the website to create codes for any Pokémon you want: https://mankeymite.github.io/Gen3ACEPokemonBuilder/"
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
             }
-          ],
-          "notes": "Locally added developer entry."
+          ]
+        },
+        "emerald|*|inaccurate": {
+          "notes": "Older / inaccurate emulator: use the source’s Old Emulator mode. My Boy requires its separate five-code setup; this variant is not for My Boy.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … G L Q ♂\t[ HB…GLQ♂]",
+                "Box 6: R T I D Y J m ?\t[RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … e L Q ♂\t[ HB…eLQ♂]",
+                "Box 6: R T I D Y J m ?\t[RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 8 L Q ♂\t[ HB…8LQ♂]",
+                "Box 6: R T I D Y J m ?\t[RTIDYJm?]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J-FKVC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
         }
       },
       "requirements": [
         "Stable ACE Species.",
-        "Box 10 slot 22 must be empty before typing code 1."
+        "Box 10 slot 22 must be empty before typing code 1.",
+        "For older emulators, choose the source’s Old Emulator mode; My Boy requires a separate setup.",
+        "Do not add trailing spaces unless explicitly shown; Code 1 Box 7 needs two."
       ],
       "sourceCode": [],
       "video": "",
@@ -1285,8 +1525,8 @@ window.ACE_CUSTOM_CONTENT = {
         "Enter and execute the code exactly as documented."
       ],
       "source": {
-        "label": "Locally added entry",
-        "url": ""
+        "label": "Original source — Mettrich, hosted by MankeyMite",
+        "url": "https://github.com/MankeyMite/Gen3ACEPokemonBuilder/blob/522e3026605cf8202b78ab75d6895a734e6cdf5c/docs/spawn-setup-interactive.html"
       }
     },
     {
@@ -1332,7 +1572,7 @@ window.ACE_CUSTOM_CONTENT = {
             }
           ],
           "notes": "Locally added developer entry.",
-          "guideAfter": "Check your trainer card for the SID. Reset or execute again to revert changes."
+          "guideAfter": "Save the game, then execute the code.\nCheck your trainer card for the SID. Reset or execute again to revert changes."
         }
       },
       "requirements": [
@@ -1368,6 +1608,6137 @@ window.ACE_CUSTOM_CONTENT = {
       "source": {
         "label": "Locally added entry",
         "url": ""
+      }
+    },
+    {
+      "id": "read-out-pokemon-data-emerald",
+      "title": "Read out Pokémon data",
+      "author": "Mettrich",
+      "addedOn": "2026-08-08",
+      "summary": "Choose a data field to read from the first Pokémon in your party. The result is displayed as the second party Pokémon’s Defense value. Data longer than 2 bytes is not fully shown, so fields such as Personality (PID) will not fully work here.",
+      "category": "Pokémon data",
+      "difficulty": "Intermediate",
+      "recommended": false,
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "de",
+        "fr",
+        "es",
+        "it"
+      ],
+      "platforms": [
+        "accurate"
+      ],
+      "tags": [
+        "read",
+        "party",
+        "data",
+        "EV",
+        "IV"
+      ],
+      "parameters": [
+        {
+          "id": "field",
+          "label": "Field to read",
+          "type": "choice",
+          "source": "monDataFields",
+          "presentation": "select",
+          "default": "26"
+        }
+      ],
+      "variants": {
+        "default": {
+          "codes": [
+            {
+              "title": "Generated code",
+              "note": "Select the field you want to read, then enter the generated box names exactly as shown.",
+              "template": [
+                "Box  1: S 2 D F F Y S H [S2DFFYSH]",
+                "Box  2: U U I Z R R H [UUIZRRH]",
+                "Box  3: K J w F B H [KJwFBH]",
+                "Box  4: A {field.lowChar} _ . I [A{field.lowChar} .I]",
+                "Box  5: {field.highChar} D … H r . / H [{field.highChar}D…Hr./H]",
+                "Box  6: B Q I _ , J N [BQI ,JN]",
+                "Box  7: A A , _ Z N [AA, ZN]",
+                "Box  8: A B _ / H [AB /H]",
+                "Box  9: _ . R I [ .RI]",
+                "Box 10: R T I _ F S N 2 [RTI FSN2]",
+                "Box 11: ? H H H H H H I [?HHHHHHI]",
+                "Box 12: o F Y i n [oFYin]",
+                "Box 13: F _ 9 4 _ m J H [F 94 mJH]",
+                "Box 14: _ g o q E x n R [ goqExnR]"
+              ],
+              "codeNote": "Box 1 wallpaper must be Sky and Box 2 wallpaper must be Forest. Data longer than 2 bytes is not fully shown, so fields such as Personality (PID) will not fully work here."
+            }
+          ],
+          "notes": "English, French, or Spanish console / accurate-emulator version supplied by the code author."
+        },
+        "emerald|de|accurate": {
+          "codes": [
+            {
+              "title": "Generated code",
+              "note": "Select the field you want to read, then enter the generated box names exactly as shown.",
+              "template": [
+                "Box  1: S 2 D F F Y S H [S2DFFYSH]",
+                "Box  2: U U I Z R R H [UUIZRRH]",
+                "Box  3: K J w F B H [KJwFBH]",
+                "Box  4: A {field.lowChar} _ . I [A{field.lowChar} .I]",
+                "Box  5: {field.highChar} D … H r . / H [{field.highChar}D…Hr./H]",
+                "Box  6: B Q I _ , J N [BQI ,JN]",
+                "Box  7: A A , _ Z N [AA, ZN]",
+                "Box  8: A F _ / H [AF /H]",
+                "Box  9: _ . R I [ .RI]",
+                "Box 10: R T I _ F S N 2 [RTI FSN2]",
+                "Box 11: ? H H H H H H I [?HHHHHHI]",
+                "Box 12: o F Y i n [oFYin]",
+                "Box 13: F _ 9 4 _ m J H [F 94 mJH]",
+                "Box 14: _ g o q E x n R [ goqExnR]"
+              ],
+              "codeNote": "Box 1 wallpaper must be Sky and Box 2 wallpaper must be Forest. Data longer than 2 bytes is not fully shown, so fields such as Personality (PID) will not fully work here."
+            }
+          ],
+          "notes": "German console / accurate-emulator version supplied by the code author."
+        },
+        "emerald|it|accurate": {
+          "codes": [
+            {
+              "title": "Generated code",
+              "note": "Select the field you want to read, then enter the generated box names exactly as shown.",
+              "template": [
+                "Box  1: S 2 D F F Y S H [S2DFFYSH]",
+                "Box  2: U U I Z R R H [UUIZRRH]",
+                "Box  3: K J w F B H [KJwFBH]",
+                "Box  4: A {field.lowChar} _ . I [A{field.lowChar} .I]",
+                "Box  5: {field.highChar} D … H r . / H [{field.highChar}D…Hr./H]",
+                "Box  6: B Q I _ , J N [BQI ,JN]",
+                "Box  7: A A , _ Z N [AA, ZN]",
+                "Box  8: A F _ / H [AF /H]",
+                "Box  9: _ . R I [ .RI]",
+                "Box 10: R T I _ F S N 2 [RTI FSN2]",
+                "Box 11: ? H H H H H H I [?HHHHHHI]",
+                "Box 12: o F Y i n [oFYin]",
+                "Box 13: F _ 9 4 _ m J H [F 94 mJH]",
+                "Box 14: _ g o q E x n R [ goqExnR]"
+              ],
+              "codeNote": "Box 1 wallpaper must be Sky and Box 2 wallpaper must be Forest. Data longer than 2 bytes is not fully shown, so fields such as Personality (PID) will not fully work here."
+            }
+          ],
+          "notes": "Italian console / accurate-emulator version supplied by the code author."
+        }
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "fr": 3,
+        "it": 4,
+        "de": 5,
+        "es": 7
+      },
+      "requirements": [
+        "Any stable ACE species.",
+        "At least two Pokémon in your party; data is read from the first and displayed through the second Pokémon’s Defense.",
+        "Set the Box 1 wallpaper to Sky.",
+        "Set the Box 2 wallpaper to Forest."
+      ],
+      "sourceCode": [
+        "@@ title = \"Read out data\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ fill = false",
+        "",
+        "; Requirements:",
+        "; - Any Stable ACE species",
+        "; Box 1 Wallpaper: \"Sky\"",
+        "; Box 2 Wallpaper: \"Forest\"",
+        ";",
+        "; Effects:",
+        "; - Reads out your first party mon's selected field into the second mon's Defense",
+        "",
+        "old_emu = 0",
+        "",
+        "; Languages:",
+        "; 2 - English",
+        "; 3 - French",
+        "; 4 - Italian",
+        "; 5 - German",
+        "; 7 - Spanish",
+        "lang = 2",
+        "",
+        "field = 26",
+        "",
+        "@@",
+        "",
+        "adcgts r10, r14, r13, asr #7",
+        "sbcgt r13, r13, #3 ; do some wasteful stack stuff",
+        "",
+        "bicgt r12, r15, #0x3fc",
+        "sbcgt r12, r12, #0xd400",
+        "strgtb r15, [r5], #0xfff",
+        "adcgts r12, r12, #{old_emu?0xed:0xeb}",
+        "",
+        "; mov r11, #{field} ?2",
+        "movgt r0, #{0xc0+(field&0xf)}",
+        "adcgts r11, r0, #{0xc40+(field&0xf0)}",
+        "",
+        "adcgts r10, r10, #0x3980",
+        "bicgt r11, r11, #0xff00",
+        "",
+        "0xc8c4b800 ; store the field and data pointer",
+        "0xc8d400b8 ; load field and data pointer",
+        "",
+        "adcgts r0, r10, #{(lang == 2 || lang == 3 || lang == 7) ? 0xbc : (lang == 4 || lang == 5) ? 0xc0 : 0xbc}",
+        "",
+        "0xc3ccad00 ; bicgt r10, r12, #0",
+        "",
+        "bicgt r12, r14, #0xff00",
+        "0xc8cdc000 ; stmgtia r13, {r14,r15} ^",
+        "adcgt r15, r12, #0x28c",
+        "",
+        "; filler for typability",
+        "0xc2c2c2c2",
+        "0xe3ffc3c2 ; mvns r12, 0x08000003",
+        "sbcs r13, r13, #3",
+        "strge r0, [r10, #192]!",
+        "",
+        "0xc2c4e100 ; sbcgt r14, r4, #0",
+        "",
+        "bics r0, r11, #0xff",
+        "0xe2ecbfe5 ; rsc r11, r12, #0x394",
+        "andeq r15, r11, r12, asr #31"
+      ],
+      "video": "",
+      "troubleshooting": [],
+      "instructions": [
+        "Back up your save.",
+        "Confirm both wallpaper requirements and party order.",
+        "Choose the field to read, then enter and execute the generated code exactly as shown."
+      ],
+      "source": {
+        "label": "Code supplied by Mettrich",
+        "url": ""
+      }
+    },
+    {
+      "id": "get-any-item-emerald",
+      "title": "Get any item",
+      "author": "Mettrich",
+      "addedOn": "2026-09-04",
+      "summary": "Choose an item and generate the matching Emerald box names. After executing the code, collect the selected item from the lottery lady on the first floor of Lilycove Department Store.",
+      "category": "Items",
+      "difficulty": "Beginner",
+      "recommended": false,
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "de",
+        "fr",
+        "es",
+        "it"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [
+        "item",
+        "Lilycove",
+        "lottery"
+      ],
+      "parameters": [
+        {
+          "id": "item",
+          "label": "Item to receive",
+          "type": "choice",
+          "source": "items",
+          "presentation": "select",
+          "default": "0001"
+        }
+      ],
+      "variants": {
+        "default": {
+          "template": [
+            "Box  1: – B U n L … ! n\t[–BUnL…!n]",
+            "Box  2: A A {item.lowChar} F F . o\t[AA{item.lowChar}FF.o]",
+            "Box  3: A A {item.secondLowChar} T B n\t[AA{item.secondLowChar}TBn]",
+            "Box  4: A {item.secondHighChar} R B n\t[A{item.secondHighChar}RBn]",
+            "Box  5: {item.highChar} P B n A F Q m\t[{item.highChar}PBnAFQm]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: B n\t[Bn]"
+          ],
+          "notes": "Console and accurate-emulator version. The item ID is encoded automatically from the selected Generation III index number."
+        },
+        "*|inaccurate": {
+          "template": [
+            "Box  1: – B U n N … ! n\t[–BUnN…!n]",
+            "Box  2: A A {item.lowChar} F F . o\t[AA{item.lowChar}FF.o]",
+            "Box  3: A A {item.secondLowChar} T B n\t[AA{item.secondLowChar}TBn]",
+            "Box  4: A {item.secondHighChar} R B n\t[A{item.secondHighChar}RBn]",
+            "Box  5: {item.highChar} P B n A F Q m\t[{item.highChar}PBnAFQm]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: B n\t[Bn]"
+          ],
+          "notes": "Older/inaccurate-emulator version. The item ID is encoded automatically from the selected Generation III index number."
+        }
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      },
+      "requirements": [
+        "Any stable or metastable ACE species.",
+        "A Western/Latin-language copy of Pokémon Emerald.",
+        "Access to the lottery lady on the first floor of Lilycove Department Store."
+      ],
+      "sourceCode": [
+        "@@ title = \"Title\"",
+        "@@ author = \"Author\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #0xae00",
+        "adc r11, r11, #{(old_emu?0xd3:0xd1)-0xb}",
+        "mov r12, #0xc0",
+        "adcs r12, r12, #0xc40",
+        "adcs r12, r12, #0xc300",
+        "adcs r12, r12, #0xc3000",
+        "strh r12, [r11, #0xb]",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adcs r15, r12, #0x2b0"
+      ],
+      "video": "",
+      "troubleshooting": [],
+      "instructions": [
+        "Back up your save.",
+        "Choose the item you want and enter the generated box names exactly as shown.",
+        "Execute the code with your stable or metastable ACE species.",
+        "Go to the first floor of Lilycove Department Store and talk to the lottery lady to receive the item."
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#get-any-item"
+      },
+      "verificationStatus": "needs-verification",
+      "verificationNote": "The source disagrees with itself in Box 2: spaced \"A A A $ F . o\" versus compact \"AA$FF.o\". Existing archive output is retained for review, but hidden from compatible results until an authoritative correction is available. No ACE text was repaired or compiled."
+    },
+    {
+      "id": "local-test-code-for-0x0611-dots-egg-1788560773245",
+      "title": "Test code for 0x0611 Dots egg",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "This code should bring up the nicknaming screen for any pokemon in box 1 slot 1. This code is useful for checking if Dots was EV trained correctly, if the first code after creating 0x0611 does not seem to work.",
+      "category": "Test",
+      "difficulty": "Beginner",
+      "recommended": false,
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "de",
+        "fr",
+        "es",
+        "it"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "template": [
+            "Box  1: r P D n V S B n    [rPDnVSBn]",
+            "Box  2: B T o j _ B n 2    [BToj Bn2]",
+            "Box  3: A n            [An]"
+          ],
+          "notes": "Locally added developer entry."
+        }
+      },
+      "requirements": [
+        "Dots Egg 0x0611"
+      ],
+      "sourceCode": [],
+      "video": "",
+      "troubleshooting": [],
+      "instructions": [
+        "Back up your save.",
+        "Confirm every requirement above.",
+        "Enter and execute the code exactly as documented."
+      ],
+      "source": {
+        "label": "Locally added entry",
+        "url": ""
+      }
+    },
+    {
+      "id": "mettrich-metastable-thumb-species-emerald",
+      "title": "Metastable Thumb species and bootstrap",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Create a metastable Thumb species in Box 10 Slot 19 and a Thumb-to-ARM bootstrap in Box 12 Slot 4.",
+      "category": "Code enabler",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|en|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o B … A n\t[oB…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o B … A n\t[oB…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|en|inaccurate": {
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o B … A n\t[oB…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o B … A n\t[oB…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|it|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n D B\t[9qOKBnDB]",
+                "Box  4: o z E A n\t[ozEAn]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n D B\t[9qOKBnDB]",
+                "Box  4: o z E A n\t[ozEAn]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|it|inaccurate": {
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n D B\t[9qOKBnDB]",
+                "Box  4: o z E A n\t[ozEAn]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n D B\t[9qOKBnDB]",
+                "Box  4: o z E A n\t[ozEAn]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|de|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n B B\t[9qOKBnBB]",
+                "Box  4: o Ö … A n\t[oÖ…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n B B\t[9qOKBnBB]",
+                "Box  4: o Ö … A n\t[oÖ…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|de|inaccurate": {
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n B B\t[9qOKBnBB]",
+                "Box  4: o Ö … A n\t[oÖ…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n B B\t[9qOKBnBB]",
+                "Box  4: o Ö … A n\t[oÖ…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|es|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o h … A n\t[oh…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F P\t[ hnzODFP] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o h … A n\t[oh…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        },
+        "emerald|es|inaccurate": {
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Create species and bootstrap",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o h … A n\t[oh…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ T 9 q 2\t[Bjo T9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "The species appears in Box 10 Slot 19; the bootstrap appears in Box 12 Slot 4. Do not nickname a hatched egg."
+            },
+            {
+              "title": "Code 2 — Fortify bootstrap",
+              "note": "First move the bootstrap from Box 12 Slot 4 to Box 12 Slot 7.",
+              "template": [
+                "Box  1: p . U n P T D n\t[p.UnPTDn]",
+                "Box  2: _ h n z O D F Q\t[ hnzODFQ] ← for old emulators, replace \"P\" with \"Q\"",
+                "Box  3: 9 q O K B n A B\t[9qOKBnAB]",
+                "Box  4: o h … A n\t[oh…An]",
+                "Box  5: / … P m D … P m\t[/…PmD…Pm]",
+                "Box  6: B j o _ U 9 q 2\t[Bjo U9q2] ← for fortifying the bootstrap, replace \"T\" with \"U\"",
+                "Box  7: A n\t        [An]"
+              ],
+              "codeNote": "Test group selection: if the bootstrap disappears when placed down, reset."
+            }
+          ]
+        }
+      },
+      "requirements": [
+        "An ARM ACE egg or stable/metastable ARM ACE species.",
+        "Keep Box 10 Slot 19 and Box 12 Slot 4 empty."
+      ],
+      "instructions": [
+        "Execute Code 1. Do not nickname a hatched egg; its sprite becoming invisible signals success.",
+        "Move the bootstrap bad egg from Box 12 Slot 4 to Box 12 Slot 7 before Code 2.",
+        "Execute Code 2 to fortify the bootstrap. It may then be placed from Box 12 Slot 4 through Box 14 Slot 30."
+      ],
+      "troubleshooting": [
+        "Test the fortified bootstrap with group selection. If it disappears when placed down, reset to your last save.",
+        "For a metastable species, open another Pokémon’s summary, switch to stats/moves/contest moves, then scroll to the ACE species."
+      ],
+      "sourceCode": [
+        "@@ title = \"Create Pokémon from nothing\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "; This code creates a (meta)stable Thumb species",
+        "; in box 10 slot 19 for all languages,",
+        "; and a Thumb->ARM bootstrap in Box 12 Slot 4.",
+        "",
+        "old_emu = 0",
+        "",
+        "lang = 2",
+        "; (1 - JP) not supported by this code",
+        "; 2 - EN ; 0x45bb (metastable)",
+        "; 3 - FR ; 0x40ed (pseudostable)",
+        "; 4 - IT ; 0x45b7 (pseodostable)",
+        "; 5 - DE ; 0x44f1 (metastable)",
+        "; 7 - ES ; 0x45db (metastable)",
+        "",
+        "fortify = 0",
+        "; set this to 1 for the second execution to",
+        "; \"fortify\" the bootstrap (so you don't accidentally overwrite it, since it's pretty fragile otherwise).",
+        "; only box 6 should change slightly, you can keep the rest the same.",
+        "; before executing the fortify code, move the bootstrap (bad egg)",
+        "; to Box 12 Slot 7 (Row 2, Column 1).",
+        "",
+        "",
+        "@@",
+        "",
+        "sbc r10, r15, #0x3900 ; addressing",
+        "adcs r12, r14, #0xca0 ; exit code 1/2",
+        "sbcs r0, r12, #0xff ; exit code 2/2",
+        "",
+        "; generate `bx r15` in the high bits here...",
+        "adcgts r12, r14, r14, ror #19",
+        "",
+        "str r15, [r10, #{old_emu?0xfcb:0xfca}]! ; set hasSpecies to 1",
+        "",
+        "; and finish it here, have the low bits be nonzero",
+        "adcs r12, r12, #0x32400000",
+        "",
+        "{lang == 2 ? 0xe3ffbcbb :\\",
+        "(lang == 3 ? 0xe3ffbcc0 :\\",
+        "(lang == 4 ? 0xe3ffbcbe :\\",
+        "(lang == 5 ? 0xe3ffbcbc :\\",
+        "(lang == 7 ? 0xe3ffbcbb : 0xbbffffff))))}",
+        "; species 1/2",
+        "; EN: mvns r11, 0xbb00",
+        "; FR: mvns r11, 0xc000",
+        "; IT: mvns r11, 0xbe00",
+        "; DE: mvns r11, 0xbc00",
+        "; ES: mvns r11, 0xbb00",
+        "",
+        "{lang == 2 ? 0xE2BBB0BC :\\",
+        "(lang == 3 ? 0xE2BBB0EE :\\",
+        "(lang == 4 ? 0xE2BBBFEE :\\",
+        "(lang == 5 ? 0xE2BBB0F2 :\\",
+        "(lang == 7 ? 0xE2BBB0DC : 0xbbbbbbbb))))}",
+        "; species 2/2",
+        "; EN: adcs r11, r11, #0xbc",
+        "; FR: adcs r11, r11, #0xee",
+        "; IT: adcs r11, r11, #0x3b8",
+        "; DE: adcs r11, r11, #0xf2",
+        "; ES: adcs r11, r11, #0xdc",
+        "",
+        "strh r11, [r10, #10] ; store checksum",
+        "strh r11, [r10, #14] ; store species",
+        "",
+        "bic r11, r14, #0xff00",
+        "str r12, [r10, #{fortify?0xf00:0xe00}]! ; store bootstrap in PID/flags",
+        "adc r15, r11, #0x28c"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#getting-a-metastable-thumb-species"
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "fr": 3,
+        "it": 4,
+        "de": 5,
+        "es": 7
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-get-all-badges-emerald",
+      "title": "Get all badges",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Get all badges.",
+      "category": "Utility",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: – B U n , H g m\t[–BUn,Hgm] ← Replace comma (,) with slash (/) on old emulator",
+            "Box  2: ? . o P F R m   [?.oPFRm]",
+            "Box  3: E E P F ? l    \t[EEPF?l]",
+            "Box  4: E , H Q m       [E,HQm] ← Replace comma (,) with slash (/) on old emulator",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n            \t[?n]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: – B U n / H g m\t[–BUn/Hgm] ← Replace comma (,) with slash (/) on old emulator",
+            "Box  2: ? . o P F R m   [?.oPFRm]",
+            "Box  3: E E P F ? l    \t[EEPF?l]",
+            "Box  4: E / H Q m       [E/HQm] ← Replace comma (,) with slash (/) on old emulator",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n            \t[?n]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Get all badges\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #0xAE00",
+        "ldrh r12, [r11, #{old_emu?42:40}]",
+        "mov r10, #0xFF00",
+        "bic r12, r12, r10, asr #1",
+        "adc r12, r12, r10, asr #1",
+        "strh r12, [r11, #{old_emu?42:40}]",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adc r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#get-all-badges"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-duplicate-all-items-in-the-pc-emerald",
+      "title": "Duplicate all items in the PC",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Duplicate all items in the PC.",
+      "category": "Items",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: 3 A . o _ F J u\t[3A.o FJu]",
+            "Box  2: R . o C ? U n\t[R.oC?Un]",
+            "Box  3: E E F 2 / n\t[EEF2/n]",
+            "Box  4: E ♀ I P m\t[E♀IPm] ← on old emulators, replace \"♀\" with a comma (,)",
+            "Box  5: X D g n _ F Z 8\t[XDgn FZ8]",
+            "Box  6: R T Y D Y J W ?\t[RTYDYJW?]",
+            "Box  7: ? X\t        [?X]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: 3 A . o _ F J u\t[3A.o FJu]",
+            "Box  2: R . o C ? U n\t[R.oC?Un]",
+            "Box  3: E E F 2 / n\t[EEF2/n]",
+            "Box  4: E , I P m\t[E,IPm] ← on old emulators, replace \"♀\" with a comma (,)",
+            "Box  5: X D g n _ F Z 8\t[XDgn FZ8]",
+            "Box  6: R T Y D Y J W ?\t[RTYDYJW?]",
+            "Box  7: ? X\t        [?X]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Duplicate all your items in your PC storage\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbfbfbfff",
+        "@@ filler2 = 0xbfbfffff",
+        "@@ filler3 = 0xbfffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "mov r11, #0x29000",
+        "0xe9c4c000 ; stmib r4, {r14, r15} ^",
+        "mov r12, #0xff00",
+        "sbc r10, r15, #0xbd00",
+        "",
+        "adcs r10, r10, #3",
+        "strh r12, [r10, #{old_emu?0x38:0x36}]",
+        "sbcs r11, r11, #0xd20",
+        "",
+        "0xa9d4c000 ; ldmibge r4, {r14, r15} ^",
+        "",
+        "bicle r12, r14, #0xff00",
+        "strhle r13, [r4, #0x3e]",
+        "adcle r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#duplicate-all-items-in-the-pc"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-make-mirage-island-appear-emerald",
+      "title": "Make Mirage island appear",
+      "author": "Mettrich",
+      "addedOn": "2026-09-12",
+      "summary": "Make Mirage Island appear.",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: N G E n – ? R n\t[NGEn–?Rn]",
+            "Box  2: E k o Z B Q n\t[EkoZBQn]",
+            "Box  3: A A A T g m\t[AAATgm]",
+            "Box  4: A C K P m\t[ACKPm]",
+            "Box  5: A              \t[A]",
+            "Box  6: R j o D Y J m ?\t[RjoDYJm?]",
+            "Box  7: B n            \t[Bn]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: N G E n – ? R n\t[NGEn–?Rn]",
+            "Box  2: E k o Z B Q n\t[EkoZBQn]",
+            "Box  3: A A C T g m\t[AACTgm]",
+            "Box  4: A E K P m\t[AEKPm]",
+            "Box  5: A              \t[A]",
+            "Box  6: R j o D Y J m ?\t[RjoDYJm?]",
+            "Box  7: B n            \t[Bn]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1)."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant."
+      ],
+      "sourceCode": [
+        "@@ title = \"Make Mirage island appear\"",
+        "@@ author = \"Mettrich\"",
+        "@@ filler0 = 0xffffffff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "adcs r12, r15, #0x32",
+        "sbc r10, r12, #0xae00",
+        "",
+        "bics r11, r15, #0x3fc",
+        "sbc r11, r11, #0xd400",
+        "ldrh r12, [r11, #{old_emu?0xed:0xeb}]",
+        "strh r12, [r10, #{old_emu?0x5f:0x5d}]",
+        "",
+        "bics r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adcs r15, r12, #0x2b0"
+      ],
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-make-hoenn-starters-reappear-emerald",
+      "title": "Make Hoenn Starters reappear",
+      "author": "Sleipnir17, adapted by Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Make Hoenn Starters reappear.",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: – B U n f … Q n\t[–BUnf…Qn] ← for old emulator replace \"f\" with \"d\"",
+            "Box  2: E E E B J g m\t[EEEBJgm]",
+            "Box  3: E E m P R o\t[EEmPRo]",
+            "Box  4: E B J Q m      \t[EBJQm]",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n\t        [?n]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: – B U n d … Q n\t[–BUnd…Qn] ← for old emulator replace \"f\" with \"d\"",
+            "Box  2: E E E B J g m\t[EEEBJgm]",
+            "Box  3: E E m P R o\t[EEmPRo]",
+            "Box  4: E B J Q m      \t[EBJQm]",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n\t        [?n]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Make Hoenn Starter reappear\"",
+        "@@ author = \"Sleipnir17, adapted by Mettrich\"",
+        "@@ exit = null",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #0xAE00",
+        "sbc r11, r11, #{old_emu?0xd8:0xda}",
+        "",
+        "ldrh r12, [r11, #0x4c]",
+        "bic r12, r12, #0xE1000",
+        "strh r12, [r11, #0x4c]",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adc r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#make-hoenn-starters-reappear"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-make-johto-starters-re-appear-emerald",
+      "title": "Make Johto Starters (re)appear",
+      "author": "Sleipnir17, adapted by Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Make Johto Starters (re)appear.",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: . B U n n … ! n\t[.BUnn…!n]",
+            "Box  2: G . o p G R n  \t[G.opGRn]",
+            "Box  3: E E B F Q m    \t[EEBFQm] ← for old emulator, replace \"B\" with \"D\"",
+            "Box  4: E              \t[E]",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n            \t[?n]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: . B U n n … ! n\t[.BUnn…!n]",
+            "Box  2: G . o p G R n  \t[G.opGRn]",
+            "Box  3: E E D F Q m    \t[EEDFQm] ← for old emulator, replace \"B\" with \"D\"",
+            "Box  4: E              \t[E]",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n            \t[?n]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Make Johto Starters reappear\"",
+        "@@ author = \"Sleipnir17, adapted by Mettrich\"",
+        "@@ exit = null",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #0xAD00",
+        "adc r11, r11, #0xE2",
+        "mov r12, #0xc000003f",
+        "sbc r12, r12, #0x39",
+        "strh r12, [r11, #{old_emu?14:12}]",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adc r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#make-johto-starters-reappear"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-complete-the-pokedex-emerald",
+      "title": "Complete the Pokedex",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Complete the Pokedex.",
+      "category": "Utility",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: W B U n 3 … Q n    [WBUn3…Qn] ← for old emulator, replace \"3\" with \"1\"",
+            "Box  2: F . o _ F J u      [F.o FJu]",
+            "Box  3: E E R _ R n        [EER Rn]",
+            "Box  4: E _ … A n          [E …An]",
+            "Box  5: G – ! n Q F Q q    [G–!nQFQq]",
+            "Box  6: F Q q N S P q      [FQqNSPq]",
+            "Box  7: E E w . 9 n        [EEw.9n]",
+            "Box  8: E 2 J P q          [E2JPq]",
+            "Box  9: _ _ V n _ F Z O    [  Vn FZO]",
+            "Box 10: R T o D Y J m ?    [RToDYJm?]",
+            "Box 11: ? n                [?n]"
+          ],
+          "notes": "Console / accurate emulator (inaccurate_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: W B U n 1 … Q n    [WBUn1…Qn] ← for old emulator, replace \"3\" with \"1\"",
+            "Box  2: F . o _ F J u      [F.o FJu]",
+            "Box  3: E E R _ R n        [EER Rn]",
+            "Box  4: E _ … A n          [E …An]",
+            "Box  5: G – ! n Q F Q q    [G–!nQFQq]",
+            "Box  6: F Q q N S P q      [FQqNSPq]",
+            "Box  7: E E w . 9 n        [EEw.9n]",
+            "Box  8: E 2 J P q          [E2JPq]",
+            "Box  9: _ _ V n _ F Z O    [  Vn FZO]",
+            "Box 10: R T o D Y J m ?    [RToDYJm?]",
+            "Box 11: ? n                [?n]"
+          ],
+          "notes": "Older / inaccurate emulator (inaccurate_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Complete the Pokédex\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "",
+        "inaccurate_emu = 0",
+        "",
+        "@@",
+        "",
+        "sub r11, r15, #{inaccurate_emu?0xd1a4:0xd1a6} ?",
+        "mov r12, #0xff",
+        "0xe9c4c000 ; stmib r4, {r14, r15} ^",
+        "sbc r0, r12, #0xcc",
+        "",
+        "adcs r11, #0",
+        "adc r10, r11, #0xc10",
+        "strb r12, [r11, #0xcb]",
+        "strb r12, [r11, #0xff]",
+        "strb r12, [r10, #0xdc8]",
+        "adc r10, r10, #0x3ac0",
+        "strb r12, [r10, #0x4a3]",
+        "",
+        "sbcs r0, r0, #0",
+        "0xc9d4c000 ; ldmibgt r4, {r14, r15} ^",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adc r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#complete-the-pokedex"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-get-31-perfect-pokeblocks-emerald",
+      "title": "Get 31 perfect Pokeblocks",
+      "author": "Mettrich, slightly based on sleipnir17's code",
+      "addedOn": "2026-09-05",
+      "summary": "Get 31 perfect Pokeblocks.",
+      "category": "Items",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: / R U n _ F J u\t[/RUn FJu]",
+            "Box  2: _ . o F G B n\t[ .oFGBn]",
+            "Box  3: A A _ F B n F B\t[AA FBnFB]",
+            "Box  4: o J … R q\t[oJ…Rq] ← for old emulator, replace \"J\" with \"L\"",
+            "Box  5: _ _ V n _ F Z 8\t[  Vn FZ8]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n\t        [?n]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: / R U n _ F J u\t[/RUn FJu]",
+            "Box  2: _ . o F G B n\t[ .oFGBn]",
+            "Box  3: A A _ F B n F B\t[AA FBnFB]",
+            "Box  4: o L … R q\t[oL…Rq] ← for old emulator, replace \"J\" with \"L\"",
+            "Box  5: _ _ V n _ F Z 8\t[  Vn FZ8]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n\t        [?n]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Fill your case with perfect Pokeblocks\"",
+        "@@ author = \"Mettrich, slightly based on sleipnir17's code\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r12, r15, #0xba00",
+        "0xe9c4c000 ; stmib r4, {r14, r15} ^",
+        "mov r0, #0xff",
+        "adcs r12, r12, #0x30",
+        "",
+        "adcs r12, r12, #0",
+        "0xe3ffbcc0",
+        "strb r11, [r12, #{old_emu?0xc6:0xc4}]",
+        "sbcs r0, r0, #0",
+        "",
+        "0xa9d4c000 ; ldmibgt r4, {r14, r15} ^",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adc r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#get-31-perfect-pokeblocks"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-reactivate-all-move-tutors-and-non-event-static-legendaries-emerald",
+      "title": "Reactivate all move tutors and non-event static legendaries",
+      "author": "Sleipnir17, shortened by Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Reactivate all move tutors and non-event static legendaries.",
+      "category": "Utility",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: – B U n B … Q n\t[–BUnB…Qn] ← for old emulator, replace \"B\" with a slash (/)",
+            "Box  2: 3 m o D F g m\t[3moDFgm]",
+            "Box  3: E E v F R m\t[EEvFRm]",
+            "Box  4: E D F Q m      \t[EDFQm]",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n\t        [?n]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: – B U n / … Q n\t[–BUn/…Qn] ← for old emulator, replace \"B\" with a slash (/)",
+            "Box  2: 3 m o D F g m\t[3moDFgm]",
+            "Box  3: E E v F R m\t[EEvFRm]",
+            "Box  4: E D F Q m      \t[EDFQm]",
+            "Box  5: E              \t[E]",
+            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
+            "Box  7: ? n\t        [?n]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Reactivate all move tutors and non-even static legendaries\"",
+        "@@ author = \"Sleipnir17, shortened by Mettrich\"",
+        "@@ exit = null",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #0xae00",
+        "sbc r11, r11, #{14+(old_emu?0xac:0xae)}",
+        "",
+        "mvn r10, #0xff000000",
+        "ldrh r12, [r11, #14]",
+        "bic r12, r12, r10, ror #1",
+        "strh r12, [r11, #14]",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adc r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#reactivate-all-move-tutors-and-non-event-static-legendaries"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-tms-hms-emerald",
+      "title": "Get all TMs and HMs",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Get all TMs and HMs.",
+      "category": "Items",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: A B U n _ F J u\t[ABUn FJu]",
+            "Box  2: U . o 7 U h n\t[U.o7Uhn]",
+            "Box  3: _ q F ‘ A n\t[ qF‘An]",
+            "Box  4: A _ F R n\t[A FRn]",
+            "Box  5: A I Q m C 2 g m\t[AIQmC2gm]",
+            "Box  6: A A A N 9 / n\t[AAAN9/n]",
+            "Box  7: A A C 2 Q m\t[AAC2Qm]",
+            "Box  8: A J 0 R n\t[AJ0Rn]",
+            "Box  9: z _ f n _ F Z O\t[z fn FZO]",
+            "Box 10: R j o D Y J m ?\t[RjoDYJm?]",
+            "Box 11: B n\t[Bn]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "guideAfter": "To not get the HMs, use this source replacement for Box 2:\nBox  2: U . o 9 U h n\t[U.o9Uhn]"
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: A B U n _ F J u\t[ABUn FJu]",
+            "Box  2: U . o 7 U h n\t[U.o7Uhn]",
+            "Box  3: _ q F ‘ A n\t[ qF‘An]",
+            "Box  4: A _ F R n\t[A FRn]",
+            "Box  5: C I Q m E 2 g m\t[CIQmE2gm]",
+            "Box  6: A A A N 9 / n\t[AAAN9/n]",
+            "Box  7: A A E 2 Q m\t[AAE2Qm]",
+            "Box  8: A J 0 R n\t[AJ0Rn]",
+            "Box  9: z _ f n _ F Z O\t[z fn FZO]",
+            "Box 10: R j o D Y J m ?\t[RjoDYJm?]",
+            "Box 11: B n\t[Bn]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "guideAfter": "To not get the HMs, use this source replacement for Box 2:\nBox  2: U . o 9 U h n\t[U.o9Uhn]"
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species; Thumb species require the Thumb-to-ARM bootstrap for ARM codes."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Get all TMs/HMs\"",
+        "@@ author = \"Mettrich\"",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #0xbb00",
+        "0xe9c4c000 ; stmib r4, {r14, r15} ^",
+        "mov r12, #0x3fc",
+        "sbcs r12, r12, #0x2a0",
+        "",
+        "str r15, [r0, #-0xfff]",
+        "",
+        "",
+        "adcs r11, r11, #3",
+        "sbc r12, r12, #0",
+        "strh r12, [r11, #{old_emu?0x3d:0x3b}]",
+        "",
+        "ldrh r10, [r11, #{old_emu?0x3f:0x3d}]",
+        "adcs r10, r10, #0xc8000",
+        "strh r10, [r11, #{old_emu?0x3f:0x3d}]",
+        "",
+        "sbc r10, r12, #0x31",
+        "sbcs r0, r10, #0xee",
+        "",
+        "0xc9d4c000 ; ldmibgt r4, {r14, r15} ^",
+        "",
+        "bics r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adcs r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#get-all-tms-and-hms"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-nickname-box-1-slot-1-emerald",
+      "title": "Nickname a Pokémon in Box 1 Slot 1",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Nickname a Pokémon in Box 1 Slot 1.",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|en|*": {
+          "template": [
+            "Box  1: r P D n V S B n\t[rPDnVSBn]",
+            "Box  2: B T o j _ B n 2\t[BToj Bn2]",
+            "Box  3: A n\t        [An]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "sourceCode": [
+            "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+            "@@ author = \"Mettrich\"",
+            "@@ exit = null",
+            "@@ fill = false",
+            "",
+            "@@",
+            "",
+            "adcs r12, r14, #0xe6000",
+            "adcs r12, r12, #0x3400",
+            "",
+            "bic r11, r14, #0xff00",
+            "adcs r0, r12, #0xde",
+            "adcs r15, r11, #0x28c"
+          ]
+        },
+        "emerald|fr|*": {
+          "template": [
+            "Box  1: u P D n G F B n\t[uPDnGFBn]",
+            "Box  2: B T o 4 _ B n 2\t[BTo4 Bn2]",
+            "Box  3: A n\t        [An]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "sourceCode": [
+            "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+            "@@ author = \"Mettrich\"",
+            "@@ exit = null",
+            "@@ fill = false",
+            "",
+            "@@",
+            "",
+            "adcs r12, r14, #0xe9000",
+            "adcs r12, r12, #0xc1",
+            "",
+            "bic r11, r14, #0xff00",
+            "adcs r0, r12, #0xa5",
+            "adcs r15, r11, #0x28c"
+          ]
+        },
+        "emerald|it|*": {
+          "template": [
+            "Box  1: r P D n H S B n\t[rPDnHSBn]",
+            "Box  2: B T o … _ B n 2\t[BTo… Bn2]",
+            "Box  3: A n\t        [An]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "sourceCode": [
+            "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+            "@@ author = \"Mettrich\"",
+            "@@ exit = null",
+            "@@ fill = false",
+            "",
+            "@@",
+            "",
+            "adcs r12, r14, #0xe6000",
+            "adcs r12, r12, #0x3080",
+            "",
+            "bic r11, r14, #0xff00",
+            "adcs r0, r12, #0xb0",
+            "adcs r15, r11, #0x28c"
+          ]
+        },
+        "emerald|de|*": {
+          "template": [
+            "Box  1: u P D n 2 F B n\t[uPDn2FBn]",
+            "Box  2: B T o 2 _ B n 2\t[BTo2 Bn2]",
+            "Box  3: A n\t        [An]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "sourceCode": [
+            "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+            "@@ author = \"Mettrich\"",
+            "@@ exit = null",
+            "@@ fill = false",
+            "",
+            "@@",
+            "",
+            "adcs r12, r14, #0xe9000",
+            "adcs r12, r12, #0xa3",
+            "",
+            "bic r11, r14, #0xff00",
+            "adcs r0, r12, #0xa3",
+            "adcs r15, r11, #0x28c"
+          ]
+        },
+        "emerald|es|*": {
+          "template": [
+            "Box  1: r P D n H S B n\t[rPDnHSBn]",
+            "Box  2: B T o / _ B n 2\t[BTo/ Bn2]",
+            "Box  3: A n\t        [An]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "sourceCode": [
+            "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+            "@@ author = \"Mettrich\"",
+            "@@ exit = null",
+            "@@ fill = false",
+            "",
+            "@@",
+            "",
+            "adcs r12, r14, #0xe6000",
+            "adcs r12, r12, #0x3080",
+            "",
+            "bic r11, r14, #0xff00",
+            "adcs r0, r12, #0xba",
+            "adcs r15, r11, #0x28c"
+          ]
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species.",
+        "Put the Pokémon to nickname in Box 1 Slot 1."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ fill = false",
+        "",
+        "@@",
+        "",
+        "adcs r12, r14, #0xe6000",
+        "adcs r12, r12, #0x3400",
+        "",
+        "bic r11, r14, #0xff00",
+        "adcs r0, r12, #0xde",
+        "adcs r15, r11, #0x28c",
+        "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ fill = false",
+        "",
+        "@@",
+        "",
+        "adcs r12, r14, #0xe9000",
+        "adcs r12, r12, #0xc1",
+        "",
+        "bic r11, r14, #0xff00",
+        "adcs r0, r12, #0xa5",
+        "adcs r15, r11, #0x28c",
+        "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ fill = false",
+        "",
+        "@@",
+        "",
+        "adcs r12, r14, #0xe6000",
+        "adcs r12, r12, #0x3080",
+        "",
+        "bic r11, r14, #0xff00",
+        "adcs r0, r12, #0xb0",
+        "adcs r15, r11, #0x28c",
+        "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ fill = false",
+        "",
+        "@@",
+        "",
+        "adcs r12, r14, #0xe9000",
+        "adcs r12, r12, #0xa3",
+        "",
+        "bic r11, r14, #0xff00",
+        "adcs r0, r12, #0xa3",
+        "adcs r15, r11, #0x28c",
+        "@@ title = \"Nickname the Pokemon in Box 1 Slot 1\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ fill = false",
+        "",
+        "@@",
+        "",
+        "adcs r12, r14, #0xe6000",
+        "adcs r12, r12, #0x3080",
+        "",
+        "bic r11, r14, #0xff00",
+        "adcs r0, r12, #0xba",
+        "adcs r15, r11, #0x28c"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#nickname-a-pokemon-in-box-1-slot-1"
+      }
+    },
+    {
+      "id": "mettrich-make-pokemon-shiny-emerald",
+      "title": "Make any Pokémon shiny",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Make the Pokémon in Box 10 Slot 19 shiny without knowing its TID, SID or PID.",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|en|accurate": {
+          "template": [
+            "Box  1: 5 . U n h 0 9 n\t[5.Unh09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 5 F B n\t[EQBn5FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|en|inaccurate": {
+          "template": [
+            "Box  1: 5 . U n p 0 9 n\t[5.Unp09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 5 F B n\t[EQBn5FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        },
+        "emerald|fr|accurate": {
+          "template": [
+            "Box  1: 5 . U n h 0 9 n\t[5.Unh09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 5 F B n\t[EQBn5FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|fr|inaccurate": {
+          "template": [
+            "Box  1: 5 . U n p 0 9 n\t[5.Unp09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 5 F B n\t[EQBn5FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        },
+        "emerald|it|accurate": {
+          "template": [
+            "Box  1: 5 . U n h 0 9 n\t[5.Unh09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 9 F B n\t[EQBn9FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|it|inaccurate": {
+          "template": [
+            "Box  1: 5 . U n p 0 9 n\t[5.Unp09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 9 F B n\t[EQBn9FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        },
+        "emerald|de|accurate": {
+          "template": [
+            "Box  1: 5 . U n h 0 9 n\t[5.Unh09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 9 F B n\t[EQBn9FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|de|inaccurate": {
+          "template": [
+            "Box  1: 5 . U n p 0 9 n\t[5.Unp09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 9 F B n\t[EQBn9FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        },
+        "emerald|es|accurate": {
+          "template": [
+            "Box  1: 5 . U n h 0 9 n\t[5.Unh09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 1 F B n\t[EQBn1FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0)."
+        },
+        "emerald|es|inaccurate": {
+          "template": [
+            "Box  1: 5 . U n p 0 9 n\t[5.Unp09n]",
+            "Box  2: S D n T z . s\t[SDnTz.s]",
+            "Box  3: A A _ _ / n\t[AA  /n]",
+            "Box  4: A E Q B n\t[AEQBn]",
+            "Box  5: E Q B n 1 F B n\t[EQBn1FBn]",
+            "Box  6: E . o _ m E n 3\t[E.o mEn3]",
+            "Box  7: Q o T z C s\t[QoTzCs]",
+            "Box  8: A _ _ P n\t[A  Pn]",
+            "Box  9: T D / s T B 9 s\t[TD/sTB9s]",
+            "Box 10: E . o D Y J m 3\t[E.oDYJm3]",
+            "Box 11: Q o\t[Qo]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species.",
+        "A real BIOS (included on console; supply an original BIOS on emulators that need one).",
+        "Put the target Pokémon in Box 10 Slot 19."
+      ],
+      "instructions": [
+        "Enter the box names exactly, including marked spaces, then execute with your stable/metastable ACE species."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Make any Pokémon shiny\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "; Requirements:",
+        "; - Any Stable ACE species",
+        "; - A BIOS",
+        ";",
+        "; Effects:",
+        "; - Makes the Pokémon in Box 10 Slot 19 shiny",
+        "",
+        "old_emu = 0",
+        "",
+        "; Language:",
+        "; 2 - EN",
+        "; 3 - FR",
+        "; 4 - IT",
+        "; 5 - DE",
+        "; 7 - ES",
+        "lang = 2",
+        "",
+        "@@",
+        "",
+        "sub r10, r15, #{old_emu?0x2948:0x294a} ?",
+        "",
+        "adcs r12, r14, #0x3fc0",
+        "str r14, [r13, r14, asr #29]!",
+        "",
+        "adcs r0, r10, #0",
+        "",
+        "adcs r12, r12, #0x2fc00",
+        "adcs r12, r12, #0x2fc00",
+        "adcs r12, r12, #{(lang==2||lang==3)?0xa6:(lang==4||lang==5?0xaa:(lang==7?0xa2:0xa6))}",
+        "",
+        "mov r11, #0x3fc",
+        "0xe2bfe100 ; adcs r14, r15, #0",
+        "bic r15, r11, #0x290 ; call the function",
+        "",
+        "ldr r14, [r13, r14, asr #29]! ; return to here, now C is set to 1",
+        "",
+        "sbc r0, r10, #0 ; complicated register move",
+        "ldr r11, [r10, r14, asr #29]!",
+        "str r11, [r10, r14, asr #25]!",
+        "",
+        "mov r11, #0x3fc",
+        "strh r13, [r4, #0x3e]",
+        "bic r15, r11, #0x290"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#make-any-pokemon-shiny"
+      },
+      "sourceLanguageValues": {
+        "en": 2,
+        "fr": 3,
+        "it": 4,
+        "de": 5,
+        "es": 7
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-encounter-pokemon-stable-emerald",
+      "title": "Encounter any Pokémon (stable ACE)",
+      "author": "Theocatic / it-is-final / Adrichu00, modified by Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Encounter any Pokémon (stable ACE).",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "template": [
+            "Box  1: B B U n B ? E n    [BBUnB?En]",
+            "Box  2: 2 P o / … Q n      [2Po/…Qn]",
+            "Box  3: A A ♀ F . o        [AA♀F.o]",
+            "Box  4: A $ N B n          [A$NBn]",
+            "Box  5: @ P B n # R B n    [@PBn#RBn]",
+            "Box  6: L R o _ 7 ! q      [LRo 7!q]",
+            "Box  7: A A _ F 9 q        [AA F9q]",
+            "Box  8: A . M . o          [A.M.o]",
+            "Box  9: F Q ? n T R 9 s    [FQ?nTR9s]",
+            "Box 10: R T o D Y J m ?    [RToDYJm?]",
+            "Box 11: B n                [Bn]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Take the last three digits of the Pokémon's hex index, and use them like so:\n\nReplace $ depending on the first (left) hex digit:\n0→I, 1→J,\n2→K, 3→L,\n4→M, 5→N,\n6→O, 7→P,\n8→Q, 9→R,\nA→S, B→T,\nC→U, D→V,\nE→W, F→X\n\nReplace @ depending on the middle hex digit:\n0→J, 1→K,\n2→L, 3→M,\n4→N, 5→O,\n6→P, 7→Q,\n8→R, 9→S,\nA→T, B→U,\nC→V, D→W,\nE→X, F→Y\n\nReplace # depending on the last (right) hex digit:\n0→F, 1→G,\n2→H, 3→I,\n4→J, 5→K,\n6→L, 7→M,\n8→N, 9→O,\nA→P, B→Q,\nC→R, D→S,\nE→T, F→U"
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species.",
+        "Execute inside the Mauville Pokémon Center."
+      ],
+      "instructions": [
+        "Use the original source’s Pokémon index link and substitute the three hexadecimal digits using the exact mapping below.",
+        "Execute, then talk to the old man in the top left without leaving the area or reloading the map."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Set up wild battle with any Pokemon\"                ",
+        "@@ author = \"Theocatic / it-is-final / Adrichu00, modified by Mettrich\"                ",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "; After Executing this code talk to the old guy in Mauville City Pokemon Center or",
+        "; to the fat man in Littleroot Town",
+        "; (do not leave the area or reload the map though)",
+        "",
+        "; The index for a pokemon can be found at",
+        "; bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_index_number_in_Generation_III",
+        "",
+        "@@                ",
+        "",
+        "sbc r11, r15, #0xbc00",
+        "adcs r10, r15, #0xbc00",
+        "bic r10, r10, #0xfc000003",
+        "",
+        "sbc r11, r11, #0xba",
+        "",
+        "mov r12, #0xb6",
+        "adcs r12, r12, #0xc30000",
+        "adcs r12, r12, #0xc4000",
+        "adcs r12, r12, #0xc000",
+        "bic r12, r12, #0xff00000",
+        "str r10, [r11, #0x800]!",
+        "str r12, [r10]!",
+        "mov r12, 0x02b70000 ?",
+        "str r12, [r10, r14, asr #25]!",
+        "",
+        "bic r12, r14, #0xff00",
+        "strh r13, [r4, #0x3e]",
+        "adcs r15, r12, #0x2b0"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#encounter-any-pokemon"
+      }
+    },
+    {
+      "id": "mettrich-encounter-pokemon-egg-emerald",
+      "title": "Encounter any Pokémon (egg ACE)",
+      "author": "Theocatic / it-is-final / Adrichu00, modified by Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Encounter any Pokémon (egg ACE).",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "template": [
+            "Box  1: B B U n B ? E n    [BBUnB?En]",
+            "Box  2: 2 P o / … Q n      [2Po/…Qn]",
+            "Box  3: A A _ 7 ! q        [AA 7!q]",
+            "Box  4: A ♀ F . o          [A♀F.o]",
+            "Box  5: @ R B n # $ B n    [@RBn#$Bn]",
+            "Box  6: M R o _ F 9 q      [MRo F9q]",
+            "Box  7: A A . M . o        [AA.M.o]",
+            "Box  8: A F Q ? n          [AFQ?n]",
+            "Box  9: T R 9 s – T D n    [TR9s–TDn]",
+            "Box 10: B T o L _ B n 2    [BToL Bn2]",
+            "Box 11: A n                [An]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Get the three hexadecimal index of your wanted Pokémon from the link, and replace @,# and $ as follows:\n- Replace @ depending on the last (right) hexadecimal digit:\nxx0 → F, xx1 → G,\nxx2 → H, xx3 → I,\nxx4 → J, xx5 → K,\nxx6 → L, xx7 → M,\nxx8 → N, xx9 → O,\nxxA → P, xxB → Q,\nxxC → R, xxD → S,\nxxE → T, xxF → U\n- Replace # based on the middle AND first (left) hexadecimal digit:\n00x → V, 01x → Z,\n02x → d, 03x → h,\n04x → l (lowercase \"L\"), 05x → p,\n06x → t, 07x → A,\n08x → B, 09x → C,\n0Ax → D, 0Bx → E,\n0Cx → F, 0Dx → G,\n0Ex → H, 0Fx → I,\n10x → J, 11x → K,\n12x → L, 13x → M,\n14x → N, 15x → O,\n16x → P, 17x → Q,\n18x → R, 19x → S,\n1Ax → T, 1Bx → U,\n1Cx → V, 1Dx → W,\n1Ex → X, 1Fx → Y\n- Replace $ based on the first (left) AND middle hexadecimal digit:\n00x - 06x → Q\n07x - 0Fx → P\n1xx → P"
+        }
+      },
+      "requirements": [
+        "An ARM ACE egg (0x0611/0x0615).",
+        "Execute inside the Mauville Pokémon Center."
+      ],
+      "instructions": [
+        "Use the original source’s Pokémon index link and substitute the three hexadecimal digits using the exact mapping below.",
+        "Execute, then talk to the old man in the top left without leaving the area or reloading the map.",
+        "The egg turns invisible. Do not nickname it; that crashes the game."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Set up wild battle with any Pokemon\"                ",
+        "@@ author = \"Theocatic / it-is-final / Adrichu00, modified by Mettrich\"                ",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "; After Executing this code talk to the old guy in Mauville City Pokemon Center or",
+        "; to the fat man in Littleroot Town",
+        "; (do not leave the area or reload the map though)",
+        "",
+        "; The index for a pokemon can be found at",
+        "; bulbapedia.bulbagarden.net/wiki/List_of_Pok%C3%A9mon_by_index_number_in_Generation_III",
+        "",
+        "@@                ",
+        "",
+        "sbc r11, r15, #0xbc00",
+        "adcs r10, r15, #0xbc00",
+        "bic r10, r10, #0xfc000003",
+        "",
+        "sbc r11, r11, #0xba",
+        "str r10, [r11, #0x800]!",
+        "mov r12, #0xb6",
+        "adcs r12, r12, #0xc000",
+        "adcs r12, r12, #0x34000",
+        "bic r12, r12, #0x3fc0000",
+        "str r12, [r10]!",
+        "mov r12, 0x02b70000 ?",
+        "str r12, [r10, r14, asr #25]!",
+        "",
+        "adcs r12, r14, #0xae0",
+        "bic r11, r14, #0xff00",
+        "adcs r0, r12, #0xc6",
+        "adcs r15, r11, #0x28c"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#encounter-any-pokemon"
+      }
+    },
+    {
+      "id": "mettrich-wallpaper-exit-emerald",
+      "title": "Wallpaper exit for long codes",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Wallpaper exit for long codes.",
+      "category": "Code enabler",
+      "difficulty": "Advanced",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "template": [
+            "Box  14: F c o D Y J m u\t[FcoDYJmu]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species.",
+        "Accurate BIOS emulation (a real console already has a BIOS)."
+      ],
+      "instructions": [
+        "Use this exit in Box 14 as part of a compatible long code.",
+        "Set Box 1 wallpaper to Machine (4th menu, 3rd entry) and Box 2 to Desert (1st menu, 3rd entry)."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#making-long-codes-with-wallpapers"
+      }
+    },
+    {
+      "id": "mettrich-full-code-bootstrap-emerald",
+      "title": "Full code bootstrap (Abra)",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Full code bootstrap (Abra).",
+      "category": "Code enabler",
+      "difficulty": "Advanced",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "template": [
+            "Box  1: 4 … U n q 3 . o\t[4…Unq3.o]",
+            "Box  2: G . o , G Q m\t[G.o,GQm]",
+            "Box  3: A A B G Q m\t[AABGQm]",
+            "Box  4: A K N 9 n\t[AKN9n]",
+            "Box  5: V R ? n T R ! s\t[VR?nTR!s]",
+            "Box  6: F m o G U ? n\t[FmoGU?n]",
+            "Box  7: A A / F Q m\t[AA/FQm]",
+            "Box  8: A ♀ I . o\t[A♀I.o]",
+            "Box  9: U L ? n D O ? n\t[UL?nDO?n]",
+            "Box 10: A A A T R ! s\t[AAATR!s]",
+            "Box 11: A A I I . o\t[AAII.o]",
+            "Box 12: A x U ? n\t[AxU?n]",
+            "Box 13: 3 G ? n s T ! s\t[3G?nsT!s]",
+            "Box 14: 2 c o D Y J m x\t[2coDYJmx]"
+          ],
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "guideAfter": "Alternative Box 14 exit names after installing the bootstrap (choose one):\nBox 14: _ _ _ _ _ _ _ t  [       t]\nor\nBox 14: A A A A A A A t  [AAAAAAAt]\nor\nBox 14: E E E E E E E t  [EEEEEEEt]"
+        },
+        "emerald|*|inaccurate": {
+          "template": [
+            "Box  1: 2 … U n q 3 . o\t[2…Unq3.o]",
+            "Box  2: G . o , G Q m\t[G.o,GQm]",
+            "Box  3: A A B G Q m\t[AABGQm]",
+            "Box  4: A K N 9 n\t[AKN9n]",
+            "Box  5: V R ? n T R ! s\t[VR?nTR!s]",
+            "Box  6: F m o G U ? n\t[FmoGU?n]",
+            "Box  7: A A / F Q m\t[AA/FQm]",
+            "Box  8: A p J . o\t[ApJ.o]",
+            "Box  9: z N ? n L O ? n\t[zN?nLO?n]",
+            "Box 10: A A A T R ! s\t[AAATR!s]",
+            "Box 11: A A I I . o\t[AAII.o]",
+            "Box 12: A x U ? n\t[AxU?n]",
+            "Box 13: 3 G ? n s T ! s\t[3G?nsT!s]",
+            "Box 14: 2 c o D Y J m x\t[2coDYJmx]"
+          ],
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "guideAfter": "Alternative Box 14 exit names after installing the bootstrap (choose one):\nBox 14: _ _ _ _ _ _ _ t  [       t]\nor\nBox 14: A A A A A A A t  [AAAAAAAt]\nor\nBox 14: E E E E E E E t  [EEEEEEEt]"
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species.",
+        "Box 14 Slot 29 empty.",
+        "Box 1 wallpaper: Polkadot (4th menu, 1st entry). Box 2 wallpaper: Forest (1st menu, 1st entry).",
+        "Unlock the Friends wallpaper through Walda’s dad in Rustboro City using the original source’s code-word generator."
+      ],
+      "instructions": [
+        "Execute to create Abra in Box 14 Slot 29.",
+        "Move Abra somewhere in Boxes 12–14 (Box 14 Slot 25 is suggested).",
+        "Set Box 1 wallpaper to Beach (3rd menu, 1st entry) and Box 2 to Friends (5th entry).",
+        "Full codes can now use the last character of Box 14 as lowercase t for the exit. BIOS emulation is not required."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Full code bootstrap (Emerald)\"",
+        "@@ author = \"Mettrich\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "",
+        "; Requirements:",
+        "; - any stable ACE species",
+        "; - no BIOS emulation needed",
+        "; - Box 1 wallpaper: \"Polkadot\"",
+        "; - Box 2 wallpaper: \"Forest\"",
+        "; - Box 14 Slot 29 (second to last) should be empty, this is where the Abra will be generated",
+        ";",
+        "; Effects:",
+        "; - a shiny Abra with the name \" FKqÁ  q\" will be generated",
+        "; - this shiny Abra serves as a bootstrap for full codes with a wallpaper exit",
+        "; - when put into any of the executed boxes (12-14, I prefer Box 14 Slot 25), it prepares register 8 so you can do the whole exit code in the last character of Box 14 (you can use the rest) and the wallpapers",
+        "; - to exit with this bootstrap, set your last character in Box 14 to \"t\" like this:",
+        ";   Box 14: *******t (where * are part of your actual code, or fill with spaces) and set the wallpapers as follows:",
+        "; - Box 1 wallpaper: \"Beach\"",
+        "; - Box 2 wallpaper: \"Friends\" (given by Walda's dad in Rustboro City)",
+        "; and that's it! Box names 1-14 can all be used for your code.",
+        "",
+        "old_emu=0",
+        "",
+        "@@",
+        "",
+        "sbc r11, r15, #{old_emu?0xa3:0xa5}",
+        "",
+        "; mov r12, #0xe5c5d000 ?",
+        "MOV r10, #0xe5000000",
+        "; <",
+        "mov r12, #0xc000003f",
+        "strh r12, [r11, #24]",
+        "strh r12, [r11, #28]",
+        "; >",
+        "ADC r12, r10, #0xc50000",
+        "ADC r12, r12, #0xd000",
+        "str r12, [r11, r14, asr #25]!",
+        "",
+        "mvn r12, #0xff",
+        "adc r12, r12, #0x304",
+        "strh r12, [r11, #10]",
+        "",
+        "mov r12, #{old_emu?0xe51f8000:0xe51f8002} ?",
+        "str r12, [r11, r14, asr #25]!",
+        "",
+        "; mov r12, #{0x0c0003dc} ?",
+        "MOV r12, #0xc000003",
+        "ADC r12, r12, #0x3b0",
+        "ADC r12, r12, #0x29",
+        "str r12, [r11, r7, ror #29]!",
+        "",
+        "bics r10, r7, #0xfc000003",
+        "strh r13, [r4, 0x3e]",
+        "andeq r15, r12, r12, ror #31",
+        "",
+        "; andne r15, r8, r8, ror #31"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#creating-a-full-code-bootstrap"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-legacy-base64-writer-emerald",
+      "title": "Legacy Base64 writer (five codes)",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "The gist’s older five-code Base64 writer; the author marks this method basically obsolete.",
+      "category": "Code enabler",
+      "difficulty": "Advanced",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "notes": "Console / accurate emulator.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box  1: 4 C U n 7 … Q n\t[4CUn7…Qn] <- for inaccurate emulator replace 7 with 5",
+                "Box  2: _ _ _ I K l o _\t[   IKlo ]",
+                "Box  3: _ _ 6 O ? n _ _\t[  6O?n  ]",
+                "Box  4: _ i R ? n _ _ _\t[ iR?n   ]",
+                "Box  5: O U ? n … F ! q\t[OU?n…F!q]",
+                "Box  6: _ _ _ M K … o _\t[   MK…o ]",
+                "Box  7: _ _ D N R n _ _\t[  DNRn  ]",
+                "Box  8: _ 2 R R n _ _ _\t[ 2RRn   ]",
+                "Box  9: A F R n T R ! s\t[AFRnTR!s]",
+                "Box 10: _ _ _ F K l o _\t[   FKlo ]",
+                "Box 11: _ _ H P ? n _ _\t[  HP?n  ]",
+                "Box 12: _ … T ? n _ _ _\t[ …T?n   ]",
+                "Box 13: T R ! s _ _ _ _\t[TR!s    ]",
+                "Box  14: F c o D Y J m u\t[FcoDYJmu]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box  1: 4 C U n 7 … Q n\t[4CUn7…Qn]",
+                "Box  2: _ _ _ 6 M … o _\t[   6M…o ]",
+                "Box  3: _ _ , I ? n _ _\t[  ,I?n  ]",
+                "Box  4: _ U P R n _ _ _\t[ UPRn   ]",
+                "Box  5: 0 F ! q n J 0 o\t[0F!qnJ0o]",
+                "Box  6: _ _ _ V N R n _\t[   VNRn ]",
+                "Box  7: _ _ y F R n _ _\t[  yFRn  ]",
+                "Box  8: _ T R ! s _ _ _\t[ TR!s   ]",
+                "Box  9: _ F 0 o T R ! s\t[ F0oTR!s]",
+                "Box 10: _ _ _ 6 J 0 o _\t[   6J0o ]",
+                "Box 11: _ _ Q P ? n _ _\t[  QP?n  ]",
+                "Box 12: _ g U ? n _ _ _\t[ gU?n   ]",
+                "Box 13: 0 U ? n T R ! s\t[0U?nTR!s]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box  1: 4 C U n 7 … Q n\t[4CUn7…Qn]",
+                "Box  2: _ _ _ ? K l o _\t[   ?Klo ]",
+                "Box  3: _ _ t S ? n _ _\t[  tS?n  ]",
+                "Box  4: _ B F ? n _ _ _\t[ BF?n   ]",
+                "Box  5: B F ! q z N … o\t[BF!qzN…o]",
+                "Box  6: _ _ _ . N ? n _\t[   .N?n ]",
+                "Box  7: _ _ O S ? n _ _\t[  OS?n  ]",
+                "Box  8: _ l H ? n _ _ _\t[ lH?n   ]",
+                "Box  9: T R ! s d K … o\t[TR!sdK…o]",
+                "Box 10: _ _ _ p Q ? n _\t[   pQ?n ]",
+                "Box 11: _ _ 0 Q ? n _ _\t[  0Q?n  ]",
+                "Box 12: _ z U ? n _ _ _\t[ zU?n   ]",
+                "Box 13: o F ? n T R ! s\t[oF?nTR!s]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box  1: 4 C U n 7 … Q n\t[4CUn7…Qn]",
+                "Box  2: _ _ _ P I l o _\t[   PIlo ]",
+                "Box  3: _ _ G M ? n _ _\t[  GM?n  ]",
+                "Box  4: _ , S ? n _ _ _\t[ ,S?n   ]",
+                "Box  5: F H ? n N F ! q\t[FH?nNF!q]",
+                "Box  6: _ _ _ o J l o _\t[   oJlo ]",
+                "Box  7: _ _ q N R n _ _\t[  qNRn  ]",
+                "Box  8: _ E R R n _ _ _\t[ ERRn   ]",
+                "Box  9: C U R n T R ! s\t[CURnTR!s]",
+                "Box 10: _ _ _ s H … o _\t[   sH…o ]",
+                "Box 11: _ _ u O ? n _ _\t[  uO?n  ]",
+                "Box 12: _ p F ? n _ _ _\t[ pF?n   ]",
+                "Box 13: T R ! s _ _ _ _\t[TR!s    ]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box  1: 4 C U n 7 … Q n\t[4CUn7…Qn]",
+                "Box  2: _ _ _ 4 K … o _\t[   4K…o ]",
+                "Box  3: _ _ l O ? n _ _\t[  lO?n  ]",
+                "Box  4: _ e S ? n _ _ _\t[ eS?n   ]",
+                "Box  5: G F ? n Z F ! q\t[GF?nZF!q]",
+                "Box  6: _ _ _ k I l o _\t[   kIlo ]",
+                "Box  7: _ _ z M ? n _ _\t[  zM?n  ]",
+                "Box  8: _ A O ? n _ _ _\t[ AO?n   ]",
+                "Box  9: z T ? n W T ? n\t[zT?nWT?n]",
+                "Box 10: _ _ _ T R ! s _\t[   TR!s ]",
+                "Box 11: _ _ A R … o _ _\t[  AR…o  ]",
+                "Box 12: _ B U ? n _ _ _\t[ BU?n   ]",
+                "Box 13: T R ! s _ _ _ _\t[TR!s    ]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            }
+          ]
+        },
+        "emerald|*|inaccurate": {
+          "notes": "Older / inaccurate emulator: the source explicitly replaces 7 with 5 in Box 1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box  1: 4 C U n 5 … Q n\t[4CUn5…Qn] <- for inaccurate emulator replace 7 with 5",
+                "Box  2: _ _ _ I K l o _\t[   IKlo ]",
+                "Box  3: _ _ 6 O ? n _ _\t[  6O?n  ]",
+                "Box  4: _ i R ? n _ _ _\t[ iR?n   ]",
+                "Box  5: O U ? n … F ! q\t[OU?n…F!q]",
+                "Box  6: _ _ _ M K … o _\t[   MK…o ]",
+                "Box  7: _ _ D N R n _ _\t[  DNRn  ]",
+                "Box  8: _ 2 R R n _ _ _\t[ 2RRn   ]",
+                "Box  9: A F R n T R ! s\t[AFRnTR!s]",
+                "Box 10: _ _ _ F K l o _\t[   FKlo ]",
+                "Box 11: _ _ H P ? n _ _\t[  HP?n  ]",
+                "Box 12: _ … T ? n _ _ _\t[ …T?n   ]",
+                "Box 13: T R ! s _ _ _ _\t[TR!s    ]",
+                "Box  14: F c o D Y J m u\t[FcoDYJmu]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box  1: 4 C U n 5 … Q n\t[4CUn5…Qn]",
+                "Box  2: _ _ _ 6 M … o _\t[   6M…o ]",
+                "Box  3: _ _ , I ? n _ _\t[  ,I?n  ]",
+                "Box  4: _ U P R n _ _ _\t[ UPRn   ]",
+                "Box  5: 0 F ! q n J 0 o\t[0F!qnJ0o]",
+                "Box  6: _ _ _ V N R n _\t[   VNRn ]",
+                "Box  7: _ _ y F R n _ _\t[  yFRn  ]",
+                "Box  8: _ T R ! s _ _ _\t[ TR!s   ]",
+                "Box  9: _ F 0 o T R ! s\t[ F0oTR!s]",
+                "Box 10: _ _ _ 6 J 0 o _\t[   6J0o ]",
+                "Box 11: _ _ Q P ? n _ _\t[  QP?n  ]",
+                "Box 12: _ g U ? n _ _ _\t[ gU?n   ]",
+                "Box 13: 0 U ? n T R ! s\t[0U?nTR!s]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box  1: 4 C U n 5 … Q n\t[4CUn5…Qn]",
+                "Box  2: _ _ _ ? K l o _\t[   ?Klo ]",
+                "Box  3: _ _ t S ? n _ _\t[  tS?n  ]",
+                "Box  4: _ B F ? n _ _ _\t[ BF?n   ]",
+                "Box  5: B F ! q z N … o\t[BF!qzN…o]",
+                "Box  6: _ _ _ . N ? n _\t[   .N?n ]",
+                "Box  7: _ _ O S ? n _ _\t[  OS?n  ]",
+                "Box  8: _ l H ? n _ _ _\t[ lH?n   ]",
+                "Box  9: T R ! s d K … o\t[TR!sdK…o]",
+                "Box 10: _ _ _ p Q ? n _\t[   pQ?n ]",
+                "Box 11: _ _ 0 Q ? n _ _\t[  0Q?n  ]",
+                "Box 12: _ z U ? n _ _ _\t[ zU?n   ]",
+                "Box 13: o F ? n T R ! s\t[oF?nTR!s]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box  1: 4 C U n 5 … Q n\t[4CUn5…Qn]",
+                "Box  2: _ _ _ P I l o _\t[   PIlo ]",
+                "Box  3: _ _ G M ? n _ _\t[  GM?n  ]",
+                "Box  4: _ , S ? n _ _ _\t[ ,S?n   ]",
+                "Box  5: F H ? n N F ! q\t[FH?nNF!q]",
+                "Box  6: _ _ _ o J l o _\t[   oJlo ]",
+                "Box  7: _ _ q N R n _ _\t[  qNRn  ]",
+                "Box  8: _ E R R n _ _ _\t[ ERRn   ]",
+                "Box  9: C U R n T R ! s\t[CURnTR!s]",
+                "Box 10: _ _ _ s H … o _\t[   sH…o ]",
+                "Box 11: _ _ u O ? n _ _\t[  uO?n  ]",
+                "Box 12: _ p F ? n _ _ _\t[ pF?n   ]",
+                "Box 13: T R ! s _ _ _ _\t[TR!s    ]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box  1: 4 C U n 5 … Q n\t[4CUn5…Qn]",
+                "Box  2: _ _ _ 4 K … o _\t[   4K…o ]",
+                "Box  3: _ _ l O ? n _ _\t[  lO?n  ]",
+                "Box  4: _ e S ? n _ _ _\t[ eS?n   ]",
+                "Box  5: G F ? n Z F ! q\t[GF?nZF!q]",
+                "Box  6: _ _ _ k I l o _\t[   kIlo ]",
+                "Box  7: _ _ z M ? n _ _\t[  zM?n  ]",
+                "Box  8: _ A O ? n _ _ _\t[ AO?n   ]",
+                "Box  9: z T ? n W T ? n\t[zT?nWT?n]",
+                "Box 10: _ _ _ T R ! s _\t[   TR!s ]",
+                "Box 11: _ _ A R … o _ _\t[  AR…o  ]",
+                "Box 12: _ B U ? n _ _ _\t[ BU?n   ]",
+                "Box 13: T R ! s _ _ _ _\t[TR!s    ]"
+              ],
+              "codeNote": "Execute, then continue in order. Keep Box 14 and the required wallpapers unchanged."
+            }
+          ]
+        }
+      },
+      "requirements": [
+        "A stable/metastable ACE species.",
+        "Accurate BIOS emulation.",
+        "Box 10 Slot 19 empty.",
+        "Box 14 exit: FcoDYJmu. Box 1 wallpaper: Machine; Box 2 wallpaper: Desert."
+      ],
+      "instructions": [
+        "Execute Codes 1–5 in order, keeping Box 1 and Box 14 unchanged after Code 1.",
+        "Move the resulting bad egg writer from Box 10 Slot 19 to Box 14 Slot 29; it writes Pokémon to Slot 30."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#creating-a-base64-writer"
+      }
+    },
+    {
+      "id": "mettrich-combusken-base64-example-emerald",
+      "title": "Base64 example: Combusken named Mettrich",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Base64 example: Combusken named Mettrich.",
+      "category": "Pokémon",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "template": [
+            "Box  1: Y m F a o w A A\t[YmFaowAA]",
+            "Box  2: A A D H 2 e j o\t[AADH2ejo]",
+            "Box  3: 5 t 3 X 3 A A A\t[5t3X3AAA]",
+            "Box  4: B Q K 8 z M P S\t[BQK8zMPS]",
+            "Box  5: A A A A A P J z\t[AAAAAPJz]",
+            "Box  6: A A B 6 Y W ! j\t[AAB6YW!j]",
+            "Box  7: L m A D o 1 J 5\t[LmADo1J5]",
+            "Box  8: e r N i c d ! C\t[erNicd!C]",
+            "Box  9: n Z 6 l n G J h\t[nZ6lnGJh]",
+            "Box 10: W q N 7 Y O e j\t[WqN7YOej]",
+            "Box 11: N n R a o 5 2 p\t[NnRao52p]",
+            "Box 12: W q N m n V p f\t[WqNmnVpf]",
+            "Box 13: Y m F a o 2 J h\t[YmFao2Jh]",
+            "Box 14: W q M A A A A A\t[WqMAAAAA]"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
+        }
+      },
+      "requirements": [
+        "The gist’s legacy Base64 writer in Box 14 Slot 29.",
+        "Box 14 Slot 30 empty."
+      ],
+      "instructions": [
+        "Enter all 14 names and execute through the Base64 writer to create the source’s example Combusken."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#creating-a-base64-writer"
+      }
+    },
+    {
+      "id": "mettrich-thumb-base64-writer-emerald",
+      "title": "Thumb base64 writer and CRAFTY",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Create an intermediate Thumb writer, then a base64 writer and its optional CRAFTY table.",
+      "category": "Code enabler",
+      "difficulty": "Advanced",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Intermediate writer",
+              "template": [
+                "Box  1: 7 . k n F K . o\t[7.knFK.o]",
+                "Box  2: A A A j Q B n\t[AAAjQBn]",
+                "Box  3: A A H , R o\t[AAH,Ro]",
+                "Box  4: A 0 I m o\t[A0Imo] ← zero, not an \"O\"",
+                "Box  5: D L ? n t Q ? n\t[DL?ntQ?n]",
+                "Box  6: A A A K U ? n\t[AAAKU?n]",
+                "Box  7: A A M F 9 q\t[AAMF9q] ← for old emulators, replace \"M\" with \"O\" (big \"o\")",
+                "Box  8: A 8 I . o\t[A8I.o]",
+                "Box  9: ♂ Q ? n H T ? n\t[♂Q?nHT?n]",
+                "Box 10: O ? n T R 9 s\t[O?nTR9s] ← big \"o\"",
+                "Box 11: A A h J . o\t[AAhJ.o]",
+                "Box 12: A M Q ? n\t[AMQ?n]",
+                "Box 13: i T ? n _ d P u\t[iT?n dPu]",
+                "Box 14: F c o D Y J m u [FcoDYJmu] ← may be different on emulator without BIOS"
+              ],
+              "codeNote": "Execute with the Thumb-to-ARM bootstrap present. Keep the required wallpapers."
+            },
+            {
+              "title": "Code 2 — Finish intermediate writer",
+              "template": [
+                "Box  1: 7 . U n , I . o\t[7.Un,I.o] ← mind the \"U\" instead of the \"k\"",
+                "Box  2: A A A p T ? n\t[AAApT?n]",
+                "Box  3: A A 0 D ? n z L\t[AA0D?nzL] ← zero, not an \"O\"",
+                "Box  4: o k P R n\t[okPRn]",
+                "Box  5: B I R n 6 S B n\t[BIRn6SBn]",
+                "Box  6: A A A c F 9 q\t[AAAcF9q] ← for old emulators, replace \"c\" with \"e\"",
+                "Box  7: A A T B 9 s\t[AATB9s]",
+                "Box  8: A , M . o\t[A,M.o]",
+                "Box  9: F R ? n G U ? n\t[FR?nGU?n]",
+                "Box 10: ♂ ? n ♂ H m o   [♂?n♂Hmo]",
+                "Box 11: A A k L ? n\t[AAkL?n]",
+                "Box 12: A h R ? n\t[AhR?n]",
+                "Box 13: _ d P u\t\t[ dPu]"
+              ],
+              "codeNote": "Execute, then remove the Thumb-to-ARM bootstrap and move the new bad egg from Box 10 Slot 19 to Box 14 Slot 29."
+            },
+            {
+              "title": "Code 3 — base64 writer",
+              "template": [
+                "Box  1: KA CF LF PA [KACFLFPA]",
+                "Box  2: KH AM IH OA [KHAMIHOA]",
+                "Box  3: MP HC AO JK [MPHCAOJK]",
+                "Box  4: BM DL NC AA [BMDLNCAA]",
+                "Box  5: DB AB FM EC [DBABFMEC]",
+                "Box  6: NA AM CK PP [NAAMCKPP]",
+                "Box  7: NF AA DK LL [NFAADKLL]",
+                "Box  8: AB KE DC EO [ABKEDCEO]",
+                "Box  9: DG AG BI KE [DGAGBIKE]",
+                "Box 10: NL AE CO AI [NLAECOAI]",
+                "Box 11: BM CC DO AI [BMCCDOAI]",
+                "Box 12: HA BK EA PC [HABKEAPC]",
+                "Box 13: CJ HI DD AB [CJHIDDAB]",
+                "Box 14: LN PA NL OM [LNPANLOM]"
+              ],
+              "codeNote": "Execute in Thumb mode. Replace the intermediate writer in Box 14 Slot 29 with the newly created writer from Slot 30."
+            },
+            {
+              "title": "Code 4 — CRAFTY table",
+              "template": [
+                "Box  1: E6 MM Sc oY [E6MMScoY]",
+                "Box  2: De C9 zL vA [DeC9zLvA]",
+                "Box  3: zt P? ?? ?? [ztP?????]",
+                "Box  4: Ag K7 vb ?? [AgK7vb??]",
+                "Box  5: ?? ?? AP kj [????APkj]",
+                "Box  6: AA BX ug Gp [AABXugGp]",
+                "Box  7: As sA KQ LQ [AssAKQLQ]",
+                "Box  8: k0 IA 2v nn [k0IA2vnn] ← zero",
+                "Box  9: BD uf Rm AJ [BDufRmAJ]",
+                "Box 10: AA AA AA AA [AAAAAAAA]",
+                "Box 11: AA AA AA AA [AAAAAAAA]",
+                "Box 12: AA AA AA AA [AAAAAAAA]",
+                "Box 13: AA AA AA AA [AAAAAAAA]",
+                "Box 14: AA AA AA AA [AAAAAAAA]"
+              ],
+              "codeNote": "Execute using the new writer. Place CRAFTY immediately before your desired writing destination; it is optional for Base64 and effectively required for hex."
+            }
+          ]
+        },
+        "emerald|*|inaccurate": {
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Intermediate writer",
+              "template": [
+                "Box  1: 7 . k n F K . o\t[7.knFK.o]",
+                "Box  2: A A A j Q B n\t[AAAjQBn]",
+                "Box  3: A A H , R o\t[AAH,Ro]",
+                "Box  4: A 0 I m o\t[A0Imo] ← zero, not an \"O\"",
+                "Box  5: D L ? n t Q ? n\t[DL?ntQ?n]",
+                "Box  6: A A A K U ? n\t[AAAKU?n]",
+                "Box  7: A A O F 9 q\t[AAOF9q] ← for old emulators, replace \"M\" with \"O\" (big \"o\")",
+                "Box  8: A 8 I . o\t[A8I.o]",
+                "Box  9: ♂ Q ? n H T ? n\t[♂Q?nHT?n]",
+                "Box 10: O ? n T R 9 s\t[O?nTR9s] ← big \"o\"",
+                "Box 11: A A h J . o\t[AAhJ.o]",
+                "Box 12: A M Q ? n\t[AMQ?n]",
+                "Box 13: i T ? n _ d P u\t[iT?n dPu]",
+                "Box 14: F c o D Y J m u [FcoDYJmu] ← may be different on emulator without BIOS"
+              ],
+              "codeNote": "Execute with the Thumb-to-ARM bootstrap present. Keep the required wallpapers."
+            },
+            {
+              "title": "Code 2 — Finish intermediate writer",
+              "template": [
+                "Box  1: 7 . U n , I . o\t[7.Un,I.o] ← mind the \"U\" instead of the \"k\"",
+                "Box  2: A A A p T ? n\t[AAApT?n]",
+                "Box  3: A A 0 D ? n z L\t[AA0D?nzL] ← zero, not an \"O\"",
+                "Box  4: o k P R n\t[okPRn]",
+                "Box  5: B I R n 6 S B n\t[BIRn6SBn]",
+                "Box  6: A A A e F 9 q\t[AAAeF9q] ← for old emulators, replace \"c\" with \"e\"",
+                "Box  7: A A T B 9 s\t[AATB9s]",
+                "Box  8: A , M . o\t[A,M.o]",
+                "Box  9: F R ? n G U ? n\t[FR?nGU?n]",
+                "Box 10: ♂ ? n ♂ H m o   [♂?n♂Hmo]",
+                "Box 11: A A k L ? n\t[AAkL?n]",
+                "Box 12: A h R ? n\t[AhR?n]",
+                "Box 13: _ d P u\t\t[ dPu]"
+              ],
+              "codeNote": "Execute, then remove the Thumb-to-ARM bootstrap and move the new bad egg from Box 10 Slot 19 to Box 14 Slot 29."
+            },
+            {
+              "title": "Code 3 — base64 writer",
+              "template": [
+                "Box  1: KA CF LF PA [KACFLFPA]",
+                "Box  2: KH AM IH OA [KHAMIHOA]",
+                "Box  3: MP HC AO JK [MPHCAOJK]",
+                "Box  4: BM DL NC AA [BMDLNCAA]",
+                "Box  5: DB AB FM EC [DBABFMEC]",
+                "Box  6: NA AM CK PP [NAAMCKPP]",
+                "Box  7: NF AA DK LL [NFAADKLL]",
+                "Box  8: AB KE DC EO [ABKEDCEO]",
+                "Box  9: DG AG BI KE [DGAGBIKE]",
+                "Box 10: NL AE CO AI [NLAECOAI]",
+                "Box 11: BM CC DO AI [BMCCDOAI]",
+                "Box 12: HA BK EA PC [HABKEAPC]",
+                "Box 13: CJ HI DD AB [CJHIDDAB]",
+                "Box 14: LN PA NL OM [LNPANLOM]"
+              ],
+              "codeNote": "Execute in Thumb mode. Replace the intermediate writer in Box 14 Slot 29 with the newly created writer from Slot 30."
+            },
+            {
+              "title": "Code 4 — CRAFTY table",
+              "template": [
+                "Box  1: E6 MM Sc oY [E6MMScoY]",
+                "Box  2: De C9 zL vA [DeC9zLvA]",
+                "Box  3: zt P? ?? ?? [ztP?????]",
+                "Box  4: Ag K7 vb ?? [AgK7vb??]",
+                "Box  5: ?? ?? AP kj [????APkj]",
+                "Box  6: AA BX ug Gp [AABXugGp]",
+                "Box  7: As sA KQ LQ [AssAKQLQ]",
+                "Box  8: k0 IA 2v nn [k0IA2vnn] ← zero",
+                "Box  9: BD uf Rm AJ [BDufRmAJ]",
+                "Box 10: AA AA AA AA [AAAAAAAA]",
+                "Box 11: AA AA AA AA [AAAAAAAA]",
+                "Box 12: AA AA AA AA [AAAAAAAA]",
+                "Box 13: AA AA AA AA [AAAAAAAA]",
+                "Box 14: AA AA AA AA [AAAAAAAA]"
+              ],
+              "codeNote": "Execute using the new writer. Place CRAFTY immediately before your desired writing destination; it is optional for Base64 and effectively required for hex."
+            }
+          ]
+        }
+      },
+      "requirements": [
+        "A metastable Thumb ACE species and a Thumb-to-ARM bootstrap.",
+        "Accurate BIOS emulation.",
+        "Box 10 Slot 19 empty.",
+        "Box 1 wallpaper: Machine (4th menu, 3rd entry); Box 2: Desert (1st menu, 3rd entry)."
+      ],
+      "instructions": [
+        "Execute Codes 1 and 2 with the Thumb-to-ARM bootstrap present.",
+        "Remove the Thumb-to-ARM bootstrap. Move the intermediate writer bad egg from Box 10 Slot 19 to Box 14 Slot 29.",
+        "Execute Code 3 with the Thumb ACE species. Move the new writer from Slot 30 to Slot 29 after removing the intermediate writer.",
+        "Execute Code 4 through the new writer to create CRAFTY. Place CRAFTY immediately before the slot where you want to write Pokémon.",
+        "Keep the Thumb-to-ARM bootstrap removed when using these pure Thumb writers."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Title\"",
+        "@@ author = \"Author\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbcs r10, r15, #0x2a00 ; Box 10 Slot 19 - 0xc0 + (old_emu?7:9)",
+        "",
+        "; mov r12, #0x30017801 ?",
+        "mov r12, #0x30000000",
+        "adcs r12, r12, #0x37800",
+        "bic r11, r12, #0xc20000",
+        "",
+        "mov r12, #0x87e3a311 ?",
+        "str r12, [r10, #{0xc0-(old_emu?7:9)+16}]!",
+        "",
+        "mov r12, #{0xa442a022-0x3fc000} ?",
+        "adc r12, r12, #0x3fc000",
+        "str r12, [r10, r14, asr #25]!",
+        "",
+        "; mov r12, #0xdc0329d0 ?",
+        "MOV r12, #0xdc000000",
+        "ADC r12, r12, #0x31c00",
+        "ADC r12, r12, #0xdd0",
+        "0xe9cad800",
+        "@@ title = \"Title\"",
+        "@@ author = \"Author\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r10, r15, #0x2a00 ; Box 10 Slot 19 - 0xc0 + (old_emu?7:9)",
+        "",
+        "; mov r12, #0xe0001852 ?",
+        "MOV r12, #0xe0000002",
+        "ADC r12, r12, #0xe40",
+        "ADC r11, r12, #0xa10",
+        "",
+        "; mov r12, #0x011239bb ? I had to make this one manually D:",
+        "0xe3ffc6ee ; mvns r12, #0x0ee00000",
+        "sbc r12, r12, #0xdf000",
+        "sbc r12, r12, #0xf0000002",
+        "adcs r12, r12, #0x29c0",
+        "str r12, [r10, #{0xc0-(old_emu?7:9)+32}]!",
+        "str r11, [r10, r14, asr #25]!",
+        "",
+        "mov r12, #{0x42a0c304-0x3fc00000} ?",
+        "adc r11, r12, #0x3fc00000",
+        "",
+        "mov r12, #{0xbdf0dbf4} ?",
+        "",
+        "0xe9cad800",
+        ".text",
+        "",
+        ".thumb",
+        "",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        "",
+        "// we should have offset 16 here, so PC is 16+4=20, +68=88",
+        "add r3, r15, #68",
+        "",
+        "strh r3, [r4, #0x3e]",
+        "",
+        "// we should have offset 20 here, so PC is 20+4=24, +136=160",
+        "add r0, r15, #136",
+        "",
+        "// points behind last 0xff terminator",
+        "add r4, r15, #264",
+        "",
+        "1:",
+        "\t// load the next byte from src[src_count]",
+        "\tldrb r1, [r0]",
+        "\tadd r0, #1",
+        "\t// check for terminator",
+        "\tcmp r1, #0xd0",
+        "\tbgt 2f",
+        "",
+        "\t// subtract 0xbb",
+        "\tsub r1, #0xbb",
+        "\t// add the value to the accumulator",
+        "\tlsl r2, r2, #4",
+        "\tadd r2, r2, r1",
+        "",
+        "\t// usually skip the store, unless we jumped here from 0xFF",
+        "\tb 3f",
+        "\t2:",
+        "\t\tstmia r3!, {r2}",
+        "\t3:",
+        "",
+        "\tcmp r0, r4",
+        "\tblt 1b",
+        "",
+        "// Immediately return to the main callback, not even to AnimateSprites",
+        "pop {r4-r7,pc}",
+        ".text",
+        "",
+        ".thumb",
+        "",
+        "// r0 - src",
+        "// r1 - src_counter",
+        "// r2 - tmp",
+        "// r3 - dst",
+        "// r4 - accumulator",
+        "// r6 - bit_counter",
+        "",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        "",
+        "push {r4-r7,lr}",
+        "",
+        "// We should have offset 8 here, so PC is 8+4=12, +148=160",
+        "add r0, pc, #148",
+        "",
+        "// Prepare NormalExit",
+        "strh r0, [r4, #62]",
+        "",
+        "// We should have offset 12 here, so PC is 12+4=16, +48=64",
+        "add r7, pc, #48",
+        "",
+        "// Check for crafting table",
+        "lsr r2, r3, #26",
+        "",
+        "// Zero these registers, r7 = r7+16 = offset 80",
+        "ldmia r7!, {r1, r4, r5, r6}",
+        "",
+        "// Otherwise write after itself",
+        "bcs 2f",
+        "\tmov r3, r7",
+        "2:",
+        "\t// load the next byte from src[src_count]",
+        "\tldrb r2, [r0, r1]",
+        "\tadd r1, #1",
+        "\t// check for terminator",
+        "\tcmp r2, #0xff",
+        "\tbeq 4f",
+        "\t// subtract 0xbb",
+        "\tsub r2, #0xbb",
+        "\t// skip the adjustment if the char is in the letter range",
+        "\tbpl 3f",
+        "\t\t// if not, it is interpreted as a number/symbol",
+        "\t\tadd r2, #0x4e",
+        "\t3:",
+        "\t// add the value to the accumulator",
+        "\tlsl r4, r4, #6",
+        "\tadd r4, r2",
+        "",
+        "\t// check whether it should be written (whenever there is more than 8 bits to write)",
+        "\tadd r6, #6",
+        "\tcmp r6, #8",
+        "\tblt 4f",
+        "\t\tsub r6, #8",
+        "\t\tmov r2, r4",
+        "\t\t// extract the highest 8 bits (so shift right by bits_counter - 8)",
+        "\t\tlsr r2, r6",
+        "\t\tstrb r2, [r3]",
+        "\t\tadd r3, #1",
+        "\t4:",
+        "",
+        "\tcmp r1, #120",
+        "\tblt 2b",
+        "",
+        "pop {r4-r7,pc}",
+        ".text",
+        "",
+        "// r0 - counter",
+        "// r1 - size",
+        "// r3 - address",
+        "",
+        ".thumb",
+        "",
+        "// offset 0+4 = 4, +76=80",
+        "add r3, pc, #76",
+        "ldr r1, size",
+        "add r2, r1, r3",
+        "b 1f",
+        "",
+        ".byte 0xbd,0xcc,0xbb,0xc0,0xce,0xd3,0xff,0xff,0xff,0xff",
+        ".2byte 0x0202",
+        ".byte 0xbb,0xbd,0xbf,0xff,0xff,0xff,0xff",
+        ".byte 0x00",
+        ".2byte 0x0000,0x0000",
+        "",
+        ".2byte 0x0000,0x0000",
+        "",
+        "1:",
+        "\tldmia r3!, {r1}",
+        "\tcmp r1, #0",
+        "\tbeq end",
+        "\tcmp r3, r2",
+        "\tbge end",
+        "b 1b",
+        "",
+        "end:",
+        "\tsub r3, #4",
+        "\tmov pc, r3",
+        "",
+        "size: .4byte 0x00000960"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#creating-a-thumb-writer"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-thumb-hex-writer-emerald",
+      "title": "Thumb hex writer and CRAFTY",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Create an intermediate Thumb writer, then a hex writer and its optional CRAFTY table.",
+      "category": "Code enabler",
+      "difficulty": "Advanced",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [],
+      "parameters": [],
+      "variants": {
+        "emerald|*|accurate": {
+          "notes": "Console / accurate emulator (old_emu = 0).",
+          "codes": [
+            {
+              "title": "Code 1 — Intermediate writer",
+              "template": [
+                "Box  1: 7 . k n F K . o\t[7.knFK.o]",
+                "Box  2: A A A j Q B n\t[AAAjQBn]",
+                "Box  3: A A H , R o\t[AAH,Ro]",
+                "Box  4: A 0 I m o\t[A0Imo] ← zero, not an \"O\"",
+                "Box  5: D L ? n t Q ? n\t[DL?ntQ?n]",
+                "Box  6: A A A K U ? n\t[AAAKU?n]",
+                "Box  7: A A M F 9 q\t[AAMF9q] ← for old emulators, replace \"M\" with \"O\" (big \"o\")",
+                "Box  8: A 8 I . o\t[A8I.o]",
+                "Box  9: ♂ Q ? n H T ? n\t[♂Q?nHT?n]",
+                "Box 10: O ? n T R 9 s\t[O?nTR9s] ← big \"o\"",
+                "Box 11: A A h J . o\t[AAhJ.o]",
+                "Box 12: A M Q ? n\t[AMQ?n]",
+                "Box 13: i T ? n _ d P u\t[iT?n dPu]",
+                "Box 14: F c o D Y J m u [FcoDYJmu] ← may be different on emulator without BIOS"
+              ],
+              "codeNote": "Execute with the Thumb-to-ARM bootstrap present. Keep the required wallpapers."
+            },
+            {
+              "title": "Code 2 — Finish intermediate writer",
+              "template": [
+                "Box  1: 7 . U n , I . o\t[7.Un,I.o] ← mind the \"U\" instead of the \"k\"",
+                "Box  2: A A A p T ? n\t[AAApT?n]",
+                "Box  3: A A 0 D ? n z L\t[AA0D?nzL] ← zero, not an \"O\"",
+                "Box  4: o k P R n\t[okPRn]",
+                "Box  5: B I R n 6 S B n\t[BIRn6SBn]",
+                "Box  6: A A A c F 9 q\t[AAAcF9q] ← for old emulators, replace \"c\" with \"e\"",
+                "Box  7: A A T B 9 s\t[AATB9s]",
+                "Box  8: A , M . o\t[A,M.o]",
+                "Box  9: F R ? n G U ? n\t[FR?nGU?n]",
+                "Box 10: ♂ ? n ♂ H m o   [♂?n♂Hmo]",
+                "Box 11: A A k L ? n\t[AAkL?n]",
+                "Box 12: A h R ? n\t[AhR?n]",
+                "Box 13: _ d P u\t\t[ dPu]"
+              ],
+              "codeNote": "Execute, then remove the Thumb-to-ARM bootstrap and move the new bad egg from Box 10 Slot 19 to Box 14 Slot 29."
+            },
+            {
+              "title": "Code 3 — hex writer",
+              "template": [
+                "Box  1: KA CF LF PA [KACFLFPA]",
+                "Box  2: KH AN IH OA [KHANIHOA]",
+                "Box  3: MP GC AO JK [MPGCAOJK]",
+                "Box  4: BM DL NC AA [BMDLNCAA]",
+                "Box  5: FM EC EG MA [FMECEGMA]",
+                "Box  6: CK MA DB AB [CKMADBAB]",
+                "Box  7: DK LB NM AJ [DKLBNMAJ]",
+                "Box  8: DC BA NF AA [DCBANFAA]",
+                "Box  9: BI KE AB CE [BIKEABCE]",
+                "Box 10: AI HC DG AB [AIHCDGAB]",
+                "Box 11: HA BM NC AB [HABMNCAB]",
+                "Box 12: CJ HO DD AB [CJHODDAB]",
+                "Box 13: LN PA NL OO [LNPANLOO]",
+                "Box 14: AA AA AA AA [AAAAAAAA]"
+              ],
+              "codeNote": "Execute in Thumb mode. Replace the intermediate writer in Box 14 Slot 29 with the newly created writer from Slot 30."
+            },
+            {
+              "title": "Code 4 — CRAFTY table",
+              "template": [
+                "Box  1: 13 A3 0C 49 [13A30C49]",
+                "Box  2: CA 18 0D E0 [CA180DE0]",
+                "Box  3: BD CC BB C0 [BDCCBBC0]",
+                "Box  4: CE D3 FF FF [CED3FFFF]",
+                "Box  5: FF FF 02 02 [FFFF0202]",
+                "Box  6: BB BD BF FF [BBBDBFFF]",
+                "Box  7: FF FF FF 00 [FFFFFF00]",
+                "Box  8: F9 23 00 00 [F9230000]",
+                "Box  9: 57 BA 01 A9 [57BA01A9]",
+                "Box 10: 02 CB 00 29 [02CB0029]",
+                "Box 11: 02 D0 93 42 [02D09342]",
+                "Box 12: 00 DA F9 E7 [00DAF9E7]",
+                "Box 13: 04 3B 9F 46 [043B9F46]",
+                "Box 14: 60 09 00 00 [60090000]"
+              ],
+              "codeNote": "Execute using the new writer. Place CRAFTY immediately before your desired writing destination; it is optional for Base64 and effectively required for hex."
+            }
+          ]
+        },
+        "emerald|*|inaccurate": {
+          "notes": "Older / inaccurate emulator (old_emu = 1). The source’s older-emulator substitutions are already applied in these displayed names.",
+          "codes": [
+            {
+              "title": "Code 1 — Intermediate writer",
+              "template": [
+                "Box  1: 7 . k n F K . o\t[7.knFK.o]",
+                "Box  2: A A A j Q B n\t[AAAjQBn]",
+                "Box  3: A A H , R o\t[AAH,Ro]",
+                "Box  4: A 0 I m o\t[A0Imo] ← zero, not an \"O\"",
+                "Box  5: D L ? n t Q ? n\t[DL?ntQ?n]",
+                "Box  6: A A A K U ? n\t[AAAKU?n]",
+                "Box  7: A A O F 9 q\t[AAOF9q] ← for old emulators, replace \"M\" with \"O\" (big \"o\")",
+                "Box  8: A 8 I . o\t[A8I.o]",
+                "Box  9: ♂ Q ? n H T ? n\t[♂Q?nHT?n]",
+                "Box 10: O ? n T R 9 s\t[O?nTR9s] ← big \"o\"",
+                "Box 11: A A h J . o\t[AAhJ.o]",
+                "Box 12: A M Q ? n\t[AMQ?n]",
+                "Box 13: i T ? n _ d P u\t[iT?n dPu]",
+                "Box 14: F c o D Y J m u [FcoDYJmu] ← may be different on emulator without BIOS"
+              ],
+              "codeNote": "Execute with the Thumb-to-ARM bootstrap present. Keep the required wallpapers."
+            },
+            {
+              "title": "Code 2 — Finish intermediate writer",
+              "template": [
+                "Box  1: 7 . U n , I . o\t[7.Un,I.o] ← mind the \"U\" instead of the \"k\"",
+                "Box  2: A A A p T ? n\t[AAApT?n]",
+                "Box  3: A A 0 D ? n z L\t[AA0D?nzL] ← zero, not an \"O\"",
+                "Box  4: o k P R n\t[okPRn]",
+                "Box  5: B I R n 6 S B n\t[BIRn6SBn]",
+                "Box  6: A A A e F 9 q\t[AAAeF9q] ← for old emulators, replace \"c\" with \"e\"",
+                "Box  7: A A T B 9 s\t[AATB9s]",
+                "Box  8: A , M . o\t[A,M.o]",
+                "Box  9: F R ? n G U ? n\t[FR?nGU?n]",
+                "Box 10: ♂ ? n ♂ H m o   [♂?n♂Hmo]",
+                "Box 11: A A k L ? n\t[AAkL?n]",
+                "Box 12: A h R ? n\t[AhR?n]",
+                "Box 13: _ d P u\t\t[ dPu]"
+              ],
+              "codeNote": "Execute, then remove the Thumb-to-ARM bootstrap and move the new bad egg from Box 10 Slot 19 to Box 14 Slot 29."
+            },
+            {
+              "title": "Code 3 — hex writer",
+              "template": [
+                "Box  1: KA CF LF PA [KACFLFPA]",
+                "Box  2: KH AN IH OA [KHANIHOA]",
+                "Box  3: MP GC AO JK [MPGCAOJK]",
+                "Box  4: BM DL NC AA [BMDLNCAA]",
+                "Box  5: FM EC EG MA [FMECEGMA]",
+                "Box  6: CK MA DB AB [CKMADBAB]",
+                "Box  7: DK LB NM AJ [DKLBNMAJ]",
+                "Box  8: DC BA NF AA [DCBANFAA]",
+                "Box  9: BI KE AB CE [BIKEABCE]",
+                "Box 10: AI HC DG AB [AIHCDGAB]",
+                "Box 11: HA BM NC AB [HABMNCAB]",
+                "Box 12: CJ HO DD AB [CJHODDAB]",
+                "Box 13: LN PA NL OO [LNPANLOO]",
+                "Box 14: AA AA AA AA [AAAAAAAA]"
+              ],
+              "codeNote": "Execute in Thumb mode. Replace the intermediate writer in Box 14 Slot 29 with the newly created writer from Slot 30."
+            },
+            {
+              "title": "Code 4 — CRAFTY table",
+              "template": [
+                "Box  1: 13 A3 0C 49 [13A30C49]",
+                "Box  2: CA 18 0D E0 [CA180DE0]",
+                "Box  3: BD CC BB C0 [BDCCBBC0]",
+                "Box  4: CE D3 FF FF [CED3FFFF]",
+                "Box  5: FF FF 02 02 [FFFF0202]",
+                "Box  6: BB BD BF FF [BBBDBFFF]",
+                "Box  7: FF FF FF 00 [FFFFFF00]",
+                "Box  8: F9 23 00 00 [F9230000]",
+                "Box  9: 57 BA 01 A9 [57BA01A9]",
+                "Box 10: 02 CB 00 29 [02CB0029]",
+                "Box 11: 02 D0 93 42 [02D09342]",
+                "Box 12: 00 DA F9 E7 [00DAF9E7]",
+                "Box 13: 04 3B 9F 46 [043B9F46]",
+                "Box 14: 60 09 00 00 [60090000]"
+              ],
+              "codeNote": "Execute using the new writer. Place CRAFTY immediately before your desired writing destination; it is optional for Base64 and effectively required for hex."
+            }
+          ]
+        }
+      },
+      "requirements": [
+        "A metastable Thumb ACE species and a Thumb-to-ARM bootstrap.",
+        "Accurate BIOS emulation.",
+        "Box 10 Slot 19 empty.",
+        "Box 1 wallpaper: Machine (4th menu, 3rd entry); Box 2: Desert (1st menu, 3rd entry)."
+      ],
+      "instructions": [
+        "Execute Codes 1 and 2 with the Thumb-to-ARM bootstrap present.",
+        "Remove the Thumb-to-ARM bootstrap. Move the intermediate writer bad egg from Box 10 Slot 19 to Box 14 Slot 29.",
+        "Execute Code 3 with the Thumb ACE species. Move the new writer from Slot 30 to Slot 29 after removing the intermediate writer.",
+        "Execute Code 4 through the new writer to create CRAFTY. Place CRAFTY immediately before the slot where you want to write Pokémon.",
+        "Keep the Thumb-to-ARM bootstrap removed when using these pure Thumb writers."
+      ],
+      "troubleshooting": [
+        "Check capitalization, punctuation, spaces, and the selected device variant against the original source."
+      ],
+      "sourceCode": [
+        "@@ title = \"Title\"",
+        "@@ author = \"Author\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbcs r10, r15, #0x2a00 ; Box 10 Slot 19 - 0xc0 + (old_emu?7:9)",
+        "",
+        "; mov r12, #0x30017801 ?",
+        "mov r12, #0x30000000",
+        "adcs r12, r12, #0x37800",
+        "bic r11, r12, #0xc20000",
+        "",
+        "mov r12, #0x87e3a311 ?",
+        "str r12, [r10, #{0xc0-(old_emu?7:9)+16}]!",
+        "",
+        "mov r12, #{0xa442a022-0x3fc000} ?",
+        "adc r12, r12, #0x3fc000",
+        "str r12, [r10, r14, asr #25]!",
+        "",
+        "; mov r12, #0xdc0329d0 ?",
+        "MOV r12, #0xdc000000",
+        "ADC r12, r12, #0x31c00",
+        "ADC r12, r12, #0xdd0",
+        "0xe9cad800",
+        "@@ title = \"Title\"",
+        "@@ author = \"Author\"",
+        "@@ exit = null",
+        "@@ filler1 = 0xbbbbbbff",
+        "@@ filler2 = 0xbbbbffff",
+        "@@ filler3 = 0xbbffffff",
+        "@@ filler4 = 0xffffffff",
+        "@@ fill = false",
+        "",
+        "old_emu = 0",
+        "",
+        "@@",
+        "",
+        "sbc r10, r15, #0x2a00 ; Box 10 Slot 19 - 0xc0 + (old_emu?7:9)",
+        "",
+        "; mov r12, #0xe0001852 ?",
+        "MOV r12, #0xe0000002",
+        "ADC r12, r12, #0xe40",
+        "ADC r11, r12, #0xa10",
+        "",
+        "; mov r12, #0x011239bb ? I had to make this one manually D:",
+        "0xe3ffc6ee ; mvns r12, #0x0ee00000",
+        "sbc r12, r12, #0xdf000",
+        "sbc r12, r12, #0xf0000002",
+        "adcs r12, r12, #0x29c0",
+        "str r12, [r10, #{0xc0-(old_emu?7:9)+32}]!",
+        "str r11, [r10, r14, asr #25]!",
+        "",
+        "mov r12, #{0x42a0c304-0x3fc00000} ?",
+        "adc r11, r12, #0x3fc00000",
+        "",
+        "mov r12, #{0xbdf0dbf4} ?",
+        "",
+        "0xe9cad800",
+        ".text",
+        "",
+        ".thumb",
+        "",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        ".4byte 0x00000000",
+        "",
+        "// we should have offset 16 here, so PC is 16+4=20, +68=88",
+        "add r3, r15, #68",
+        "",
+        "strh r3, [r4, #0x3e]",
+        "",
+        "// we should have offset 20 here, so PC is 20+4=24, +136=160",
+        "add r0, r15, #136",
+        "",
+        "// points behind last 0xff terminator",
+        "add r4, r15, #264",
+        "",
+        "1:",
+        "\t// load the next byte from src[src_count]",
+        "\tldrb r1, [r0]",
+        "\tadd r0, #1",
+        "\t// check for terminator",
+        "\tcmp r1, #0xd0",
+        "\tbgt 2f",
+        "",
+        "\t// subtract 0xbb",
+        "\tsub r1, #0xbb",
+        "\t// add the value to the accumulator",
+        "\tlsl r2, r2, #4",
+        "\tadd r2, r2, r1",
+        "",
+        "\t// usually skip the store, unless we jumped here from 0xFF",
+        "\tb 3f",
+        "\t2:",
+        "\t\tstmia r3!, {r2}",
+        "\t3:",
+        "",
+        "\tcmp r0, r4",
+        "\tblt 1b",
+        "",
+        "// Immediately return to the main callback, not even to AnimateSprites",
+        "pop {r4-r7,pc}",
+        ".text",
+        "",
+        ".thumb",
+        "",
+        "// r0 - src",
+        "// r1 - src_counter",
+        "// r2 - tmp",
+        "// r3 - dst",
+        "// r4 - accumulator",
+        "// r6 - bit_counter",
+        "",
+        "//.4byte 0x00000000",
+        "//.4byte 0x00000000",
+        "",
+        "push {r4-r7,lr}",
+        "",
+        "// We should have offset 8 here, so PC is 8+4=12, +148=160",
+        "add r0, pc, #148",
+        "",
+        "// Prepare NormalExit",
+        "strh r0, [r4, #62]",
+        "",
+        "// We should have offset 12 here, so PC is 12+4=16, +52=68",
+        "add r7, pc, #52",
+        "",
+        "// Check for crafting table",
+        "lsr r2, r3, #26",
+        "",
+        "// Zero these registers, r4 = r4+12 = offset 80",
+        "ldmia r7!, {r1, r5, r6}",
+        "",
+        "// Otherwise write after itself",
+        "bcs 2f",
+        "\tmov r3, r7",
+        "2:",
+        "\t// nop so the last branch does not contain a 0xef :/",
+        "\tnop",
+        "\t// load the next byte from src[src_count]",
+        "\tldrb r2, [r0, r1]",
+        "\tadd r1, #1",
+        "\t// check for terminator",
+        "\tcmp r2, #0xc0",
+        "\tbgt 4f",
+        "\t// subtract 0xb1",
+        "\tsub r2, #0xb1",
+        "\t// skip the adjustment if the char is in the letter range",
+        "\tbpl 3f",
+        "\t\t// if not, it is interpreted as a number",
+        "\t\tadd r2, #0x10",
+        "\t3:",
+        "\t// add the value to the accumulator",
+        "\tlsl r4, r4, #4",
+        "\tadd r4, r2",
+        "",
+        "\t// check whether it should be written (whenever there is more than 8 bits to write)",
+        "\tadd r6, #1",
+        "\tlsr r2, r6, #1",
+        "\tbcs 4f",
+        "\t\tstrb r4, [r3]",
+        "\t\tadd r3, #1",
+        "\t4:",
+        "",
+        "\tcmp r1, #126",
+        "\tblt 2b",
+        "",
+        "pop {r4-r7,pc}",
+        ".text",
+        "",
+        "// r0 - counter",
+        "// r1 - size",
+        "// r3 - address",
+        "",
+        ".thumb",
+        "",
+        "// offset 0+4 = 4, +76=80",
+        "add r3, pc, #76",
+        "ldr r1, size",
+        "add r2, r1, r3",
+        "b 1f",
+        "",
+        ".byte 0xbd,0xcc,0xbb,0xc0,0xce,0xd3,0xff,0xff,0xff,0xff",
+        ".2byte 0x0202",
+        ".byte 0xbb,0xbd,0xbf,0xff,0xff,0xff,0xff",
+        ".byte 0x00",
+        ".2byte 0x0000,0x0000",
+        "",
+        ".2byte 0x0000,0x0000",
+        "",
+        "1:",
+        "\tldmia r3!, {r1}",
+        "\tcmp r1, #0",
+        "\tbeq end",
+        "\tcmp r3, r2",
+        "\tbge end",
+        "b 1b",
+        "",
+        "end:",
+        "\tsub r3, #4",
+        "\tmov pc, r3",
+        "",
+        "size: .4byte 0x00000960"
+      ],
+      "source": {
+        "label": "Original source — Mettrich (GitHub Gist)",
+        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#creating-a-thumb-writer"
+      },
+      "sourcePlatformValues": {
+        "accurate": 0,
+        "inaccurate": 1
+      }
+    },
+    {
+      "id": "mettrich-base64-writer-frlg",
+      "title": "Base64 writer 3.0 (WELDR)",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Create WELDR in three ordered codes to spawn Pokémon from Base64 box names.",
+      "category": "Code enabler",
+      "difficulty": "Intermediate",
+      "games": [
+        "firered",
+        "leafgreen"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate",
+        "switch"
+      ],
+      "revisions": [
+        "1.0",
+        "1.1"
+      ],
+      "tags": [
+        "Base64",
+        "WELDR"
+      ],
+      "parameters": [],
+      "variants": {
+        "firered|en|accurate|1.0": {
+          "notes": "Console / accurate emulator.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|en|accurate|1.1": {
+          "notes": "Console / accurate emulator.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|en|inaccurate|1.0": {
+          "notes": "Older / inaccurate emulator: use the source’s Old Emulator mode. My Boy requires its separate five-code setup; this variant is not for My Boy.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … G L Q ♂\t[ HB…GLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … e L Q ♂\t[ HB…eLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 8 L Q ♂\t[ HB…8LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|en|inaccurate|1.1": {
+          "notes": "Older / inaccurate emulator: use the source’s Old Emulator mode. My Boy requires its separate five-code setup; this variant is not for My Boy.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … G L Q ♂\t[ HB…GLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … e L Q ♂\t[ HB…eLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 8 L Q ♂\t[ HB…8LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|en|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|fr|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|it|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|de|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "firered|es|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|en|accurate|1.0": {
+          "notes": "Console / accurate emulator.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|en|accurate|1.1": {
+          "notes": "Console / accurate emulator.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|en|inaccurate|1.0": {
+          "notes": "Older / inaccurate emulator: use the source’s Old Emulator mode. My Boy requires its separate five-code setup; this variant is not for My Boy.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … G L Q ♂\t[ HB…GLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … e L Q ♂\t[ HB…eLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 8 L Q ♂\t[ HB…8LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|en|inaccurate|1.1": {
+          "notes": "Older / inaccurate emulator: use the source’s Old Emulator mode. My Boy requires its separate five-code setup; this variant is not for My Boy.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … G L Q ♂\t[ HB…GLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … e L Q ♂\t[ HB…eLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n x 0 E H\t[BCUnx0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 8 L Q ♂\t[ HB…8LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|en|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|fr|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|it|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|de|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        },
+        "leafgreen|es|switch|1.1": {
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … E L Q ♂\t[ HB…ELQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I R H U K U G G\t[IRHUKUGG]",
+                "Box 10: D G A I I F K G\t[DGAIIFKG]",
+                "Box 11: I T P N I G L I\t[ITPNIGLI]",
+                "Box 12: F T K T I T F R\t[FTKTITFR]",
+                "Box 13: C Q L T I G F K\t[CQLTIGFK]",
+                "Box 14: P L K F M T L L\t[PLKFMTLL]"
+              ],
+              "codeNote": "Save, then execute. A bad egg should appear in Box 10 Slot 22. Do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … c L Q ♂\t[ HB…cLQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: I H F J D U I G\t[IHFJDUIG]",
+                "Box 10: C U J O I L L G\t[CUJOILLG] ← upper case O (O)",
+                "Box 11: H N K O I J F Q\t[HNKOIJFQ] ← upper case O (O)",
+                "Box 12: H N L O L T I F\t[HNLOLTIF] ← upper case O (O)",
+                "Box 13: D T M F J L P F\t[DTMFJLPF]",
+                "Box 14: H G L H G Q G M\t[HGLHGQGM] ← G-Q-G — middle letter is Q, not G"
+              ],
+              "codeNote": "Execute. No visible change to the egg is expected; continue with Code 3."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 1: B C U n p 0 E H\t[BCUnp0EH] ← zero (0), not O",
+                "Box 2: G D H W F f … …\t[GDHWFf……]",
+                "Box 3: R V z _ h n\t[RVz hn]",
+                "Box 4: P T S f ♀\t[PTSf♀]",
+                "Box 5: _ H B … 6 L Q ♂\t[ HB…6LQ♂]",
+                "Box 6: _ S I H I . I q\t[ SIHI.Iq]",
+                "Box 7: ? H T S g ♀ _ _\t[?HTSg♀  ] ← required: two trailing spaces",
+                "Box 8: Y _ I k r\t[Y Ikr]",
+                "Box 9: H K G F I F H U\t[HKGFIFHU]",
+                "Box 10: H R E G B U G H\t[HREGBUGH]",
+                "Box 11: E G D U E L D T\t[EGDUELDT]",
+                "Box 12: D R H U I F I F\t[DRHUIFIF]",
+                "Box 13: E F D K K I C H\t[EFDKKICH]",
+                "Box 14: K L C I I H G F\t[KLCIIHGF]"
+              ],
+              "codeNote": "Execute. WELDR (Metang) should appear in Box 10 Slot 22. Move it to Box 14 Slot 28. Name another Pokémon \"J7VC\" and place it in Box 14 Slot 29. Proceed to the DexReg payload (not available for English LeafGreen Switch)."
+            },
+            {
+              "title": "Test WELDR",
+              "template": [
+                "Box 1: A Q D ? P w _ _\t[AQD?Pw  ]"
+              ],
+              "codeNote": "Boxes 2–14 can stay unchanged. Execute to spawn a Bulbasaur in Box 14 Slot 30. Reset or release it afterward; it has incomplete data and may crash the game if used."
+            }
+          ]
+        }
+      },
+      "requirements": [
+        "An ARM ACE species in Box 13, ready for grab ACE (0x0351 recommended).",
+        "Boxes 13–14 empty except the ACE species and the Pokémon used to swap for execution.",
+        "Box 10 Slot 22 empty.",
+        "My Boy requires the source’s separate five-code setup; the older-emulator variant here is for Old Emulator mode."
+      ],
+      "instructions": [
+        "Enter and execute Codes 1, 2, and 3 in order. Follow each code’s footer.",
+        "After setup, move WELDR and its companion out of Box 14 before running regular ACE codes; return them for Base64 codes."
+      ],
+      "troubleshooting": [
+        "If WELDR remains a bad egg, check Code 3; if needed, move the failed writer away and restart all three codes.",
+        "For bad eggs from the test, check typing and ghost data in Boxes 13–14 using Deposit mode."
+      ],
+      "source": {
+        "label": "Original source — Mettrich, hosted by MankeyMite",
+        "url": "https://github.com/MankeyMite/Gen3ACEPokemonBuilder/blob/522e3026605cf8202b78ab75d6895a734e6cdf5c/docs/spawn-setup-interactive.html"
+      }
+    },
+    {
+      "id": "mettrich-dexreg-base64-payload",
+      "title": "Base64 Pokédex registration helper (DexReg)",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Install a Porygon2 helper so Pokémon created with WELDR register in the Pokédex.",
+      "category": "Code enabler",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald",
+        "firered",
+        "leafgreen"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es",
+        "ja"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate",
+        "switch"
+      ],
+      "revisions": [
+        "1.0",
+        "1.1"
+      ],
+      "tags": [
+        "Base64",
+        "Pokédex"
+      ],
+      "parameters": [],
+      "variants": {
+        "emerald|en|accurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z z t A c I\t[h0ZztAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|fr|accurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z v t A c I\t[h0ZvtAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|it|accurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z z t A c I\t[h0ZztAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|de|accurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z 3 t A c I\t[h0Z3tAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|es|accurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z v t A c I\t[h0ZvtAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|en|inaccurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z z t A c I\t[h0ZztAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|fr|inaccurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z v t A c I\t[h0ZvtAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|it|inaccurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z z t A c I\t[h0ZztAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|de|inaccurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z 3 t A c I\t[h0Z3tAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|es|inaccurate": {
+          "template": [
+            "Box 1: A A A A A O k A\t[AAAAAOkA] ← upper case O (O)",
+            "Box 2: F z 8 t g N C 8\t[Fz8tgNC8]",
+            "Box 3: M L Q Q p Q B I\t[MLQQpQBI]",
+            "Box 4: h 0 Z v t A c I\t[h0ZvtAcI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "firered|en|accurate|1.0": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 a v B w U I\t[n0avBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|en|accurate|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b D B w U I\t[n0bDBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|en|inaccurate|1.0": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 a v B w U I\t[n0avBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|en|inaccurate|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b D B w U I\t[n0bDBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|en|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 Z n P w U I\t[n0ZnPwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|fr|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b D Q A U I\t[n0bDQAUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|it|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b v P w U I\t[n0bvPwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|de|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 Y D Q A U I\t[n0YDQAUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "firered|es|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b X Q A U I\t[n0bXQAUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|en|accurate|1.0": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 a v B w U I\t[n0avBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|en|accurate|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b D B w U I\t[n0bDBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|en|inaccurate|1.0": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 a v B w U I\t[n0avBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|en|inaccurate|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b D B w U I\t[n0bDBwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|fr|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b D Q A U I\t[n0bDQAUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|it|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b v P w U I\t[n0bvPwUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|de|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 Y D Q A U I\t[n0YDQAUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "leafgreen|es|switch|1.1": {
+          "template": [
+            "Box 1: 6 S D H g g A g\t[6SDHggAg]",
+            "Box 2: 0 L 0 A o w c 7\t[0L0Aowc7]",
+            "Box 3: D r Q Q p Q B L\t[DrQQpQBL]",
+            "Box 4: n 0 b X Q A U I\t[n0bXQAUI]",
+            "Box 5: A _\t[A ] ← one trailing space after A"
+          ],
+          "notes": "Nintendo Switch; ROM 1.1.",
+          "guideAfter": "Test with Box 1: AQD?Pw followed by two spaces. Save, execute, and check that Bulbasaur registers if not previously owned. Release the incomplete Bulbasaur afterward, or reset if you do not want it registered. Swap Porygon2 for the previous J7VC Pokémon to create Pokémon without registering them."
+        },
+        "emerald|ja|accurate": {
+          "template": [
+            "Box 1: ＡＡＡＡＡＯｋＡ\t[ＡＡＡＡＡＯｋＡ] ← upper case O (O)",
+            "Box 2: Ｆｚ８ｔｇＮＣ８\t[Ｆｚ８ｔｇＮＣ８]",
+            "Box 3: ＭＬＱＱｐＱＢＩ\t[ＭＬＱＱｐＱＢＩ]",
+            "Box 4: ｈ０ａｒｒｇｃＩ\t[ｈ０ａｒｒｇｃＩ] ← zero (0), not O",
+            "Box 5: Ａ　\t[Ａ　] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        },
+        "emerald|ja|inaccurate": {
+          "template": [
+            "Box 1: ＡＡＡＡＡＯｋＡ\t[ＡＡＡＡＡＯｋＡ] ← upper case O (O)",
+            "Box 2: Ｆｚ８ｔｇＮＣ８\t[Ｆｚ８ｔｇＮＣ８]",
+            "Box 3: ＭＬＱＱｐＱＢＩ\t[ＭＬＱＱｐＱＢＩ]",
+            "Box 4: ｈ０ａｒｒｇｃＩ\t[ｈ０ａｒｒｇｃＩ] ← zero (0), not O",
+            "Box 5: Ａ　\t[Ａ　] ← one trailing space after A"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output.",
+          "guideAfter": "Execute again: another Porygon2 should spawn and register in the Pokédex if not already owned. Release the copy in Slot 30."
+        }
+      },
+      "requirements": [
+        "WELDR in Box 14 Slot 28 and its nicknamed companion in Slot 29.",
+        "Box 14 Slot 30 available for the spawned Porygon2."
+      ],
+      "instructions": [
+        "Enter Boxes 1–5; Boxes 6–14 can stay unchanged. Box 5 requires one trailing space.",
+        "Save, then execute. Porygon2 should spawn in Box 14 Slot 30.",
+        "Replace the Pokémon in Slot 29 with this Porygon2; keep the nicknamed Pokémon in Boxes 1–10 until verification succeeds.",
+        "Move WELDR and Porygon2 out of Box 14 before running regular ACE codes."
+      ],
+      "troubleshooting": [
+        "English LeafGreen Switch has no published DexReg payload; use the WELDR test instead."
+      ],
+      "source": {
+        "label": "Original source — Mettrich, hosted by MankeyMite",
+        "url": "https://github.com/MankeyMite/Gen3ACEPokemonBuilder/blob/522e3026605cf8202b78ab75d6895a734e6cdf5c/docs/spawn-setup-interactive.html"
+      }
+    },
+    {
+      "id": "mettrich-weldr-japanese-emerald",
+      "title": "Base64 writer 3.0 (Japanese Emerald)",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Create WELDR in one code using the Japanese Emerald keyboard and a stable Thumb ACE species.",
+      "category": "Code enabler",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald"
+      ],
+      "languages": [
+        "ja"
+      ],
+      "platforms": [
+        "accurate",
+        "inaccurate"
+      ],
+      "tags": [
+        "Base64",
+        "WELDR"
+      ],
+      "parameters": [],
+      "variants": {
+        "default": {
+          "template": [
+            "Box 1: かッほＮいリあぃ\t[かッほＮいリあぃ] ← top left ぃ; bottom right い",
+            "Box 2: れすＶこミ　Ｗ\t[れすＶこミ　Ｗ] ← one space before Ｗ",
+            "Box 3: あぅあごきｈミび\t[あぅあごきｈミび]",
+            "Box 4: アクぢいい\t[アクぢいい] ← bottom right い",
+            "Box 5: ぞ　　　　めｗＶ\t[ぞ　　　　めｗＶ] ← four spaces after ぞ",
+            "Box 6: ｄ♂　むよ２いＶ\t[ｄ♂　むよ２いＶ] ← one space after ♂; bottom right い",
+            "Box 7: ＷＥＬＤＲ　ぎ１\t[ＷＥＬＤＲ　ぎ１] ← one space after Ｒ",
+            "Box 8: にリあぇｚんちｈ\t[にリあぇｚんちｈ]",
+            "Box 9: Ａず　ｌｑｍ　ａ\t[Ａず　ｌｑｍ　ａ] ← spaces after ず and ｍ",
+            "Box 10: ぺょのＺＥあＥの\t[ぺょのＺＥあＥの]",
+            "Box 11: かぅくるかｇくぐ\t[かぅくるかｇくぐ]",
+            "Box 12: ず　Ｔぞほミ　ｌ\t[ず　Ｔぞほミ　ｌ] ← spaces after ず and ミ",
+            "Box 13: ムぬあぉｔｓ　　\t[ムぬあぉｔｓ　　] ← required: two trailing spaces"
+          ],
+          "notes": "The source does not distinguish console/accurate-emulator and older/inaccurate-emulator output."
+        }
+      },
+      "requirements": [
+        "A stable Thumb ACE species such as 0x085F.",
+        "No Pokémon in Boxes 11–14.",
+        "Party Slot 3 available for WELDR."
+      ],
+      "instructions": [
+        "Enter the Japanese box names exactly, including full-width spaces.",
+        "Save, then execute by viewing the stable Thumb species summary.",
+        "WELDR spawns in Party Slot 3. Move it to Box 14 Slot 28.",
+        "Name another Pokémon ＨＫｄＣ and place it in Box 14 Slot 29."
+      ],
+      "troubleshooting": [
+        "Distinguish small kana and include all highlighted Japanese spaces; Box 13 has two trailing spaces."
+      ],
+      "source": {
+        "label": "Original source — Mettrich, hosted by MankeyMite",
+        "url": "https://github.com/MankeyMite/Gen3ACEPokemonBuilder/blob/522e3026605cf8202b78ab75d6895a734e6cdf5c/docs/spawn-setup-interactive.html"
+      }
+    },
+    {
+      "id": "mettrich-weldr-my-boy",
+      "title": "Base64 writer 3.0 (My Boy only)",
+      "author": "Mettrich",
+      "addedOn": "2026-09-05",
+      "summary": "Create WELDR with the source’s five-code setup specifically for My Boy.",
+      "category": "Code enabler",
+      "difficulty": "Intermediate",
+      "games": [
+        "emerald",
+        "firered",
+        "leafgreen"
+      ],
+      "languages": [
+        "en",
+        "fr",
+        "it",
+        "de",
+        "es"
+      ],
+      "platforms": [
+        "inaccurate"
+      ],
+      "revisions": [
+        "1.0",
+        "1.1"
+      ],
+      "tags": [
+        "Base64",
+        "WELDR"
+      ],
+      "parameters": [],
+      "variants": {
+        "emerald|en|inaccurate": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J-FKVC and place it in Slot 29."
+            }
+          ]
+        },
+        "emerald|fr|inaccurate": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J-FKVC and place it in Slot 29."
+            }
+          ]
+        },
+        "emerald|it|inaccurate": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J-FKVC and place it in Slot 29."
+            }
+          ]
+        },
+        "emerald|de|inaccurate": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J-FKVC and place it in Slot 29."
+            }
+          ]
+        },
+        "emerald|es|inaccurate": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J-FKVC and place it in Slot 29."
+            }
+          ]
+        },
+        "firered|en|inaccurate|1.0": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J7VC and place it in Slot 29."
+            }
+          ]
+        },
+        "firered|en|inaccurate|1.1": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J7VC and place it in Slot 29."
+            }
+          ]
+        },
+        "leafgreen|en|inaccurate|1.0": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J7VC and place it in Slot 29."
+            }
+          ]
+        },
+        "leafgreen|en|inaccurate|1.1": {
+          "notes": "My Boy only (Older / inaccurate emulator). This five-code sequence is separate from the source’s Old Emulator mode.",
+          "codes": [
+            {
+              "title": "Code 1",
+              "template": [
+                "Box 1: B C U n _ F J u\t[BCUn FJu]",
+                "Box 2: I k o B 3 h F\t[IkoB3hF] ← lowercase O (o)",
+                "Box 3: A A T . h r\t[AAT.hr]",
+                "Box 4: A h _ f n\t[Ah fn]",
+                "Box 5: _ F Z O T . h r\t[ FZOT.hr] ← upper case O (O)",
+                "Box 6: J J J _ 1 / …\t[JJJ 1/…] ← one (1)",
+                "Box 7: P q / _ … n\t[Pq/ …n]",
+                "Box 8: v 8 5 Q K\t[v85QK]",
+                "Box 9: T . g L _ F Z O\t[T.gL FZO] ← upper case O (O)",
+                "Box 10: R j o D Y J m ?\t[RjoDYJm?] ← lowercase O (o)",
+                "Box 11: B n F K T F F F\t[BnFKTFFF]",
+                "Box 12: U U F R R G O U\t[UUFRRGOU] ← upper case O (O)",
+                "Box 13: T H S G Q U R L\t[THSGQURL]",
+                "Box 14: Q T R R U U F F\t[QTRRUUFF]"
+              ],
+              "codeNote": "Save and execute. A bad egg appears in Box 10 Slot 22; do not view its summary."
+            },
+            {
+              "title": "Code 2",
+              "template": [
+                "Box 8: v K 5 Q K\t[vK5QK]",
+                "Box 11: B n R G J I F F\t[BnRGJIFF] ← skip boxes 9-10!",
+                "Box 12: H G G T M N F G\t[HGGTMNFG]",
+                "Box 13: I I T T H T F T\t[IITTHTFT]",
+                "Box 14: S R Q Q I T F G\t[SRQQITFG]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 3",
+              "template": [
+                "Box 8: v Z 5 Q K\t[vZ5QK]",
+                "Box 11: B n S K N L H F\t[BnSKNLHF] ← skip boxes 9-10!",
+                "Box 12: J T I L G H S J\t[JTILGHSJ]",
+                "Box 13: Q U F G Q U G O\t[QUFGQUGO] ← upper case O (O)",
+                "Box 14: F L I G F N H O\t[FLIGFNHO] ← upper case O (O)"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 4",
+              "template": [
+                "Box 8: v o 5 Q K\t[vo5QK] ← lowercase O (o)",
+                "Box 11: B n F J S Q F N\t[BnFJSQFN] ← skip boxes 9-10!",
+                "Box 12: I O I T F F R T\t[IOITFFRT] ← upper case O (O)",
+                "Box 13: J F G L M F F G\t[JFGLMFFG]",
+                "Box 14: I H T Q T M\t[IHTQTM]"
+              ],
+              "codeNote": "Execute; no visible change is expected. Continue to the next code."
+            },
+            {
+              "title": "Code 5",
+              "template": [
+                "Box 8: v , 5 Q K\t[v,5QK]",
+                "Box 11: B n F F S F Q K\t[BnFFSFQK] ← skip boxes 9-10!",
+                "Box 12: H I P H I L P I\t[HIPHILPI]",
+                "Box 13: F H T F G R U U\t[FHTFGRUU]",
+                "Box 14: H U T G\t[HUTG]"
+              ],
+              "codeNote": "Execute. Move WELDR from Box 10 Slot 22 to Box 14 Slot 28. Name another Pokémon J7VC and place it in Slot 29."
+            }
+          ]
+        }
+      },
+      "requirements": [
+        "My Boy emulator — use the source’s separate My Boy mode.",
+        "A stable ACE species (Emerald), or a grab ACE species in Box 13 (FireRed/LeafGreen).",
+        "Box 10 Slot 22 empty; keep execution boxes clear as described in the source."
+      ],
+      "instructions": [
+        "Execute all five codes in order. Later codes change Box 8 and Boxes 11–14 only; keep Boxes 1–7 and 9–10 unchanged.",
+        "Move WELDR to Box 14 Slot 28 and its nicknamed companion to Slot 29."
+      ],
+      "troubleshooting": [
+        "If WELDR remains a bad egg after Code 5, check that code; if necessary restart the five-code setup."
+      ],
+      "source": {
+        "label": "Original source — Mettrich, hosted by MankeyMite",
+        "url": "https://github.com/MankeyMite/Gen3ACEPokemonBuilder/blob/522e3026605cf8202b78ab75d6895a734e6cdf5c/docs/spawn-setup-interactive.html"
       }
     }
   ],

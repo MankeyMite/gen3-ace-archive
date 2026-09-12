@@ -84,6 +84,7 @@
     game: localStorage.getItem("ace-game") || "emerald",
     language: localStorage.getItem("ace-language") || "en",
     platform: localStorage.getItem("ace-platform") || "accurate",
+    revision: localStorage.getItem("ace-revision") || "1.1",
     category: "All",
     search: "",
   };
@@ -100,14 +101,19 @@
   const sharedGame = incomingUrl.searchParams.get("game");
   const sharedLanguage = incomingUrl.searchParams.get("language");
   const sharedPlatform = incomingUrl.searchParams.get("platform");
+  const sharedRevision = incomingUrl.searchParams.get("revision");
   if (catalog.games.some((item) => item.id === sharedGame) && gameHasPublishedCodes(sharedGame)) state.game = sharedGame;
   if (catalog.languages.some((item) => item.id === sharedLanguage)) state.language = sharedLanguage;
   if (catalog.platforms.some((item) => item.id === sharedPlatform)) state.platform = sharedPlatform;
+  if (catalog.revisions.some((item) => item.id === sharedRevision)) state.revision = sharedRevision;
+  if (!catalog.languages.some((item) => item.id === state.language)) state.language = "en";
+  if (!catalog.revisions.some((item) => item.id === state.revision)) state.revision = "1.1";
   if (!gameHasPublishedCodes(state.game)) state.game = catalog.games.find((game) => gameHasPublishedCodes(game.id))?.id || catalog.games[0]?.id;
 
   const $ = (selector, root = document) => root.querySelector(selector);
   const elements = {
     game: $("#game-select"), language: $("#language-select"), platform: $("#platform-select"),
+    languageLabel: $("#setup-language-label"),
     grid: $("#code-grid"), count: $("#result-count"), categories: $("#category-filters"),
     search: $("#code-search"), status: $("#setup-status"), dialog: $("#code-dialog"),
     dialogContent: $("#dialog-content"), empty: $("#empty-state"), toast: $("#toast"),
@@ -120,7 +126,7 @@
   }
 
   function gameHasPublishedCodes(gameId) {
-    return catalog.codes.some((code) => !code.deleted && code.games?.includes(gameId));
+    return catalog.codes.some((code) => !code.deleted && code.verificationStatus !== "needs-verification" && code.games?.includes(gameId));
   }
 
   function codeCountLabel(count) {
@@ -139,7 +145,6 @@
       const available = gameHasPublishedCodes(game.id);
       return `<option value="${game.id}" ${available ? "" : "disabled"}>${game.name}${available ? "" : " - Coming soon"}</option>`;
     }).join("");
-    elements.language.innerHTML = catalog.languages.map((language) => `<option value="${language.id}">${language.name}</option>`).join("");
     elements.platform.innerHTML = catalog.platforms.map((platform) =>
       `<option value="${platform.id}">${platform.name}</option>`).join("");
     elements.game.value = state.game;
@@ -148,11 +153,8 @@
     updatePlatformAvailability();
     elements.platform.value = state.platform;
 
-    elements.game.addEventListener("change", (event) => {
-      updateSetup("game", event.target.value);
-      updatePlatformAvailability();
-    });
-    elements.language.addEventListener("change", (event) => updateSetup("language", event.target.value));
+    elements.game.addEventListener("change", (event) => updateSetup("game", event.target.value));
+    elements.language.addEventListener("change", (event) => updateLanguageSelection(event.target.value));
     elements.platform.addEventListener("change", (event) => updateSetup("platform", event.target.value));
   }
 
@@ -162,22 +164,60 @@
       option.disabled = Boolean(platform.games && !platform.games.includes(state.game));
     });
     const selected = catalog.platforms.find((platform) => platform.id === state.platform);
-    if (selected?.games && !selected.games.includes(state.game)) {
+    if (!selected || (selected.games && !selected.games.includes(state.game))) {
       state.platform = "accurate";
       localStorage.setItem("ace-platform", state.platform);
     }
     elements.platform.value = state.platform;
+    updateThirdSelector();
     renderLibrary();
+  }
+
+  function usesRomRevision(game = state.game) {
+    return ["firered", "leafgreen"].includes(game);
+  }
+
+  function updateThirdSelector() {
+    const revisionMode = usesRomRevision() && state.platform !== "switch";
+    if (usesRomRevision() && state.platform === "switch") state.revision = "1.1";
+    const languages = catalog.languages.filter((language) => revisionMode || !usesRomRevision() || catalog.codes.some((code) =>
+      code.games?.includes(state.game) && code.platforms?.includes(state.platform)
+      && code.languages?.includes(language.id) && code.revisions?.includes(state.revision)
+      && resolveVariant(code, { ...state, language: language.id })));
+    if (!revisionMode && !languages.some((language) => language.id === state.language)) state.language = languages[0]?.id || "en";
+    elements.language.innerHTML = languages.map((language) => revisionMode
+      ? catalog.revisions.map((revision) => `<option value="${language.id}|${revision.id}">${language.name} ${revision.name}</option>`).join("")
+      : `<option value="${language.id}">${language.name}</option>`).join("");
+    elements.languageLabel.textContent = "Language";
+    elements.language.value = revisionMode ? `${state.language}|${state.revision}` : state.language;
+    localStorage.setItem("ace-language", state.language);
+    localStorage.setItem("ace-revision", state.revision);
+  }
+
+  function updateLanguageSelection(value) {
+    // Combined display choices still store language and revision separately.
+    const [language, revision] = value.split("|");
+    if (!catalog.languages.some((item) => item.id === language)) return;
+    if (usesRomRevision() && state.platform !== "switch") {
+      if (!catalog.revisions.some((item) => item.id === revision)) return;
+      state.revision = revision;
+    }
+    updateSetup("language", language);
   }
 
   function updateSetup(key, value) {
     state[key] = value;
     localStorage.setItem(`ace-${key}`, value);
-    renderLibrary();
+    updatePlatformAvailability();
   }
 
   function isCompatible(code) {
-    return code.games.includes(state.game) && code.languages.includes(state.language) && code.platforms.includes(state.platform);
+    const platformGames = catalog.platforms.find((platform) => platform.id === state.platform)?.games;
+    return code.verificationStatus !== "needs-verification" && code.games.includes(state.game) && code.languages.includes(state.language) && code.platforms.includes(state.platform)
+      && (!platformGames || platformGames.includes(state.game))
+      && variantCodeBlocks(resolveVariant(code)).length > 0
+      && (!usesRomRevision() || (code.revisions?.includes(state.revision)
+        && (state.platform !== "switch" || state.revision === "1.1") && Boolean(resolveVariant(code))));
   }
 
   function visibleCodes() {
@@ -205,7 +245,7 @@
     const game = nameFor("games", state.game);
     const language = nameFor("languages", state.language);
     const platform = nameFor("platforms", state.platform);
-    elements.status.innerHTML = `<span>●</span> Showing entries verified for <strong>${game} · ${language} · ${platform}</strong>`;
+    elements.status.innerHTML = `<span>●</span> Showing entries verified for <strong>${game} · ${platform} · ${language}${usesRomRevision() ? ` · ROM ${state.revision}` : ""}</strong>`;
     elements.count.textContent = codes.length;
     elements.empty.hidden = codes.length > 0;
     elements.grid.innerHTML = codes.map((code) => {
@@ -221,14 +261,23 @@
   }
 
   function getVariant(code) {
+    return resolveVariant(code) || { template: [] };
+  }
+
+  function resolveVariant(code, setup = state) {
     const variants = code.variants || {};
-    return variants[`${state.game}|${state.language}|${state.platform}`]
-      || variants[`${state.game}|${state.language}|*`]
-      || variants[`${state.game}|*|${state.platform}`]
-      || variants[`*|${state.language}|${state.platform}`]
-      || variants[`${state.language}|${state.platform}`]
-      || variants[`*|${state.platform}`]
-      || variants[`${state.language}|*`]
+    if (usesRomRevision(setup.game)) {
+      if (!code.revisions?.includes(setup.revision) || (setup.platform === "switch" && setup.revision !== "1.1")) return null;
+      return variants[`${setup.game}|${setup.language}|${setup.platform}|${setup.revision}`]
+        || variants[`${setup.game}|${setup.language}|*|${setup.revision}`] || null;
+    }
+    return variants[`${setup.game}|${setup.language}|${setup.platform}`]
+      || variants[`${setup.game}|${setup.language}|*`]
+      || variants[`${setup.game}|*|${setup.platform}`]
+      || variants[`*|${setup.language}|${setup.platform}`]
+      || variants[`${setup.language}|${setup.platform}`]
+      || variants[`*|${setup.platform}`]
+      || variants[`${setup.language}|*`]
       || variants.default
       || { template: [] };
   }
@@ -360,17 +409,44 @@
   function controlFor(parameter) {
     if (parameter.type === "choice") {
       const choices = catalog.choices[parameter.source];
+      const options = choices.map((choice) => `<option value="${choice.id}"${String(choice.id) === String(parameter.default) ? " selected" : ""}>${choice.name}</option>`).join("");
+      if (parameter.presentation === "select") {
+        return `<label class="generator-field"><span>${parameter.label}</span><select name="${parameter.id}" required>${options}</select></label>`;
+      }
       return `<label class="generator-field"><span>${parameter.label}</span><div class="searchable-select">
         <input type="search" data-choice-search="${parameter.id}" placeholder="${parameter.placeholder || "Search…"}" autocomplete="off" />
-        <select name="${parameter.id}" size="5" required>${choices.map((choice) => `<option value="${choice.id}">${choice.name}</option>`).join("")}</select>
+        <select name="${parameter.id}" size="5" required>${options}</select>
       </div></label>`;
     }
     return `<label class="generator-field"><span>${parameter.label}</span><input name="${parameter.id}" type="number" min="${parameter.min}" max="${parameter.max}" value="${parameter.default}" required /></label>`;
   }
 
+  function sourceCodeFor(code) {
+    const rawSource = getVariant(code).sourceCode || code.sourceCode;
+    let sourceCode = (Array.isArray(rawSource) ? rawSource : []).map(String);
+    const languageValue = code.sourceLanguageValues?.[state.language];
+    if (languageValue !== undefined) {
+      sourceCode = sourceCode.map((line) => line.replace(/^(\s*lang\s*=\s*)\d+(\s*)$/, (_, prefix, suffix) => `${prefix}${languageValue}${suffix}`));
+    }
+    const platformValue = code.sourcePlatformValues?.[state.platform];
+    if (platformValue !== undefined) {
+      sourceCode = sourceCode.map((line) => line.replace(/^(\s*(?:old_emu|inaccurate_emu|aligned_pc)\s*=\s*)\d+(\s*(?:(?:;|\/\/).*)?)$/, (_, prefix, suffix) => `${prefix}${platformValue}${suffix}`));
+    }
+    return sourceCode;
+  }
+
+  function hasSourceCode(code) {
+    const lines = Array.isArray(code.sourceCode)
+      ? code.sourceCode.map((line) => String(line).trim()).filter(Boolean)
+      : [];
+    if (!lines.length) return false;
+    const placeholder = /^(?:;\s*)?(?:source\s+)?code\s+(?:not\s+(?:added|available)|unavailable|missing)(?:\s+yet)?[.!]?$/i;
+    return lines.some((line) => !placeholder.test(line));
+  }
+
   function openCode(id) {
     const code = catalog.codes.find((entry) => entry.id === id);
-    if (!code) return;
+    if (!code || !isCompatible(code)) return;
     const variant = getVariant(code);
     const codeBlocks = variantCodeBlocks(variant);
     const guideAfter = variantGuideAfter(variant);
@@ -382,6 +458,7 @@
         ? "Clear the FireRed/LeafGreen execution area documented by this code's setup, including Box 13 from Slot 7 onward and Box 14 unless required setup data belongs there."
         : "Clear the execution area documented for this game and code before trying again.";
     const troubleshootingItems = [
+      ...(code.troubleshooting || []).map(escapeHtml),
       "Make sure the code is typed correctly in the correct boxes.",
       "Read and make sure you meet the requirements for this code.",
       executionAreaReminder,
@@ -389,7 +466,8 @@
       `Go to the <button type="button" class="inline-link" data-open-tab="troubleshooting">ACE troubleshooting tab</button> to see video examples of how to solve an ACE code problem.`,
     ];
     const outputPanels = codeBlocks.map((block, index) => {
-      const usedBoxCount = block.template.length;
+      const boxNumbers = block.template.map((line) => Number(line.match(/^Box\s*(\d+)\s*:/i)?.[1])).filter(Boolean);
+      const usedBoxCount = Math.max(0, ...boxNumbers);
       const remainingBoxText = usedBoxCount < 14
         ? `${usedBoxCount === 13 ? "Box 14" : `Boxes ${usedBoxCount + 1}–14`} may have any name.`
         : "";
@@ -405,21 +483,32 @@
     const generatorArea = parameters.length
       ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
       : `<form class="fixed-code-section" id="generator-form">${outputPanel}</form>`;
+    const sourceLink = code.source?.url ? `<p class="source"><a href="${escapeHtml(code.source.url)}" target="_blank" rel="noreferrer">${escapeHtml(code.source.label)}</a></p>` : "";
+    const sourceCodeSection = hasSourceCode(code)
+      ? `<details class="source-code"><summary>Show source code</summary><pre>${escapeHtml(sourceCodeFor(code).join("\n"))}</pre></details>` : "";
+    const instructionsSection = code.instructions?.length
+      ? `<section class="instructions"><h3>Instructions</h3><ol>${code.instructions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol></section>` : "";
     elements.dialogContent.innerHTML = `
       <div class="dialog-header"><div><span class="category-tag">${code.category}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${code.title}</h2>${contentMetaMarkup(code, "Code")}<div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
-      <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("languages", state.language)}</span><span>✓ ${nameFor("platforms", state.platform)}</span></div>
-      <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul></section>
+      <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("platforms", state.platform)}</span><span>✓ ${nameFor("languages", state.language)}</span>${usesRomRevision() ? `<span>✓ ROM ${state.revision}</span>` : ""}</div>
+      <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul>${sourceLink}</section>
+      ${instructionsSection}
       ${generatorArea}
-      <details class="source-code"><summary>Show source code</summary><pre>${(code.sourceCode || ["Source code not added yet."]).join("\n")}</pre><p class="source">Source: ${code.source.url ? `<a href="${code.source.url}" target="_blank" rel="noreferrer">${code.source.label}</a>` : code.source.label}</p></details>
+      ${sourceCodeSection}
       ${videoSectionMarkup(code.video, "tutorial-video")}
       <section class="quick-check"><h3>Quick troubleshooting checklist</h3><ol>${troubleshootingItems.map((item) => `<li>${item}</li>`).join("")}</ol></section>`;
     $(".close-dialog", elements.dialogContent).addEventListener("click", () => elements.dialog.close());
     $(".share-code", elements.dialogContent).addEventListener("click", () => shareCode(code));
-    $("#generator-form").addEventListener("input", () => renderGenerated(code));
+    const generatorForm = $("#generator-form");
+    const updateGeneratedCode = () => renderGenerated(code);
+    generatorForm.addEventListener("input", updateGeneratedCode);
+    generatorForm.addEventListener("change", updateGeneratedCode);
     elements.dialogContent.querySelectorAll("[data-choice-search]").forEach((input) => {
       input.addEventListener("input", () => filterChoices(input));
     });
-    elements.dialogContent.querySelectorAll("[data-copy-code]").forEach((button) => button.addEventListener("click", copyCode));
+    elements.dialogContent.querySelectorAll("[data-copy-code]").forEach((button) => {
+      button.addEventListener("click", (event) => copyCode(event, code));
+    });
     elements.dialogContent.querySelector("[data-open-guide]")?.addEventListener("click", (event) => {
       elements.dialog.close(); activateTab("guides"); openGuide(event.currentTarget.dataset.openGuide);
     });
@@ -436,6 +525,8 @@
     url.searchParams.set("game", state.game);
     url.searchParams.set("language", state.language);
     url.searchParams.set("platform", state.platform);
+    if (usesRomRevision()) url.searchParams.set("revision", state.platform === "switch" ? "1.1" : state.revision);
+    else url.searchParams.delete("revision");
     url.hash = `code=${encodeURIComponent(id)}`;
     return url;
   }
@@ -468,6 +559,7 @@
   function guideShareUrl(id) {
     const url = new URL(window.location.href);
     url.searchParams.delete("game"); url.searchParams.delete("language"); url.searchParams.delete("platform");
+    url.searchParams.delete("revision");
     url.hash = `guide=${encodeURIComponent(id)}`;
     return url;
   }
@@ -487,6 +579,7 @@
       url.searchParams.set("game", state.game);
       url.searchParams.set("language", state.language);
       url.searchParams.set("platform", state.platform);
+      if (usesRomRevision()) url.searchParams.set("revision", state.platform === "switch" ? "1.1" : state.revision);
     }
     url.hash = `tab=${encodeURIComponent(tabId)}`;
     return url;
@@ -804,6 +897,7 @@
     makeChecks("#dev-games", catalog.games, "games");
     makeChecks("#dev-languages", catalog.languages, "languages");
     makeChecks("#dev-platforms", catalog.platforms, "platforms");
+    makeChecks("#dev-revisions", catalog.revisions, "revisions");
     $("#developer-form").addEventListener("submit", saveDeveloperCode);
     $("#export-codes").addEventListener("click", exportLocalCodes);
     $("#import-codes").addEventListener("change", importLocalCodes);
@@ -859,8 +953,10 @@
         const platform = catalog.platforms.find((item) => item.id === platformId);
         return !platform?.games || platform.games.includes(game);
       }))
-      .filter((platformChoice) => !(game === baselineGame && language === baselineLanguage && platformChoice.id === baselinePlatform?.id))
-      .map((platformChoice) => ({ game, language, platform: platformChoice.id, platformIds: platformChoice.ids, key: `${game}|${language}|${platformChoice.id}` }))));
+      .filter((platformChoice) => usesRomRevision(game) || !(game === baselineGame && language === baselineLanguage && platformChoice.id === baselinePlatform?.id))
+      .flatMap((platformChoice) => (usesRomRevision(game) ? selectedDeveloperValues("revisions") : [null])
+        .filter((revision) => platformChoice.id !== "switch" || revision === "1.1")
+        .map((revision) => ({ game, language, revision, platform: platformChoice.id, platformIds: platformChoice.ids, key: `${game}|${language}|${platformChoice.id}${revision ? `|${revision}` : ""}` })))));
   }
 
   function renderVariationTabs() {
@@ -868,10 +964,14 @@
     const selectedPlatforms = selectedDeveloperValues("platforms");
     const baselineGame = selectedGames[0], baselineLanguage = selectedLanguages[0];
     const baselinePlatform = selectedPlatforms.includes("accurate") ? "accurate" : selectedPlatforms[0];
-    $("#default-code-label").textContent = baselineGame && baselineLanguage && baselinePlatform
+    const needsDefault = selectedGames.some((game) => !usesRomRevision(game));
+    $("#developer-form").elements.code.required = needsDefault;
+    $("#default-code-label").textContent = selectedGames.length && !needsDefault ? "Default code (not used for FireRed / LeafGreen)" : baselineGame && baselineLanguage && baselinePlatform
       ? `Default: ${nameFor("games", baselineGame)} · ${nameFor("languages", baselineLanguage)} · ${nameFor("platforms", baselinePlatform)} *`
       : "Default console / accurate-emulator code * - one line per box";
-    $("#default-code-help").textContent = baselineGame && baselineLanguage && baselinePlatform
+    $("#default-code-help").textContent = selectedGames.length && !needsDefault
+      ? "Enter each verified ROM revision in its variation tab. Blank revision variants are unavailable; FireRed/LeafGreen never use this default."
+      : baselineGame && baselineLanguage && baselinePlatform
       ? "This baseline is saved automatically. Write instructions between code groups; add 'Code note: your message' after a code to replace its small footer."
       : "Select a game and language to define the baseline. Code lines start with Box 1: through Box 14:; per-code footers start with 'Code note:'.";
     const combinations = variationCombinations();
@@ -882,7 +982,7 @@
     $("#combination-tabs").innerHTML = combinations.map((combo) => {
       const filled = Boolean(variationDrafts.get(combo.key)?.value.trim());
       const platformName = combo.platform === "accurate+inaccurate" ? "GBA + old emulator" : catalog.platforms.find((item) => item.id === combo.platform)?.shortName;
-      return `<button type="button" class="${combo.key === activeVariation ? "active" : ""} ${filled ? "filled" : ""}" data-variation="${combo.key}"><strong>${filled ? "✓ " : ""}${nameFor("games", combo.game)}</strong><span>${nameFor("languages", combo.language)} · ${platformName}</span></button>`;
+      return `<button type="button" class="${combo.key === activeVariation ? "active" : ""} ${filled ? "filled" : ""}" data-variation="${combo.key}"><strong>${filled ? "✓ " : ""}${nameFor("games", combo.game)}</strong><span>${nameFor("languages", combo.language)} · ${platformName}${combo.revision ? ` · ROM ${combo.revision}` : ""}</span></button>`;
     }).join("");
     renderActiveVariation();
   }
@@ -900,16 +1000,16 @@
       field.innerHTML = "<p>Select compatibility above to create variation tabs.</p>";
       return;
     }
-    const [game, language, platform] = activeVariation.split("|");
+    const [game, language, platform, revision] = activeVariation.split("|");
     const draft = variationDrafts.get(activeVariation);
     const platformName = platform === "accurate+inaccurate" ? "Console / accurate emulator + old emulator" : nameFor("platforms", platform);
-    field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="Leave blank to use the default code. Write instructions between code groups and add Code note: after any code that needs a custom footer."></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : "Uses default code"}</small>`;
+    field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}${revision ? ` · ROM ${revision}` : ""}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="${revision ? "Leave blank if this revision combination is unverified or unsupported." : "Leave blank to use the default code."} Write instructions between code groups and add Code note: after any code that needs a custom footer."></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : revision ? "Unavailable — no verified output" : "Uses default code"}</small>`;
     const textarea = field.querySelector("textarea");
     textarea.value = draft.value;
     textarea.addEventListener("input", () => {
       variationDrafts.set(activeVariation, { value: textarea.value, edited: true });
       const filled = Boolean(textarea.value.trim());
-      field.querySelector(".variation-state").textContent = filled ? "✓ Variation filled in" : "Uses default code";
+      field.querySelector(".variation-state").textContent = filled ? "✓ Variation filled in" : revision ? "Unavailable — no verified output" : "Uses default code";
       const tab = $("#combination-tabs").querySelector(`[data-variation="${activeVariation}"]`);
       tab?.classList.toggle("filled", filled);
       const title = tab?.querySelector("strong");
@@ -956,24 +1056,37 @@
       status.textContent = "Select at least one game, language, and platform.";
       return;
     }
+    if (games.some(usesRomRevision) && !data.getAll("revisions").length) {
+      status.textContent = "Select the source-verified FireRed/LeafGreen ROM revisions.";
+      return;
+    }
     const defaultDraft = parseCodeDraft(data.get("code"));
-    if (!defaultDraft.blocks.length) {
+    if (!defaultDraft.blocks.length && games.some((game) => !usesRomRevision(game))) {
       status.textContent = "Add at least one box-name code.";
       return;
     }
     const defaultSignature = codeDraftSignature(defaultDraft.blocks, defaultDraft.after);
+    const existingCode = editingCodeId ? catalog.codes.find((entry) => entry.id === editingCodeId) : null;
     const variants = { default: variantFromCodeDraft(defaultDraft.blocks, defaultDraft.after, "Locally added developer entry.") };
+    if (existingCode?.variants?.default) {
+      variants.default.notes = existingCode.variants.default.notes;
+      if (existingCode.variants.default.sourceCode) variants.default.sourceCode = existingCode.variants.default.sourceCode;
+    }
     variationCombinations().forEach((combo) => {
       const draft = variationDrafts.get(combo.key);
       const codeDraft = parseCodeDraft(draft?.value);
-      if (!codeDraft.blocks.length || codeDraftSignature(codeDraft.blocks, codeDraft.after) === defaultSignature) return;
+      if (!codeDraft.blocks.length || (!combo.revision && codeDraftSignature(codeDraft.blocks, codeDraft.after) === defaultSignature)) return;
       combo.platformIds.forEach((platformId) => {
-        variants[`${combo.game}|${combo.language}|${platformId}`] = variantFromCodeDraft(codeDraft.blocks, codeDraft.after, "Game, language and platform-specific variation.");
+        const previousVariant = existingCode ? resolveVariant(existingCode, { ...combo, platform: platformId }) : null;
+        variants[`${combo.game}|${combo.language}|${platformId}${combo.revision ? `|${combo.revision}` : ""}`] = {
+          ...variantFromCodeDraft(codeDraft.blocks, codeDraft.after, previousVariant?.notes || "Game, language and platform-specific variation."),
+          ...(previousVariant?.sourceCode ? { sourceCode: previousVariant.sourceCode } : {}),
+        };
       });
     });
     const title = safeText(data.get("title"));
-    const existingCode = editingCodeId ? catalog.codes.find((entry) => entry.id === editingCodeId) : null;
-    const sourceCode = lines(data.get("sourceCode"));
+    const rawSource = String(data.get("sourceCode") || "").replace(/\r/g, "");
+    const sourceCode = rawSource.trim() ? rawSource.split("\n") : [];
     const code = {
       id: editingCodeId || `local-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
       title, author: safeText(data.get("author")) || authorFromSourceCode(sourceCode), addedOn: safeAddedDate(data.get("addedOn")) || existingCode?.addedOn || todayIsoDate(), summary: safeText(data.get("summary")), category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
@@ -982,6 +1095,11 @@
       requirements: lines(data.get("requirements")).map(safeText), sourceCode,
       video: safeText(data.get("video")), troubleshooting: lines(data.get("troubleshooting")).map(safeText),
       instructions: existingCode?.instructions || ["Back up your save.", "Confirm every requirement above.", "Enter and execute the code exactly as documented."],
+      sourceLanguageValues: existingCode?.sourceLanguageValues,
+      sourcePlatformValues: existingCode?.sourcePlatformValues,
+      revisions: games.some(usesRomRevision) ? data.getAll("revisions") : undefined,
+      verificationStatus: existingCode?.verificationStatus,
+      verificationNote: existingCode?.verificationNote,
       source: { label: safeText(data.get("sourceLabel")) || "Locally added entry", url: safeText(data.get("sourceUrl")) },
       locallyAdded: true,
     };
@@ -1002,7 +1120,7 @@
     const codes = [...catalog.codes].sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
     $("#local-codes").innerHTML = codes.length ? codes.map((code) => {
       const count = codeBlockCount(code);
-      return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.author ? ` · Code by ${escapeHtml(code.author)}` : ""}${code.addedOn ? ` · Added ${formatAddedDate(code.addedOn)}` : ""}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
+      return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.author ? ` · Code by ${escapeHtml(code.author)}` : ""}${code.addedOn ? ` · Added ${formatAddedDate(code.addedOn)}` : ""}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}${code.verificationStatus === "needs-verification" ? ` · Needs verification: ${escapeHtml(code.verificationNote || "")}` : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
     }).join("") : "<p>No codes available.</p>";
   }
 
@@ -1030,7 +1148,7 @@
     form.elements.difficulty.value = code.difficulty || "Unrated";
     form.elements.recommended.checked = Boolean(code.recommended);
     form.elements.summary.value = code.summary || "";
-    form.elements.code.value = variantToEditorText(code.variants?.default);
+    form.elements.code.value = variantToEditorText(code.variants?.default || (!code.games.every(usesRomRevision) ? Object.values(code.variants || {})[0] : null));
     form.elements.requirements.value = (code.requirements || []).join("\n");
     form.elements.sourceCode.value = (code.sourceCode || []).join("\n");
     delete form.elements.author.dataset.derivedAuthor;
@@ -1039,13 +1157,17 @@
     form.elements.sourceUrl.value = code.source?.url || "";
     form.elements.video.value = code.video || "";
     form.elements.troubleshooting.value = (code.troubleshooting || []).join("\n");
-    form.querySelectorAll('input[type="checkbox"][name="games"], input[type="checkbox"][name="languages"], input[type="checkbox"][name="platforms"]').forEach((input) => {
+    form.querySelectorAll('input[type="checkbox"][name="games"], input[type="checkbox"][name="languages"], input[type="checkbox"][name="platforms"], input[type="checkbox"][name="revisions"]').forEach((input) => {
       input.checked = (code[input.name] || []).includes(input.value);
     });
     $("#same-emulator-code").checked = false;
     variationDrafts.clear(); activeVariation = "";
     Object.entries(code.variants || {}).forEach(([key, variant]) => {
-      if (key.split("|").length === 3) variationDrafts.set(key, { value: variantToEditorText(variant), edited: true });
+      if ([3, 4].includes(key.split("|").length)) variationDrafts.set(key, { value: variantToEditorText(variant), edited: true });
+    });
+    variationCombinations().forEach((combo) => {
+      const variant = resolveVariant(code, { ...combo, platform: combo.platformIds[0] });
+      if (variant) variationDrafts.set(combo.key, { value: variantToEditorText(variant), edited: true });
     });
     renderVariationTabs();
     $("#save-code-button").textContent = "Update code";
@@ -1330,6 +1452,7 @@
   function renderCodeCharacters(value) {
     return [...String(value || "")].map((character) => {
       const escapedCharacter = escapeHtml(character);
+      if (character === "　") return `<span class="code-char-underscore" title="Japanese space">${escapedCharacter}</span>`;
       if (/\s/u.test(character)) return escapedCharacter;
       if (character === "." || character === ",") {
         return `<span class="code-char-flexible" title="Available on multiple keyboards">${escapedCharacter}</span>`;
@@ -1354,15 +1477,22 @@
     return {
       isBoxLine: true,
       prefix: match[1],
-      body: annotationMatch ? annotationMatch[1] : match[2].trim(),
+      annotation: annotationMatch ? annotationMatch[2].slice(annotationMatch[2].indexOf("]") + 1).trim() : "",
+      body: annotationMatch && /[\u3000-\u9fff\uff00-\uffef]/u.test(annotationMatch[2])
+        ? annotationMatch[2].slice(1, annotationMatch[2].indexOf("]"))
+        : annotationMatch ? annotationMatch[1] : match[2].replace(/^[ \t]+|[ \t]+$/g, ""),
     };
   }
 
   function renderCodeLine(line) {
     const parsedLine = parseCodeLine(line);
     if (!parsedLine.isBoxLine) return renderCodeCharacters(parsedLine.body);
-    const helper = parsedLine.body.includes("q")
-      ? `<span class="code-line-helper" data-note="Lowercase q, not g." aria-label="Lowercase q, not g."></span>`
+    // Each device resolves to its own variant, so replacement instructions for
+    // another emulator would only tell visitors to alter the code already shown.
+    const deviceHelper = /\b(?:old(?:er)?|inaccurate)\s+emulators?\b|\bon\s+old\s+emulators?\b/i.test(parsedLine.annotation);
+    const note = [deviceHelper ? "" : parsedLine.annotation, parsedLine.body.includes("q") ? "Lowercase q, not g." : ""].filter(Boolean).join(" ");
+    const helper = note
+      ? `<span class="code-line-helper" data-note="${escapeHtml(note)}" aria-label="${escapeHtml(note)}"></span>`
       : "";
     return `<span class="box-code-prefix">${escapeHtml(parsedLine.prefix)}</span><span class="code-line-main">${renderCodeCharacters(parsedLine.body)}</span>${helper}`;
   }
@@ -1372,9 +1502,13 @@
     const variant = getVariant(code);
     const values = {};
     (code.parameters || []).forEach((parameter) => {
-      const input = form.elements[parameter.id];
+      const input = form.elements.namedItem(parameter.id);
       if (parameter.type === "choice") {
-        values[parameter.id] = catalog.choices[parameter.source].find((choice) => choice.id === input.value) || catalog.choices[parameter.source][0];
+        const choices = catalog.choices[parameter.source];
+        const selectedIndex = Number(input.selectedIndex);
+        values[parameter.id] = choices.find((choice) => String(choice.id) === String(input.value))
+          || (selectedIndex >= 0 ? choices[selectedIndex] : undefined)
+          || choices[0];
       } else {
         const number = Math.max(parameter.min, Math.min(parameter.max, Number(input.value) || parameter.default));
         values[parameter.id] = { value: number, hex2: number.toString(16).toUpperCase().padStart(2, "0"), hex4: number.toString(16).toUpperCase().padStart(4, "0") };
@@ -1391,22 +1525,35 @@
     return String(value || "").split(/\r?\n/).map((line) => {
       const parsedLine = parseCodeLine(line);
       if (!parsedLine.isBoxLine) return parsedLine.body.replace(/[ \t]+/g, "");
-      return `${parsedLine.prefix} ${parsedLine.body.replace(/\s+/g, "")}`;
+      return `${parsedLine.prefix} ${parsedLine.body.replace(/[ \t]+/g, "")}`;
     }).join("\n");
   }
 
-  async function copyCode(event) {
+  function discordCodeClipboardText(title, output) {
+    const cleanTitle = String(title || "ACE code").replace(/\s+/g, " ").trim();
+    return `${cleanTitle}\n\`\`\`\n${output}\n\`\`\``;
+  }
+
+  async function copyCode(event, code) {
     const copyTarget = event.currentTarget.dataset.copyCode;
     const outputs = copyTarget === "all"
       ? [...elements.dialogContent.querySelectorAll("[data-generated-code]")]
       : [elements.dialogContent.querySelector(`[data-generated-code="${copyTarget}"]`)].filter(Boolean);
     const output = outputs.map((item) => compactCodeForClipboard(item.textContent)).join("\n\n");
-    await writeClipboardText(output);
+    const blockTitle = copyTarget === "all"
+      ? ""
+      : event.currentTarget.closest(".code-output-panel")?.querySelector(".output-heading h3")?.textContent?.trim();
+    const title = blockTitle && !["Generated code", "Box name code"].includes(blockTitle)
+      ? `${code.title} — ${blockTitle}`
+      : code.title;
+    await writeClipboardText(discordCodeClipboardText(title, output));
   }
 
   async function copyTroubleshootingCode(button) {
-    const output = compactCodeForClipboard(button.closest(".troubleshooting-code-panel")?.querySelector("pre")?.textContent || "");
-    if (output) await writeClipboardText(output);
+    const panel = button.closest(".troubleshooting-code-panel");
+    const output = compactCodeForClipboard(panel?.querySelector("pre")?.textContent || "");
+    const title = panel?.querySelector(".output-heading h3")?.textContent || "ACE code";
+    if (output) await writeClipboardText(discordCodeClipboardText(title, output));
   }
 
   async function writeClipboardText(output) {

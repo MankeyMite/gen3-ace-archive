@@ -62,3 +62,37 @@ Before opening a pull request, confirm that:
 Because ACE codes can modify save data and game state, unverified payloads should not
 be submitted as working codes. Clearly identify anything that still needs testing or
 review.
+
+## ROM revisions and source imports
+
+The public setup order is **Game → What are you playing on? → Language**.
+FireRed and LeafGreen on console and emulators combine language and revision in
+each choice, such as **English 1.0**, **English 1.1**, and **German 1.0**.
+All catalog languages offer both revisions; combinations without verified codes
+show no results. Emerald and Switch use language-only choices; Switch always
+resolves as ROM **1.1**. Language and revision remain separate in storage,
+filtering, and share URLs.
+
+FireRed/LeafGreen entries declare `revisions: ["1.0", "1.1"]` (only the revisions
+actually verified) and explicit variant keys such as
+`firered|en|accurate|1.0` or `leafgreen|es|switch|1.1`. A platform wildcard is allowed
+in `firered|en|*|1.1` only when the source proves shared output. A missing revision
+variant is unavailable; it never falls back to `default` or an Emerald variant.
+Existing Emerald three-part keys and fallback rules remain supported.
+
+For `old_emu` sources, `sourcePlatformValues` maps `accurate` to `0` and `inaccurate`
+to `1`; the displayed variants must also contain the corresponding exact output.
+Keep source `lang` mappings in `sourceLanguageValues`. A variant may carry its own
+`sourceCode` when a language has separately published assembler text. Raw source
+arrays retain the original text; the source viewer selects the documented settings.
+
+Entries with `verificationStatus: "needs-verification"` and a `verificationNote`
+remain in the data for review but are excluded from compatible results. Do not
+repair contradictory source transcriptions or compile missing payloads to fill a
+compatibility gap. The Developer editor supports explicit revision variants and
+preserves verification metadata.
+
+Run the dependency-free checks with `node tests/compatibility.cjs`. These check
+archive resolution and transcription, not execution on a game or emulator.
+See [the first source-import review](docs/source-import-review.md) for the code
+inventory, exact source links, compatibility limitations, and skipped material.

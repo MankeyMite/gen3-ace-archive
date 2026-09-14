@@ -28,7 +28,7 @@
       href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible+Mono:wght@400;500;700&family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=20260905-1" />
+    <link rel="stylesheet" href="styles.css?v=20260914-2" />
   </head>
   <body>
     <div class="page-noise" aria-hidden="true"></div>
@@ -251,11 +251,14 @@
             <fieldset><legend>Platforms *</legend><div id="dev-platforms" class="check-grid"></div></fieldset>
             <fieldset><legend>FireRed / LeafGreen ROM revisions</legend><div id="dev-revisions" class="check-grid"></div><small>Select only source-verified revisions. Enter each supported revision variant below; blank revision variants are unavailable.</small></fieldset>
           </div>
-          <label class="shared-platform-option"><input type="checkbox" id="same-emulator-code" /><span>Console / accurate emulator and old emulator use the same code</span></label>
+          <div class="shared-code-options">
+            <label class="shared-platform-option"><input type="checkbox" id="same-emulator-code" /><span>Console / accurate emulator and old emulator use the same code</span></label>
+            <label class="shared-platform-option" id="use-default-for-frlg-option" hidden><input type="checkbox" id="use-default-for-frlg" /><span>Use the default code for every selected FireRed / LeafGreen game, language, platform, and ROM revision</span></label>
+          </div>
           <div class="code-variation-workspace">
             <label class="base-code-field"><span id="default-code-label">Default console / accurate-emulator code * - one line per box</span><textarea name="code" rows="10" required placeholder="Save before running this first code.&#10;Box 1: ...&#10;Box 2: ...&#10;Code note: Boxes 3-14 may have any name.&#10;&#10;After it runs, do this before continuing.&#10;Box 1: next code&#10;Code note: Keep Boxes 2-14 unchanged."></textarea><small class="format-help" id="default-code-help">Write instructions normally between code groups. Add "Code note: your message" after a code to replace its small footer; use "Code note:" alone to hide it.</small></label>
             <section class="combination-editor">
-              <div class="combination-heading"><span>Game, language, platform and ROM revision variations</span><small>Blank Emerald variants use the default. Blank FireRed/LeafGreen revision variants are unavailable. Instructions and per-code notes use the same format as the default code.</small></div>
+              <div class="combination-heading"><span>Game, language, platform and ROM revision variations</span><small id="combination-help">Blank Emerald variants use the default. Blank FireRed/LeafGreen revision variants are unavailable. Instructions and per-code notes use the same format as the default code.</small></div>
               <div class="combination-tabs" id="combination-tabs"></div>
               <div id="combination-field" class="combination-field"><p>Select compatibility above to create variation tabs.</p></div>
             </section>
@@ -270,7 +273,10 @@
           </div>
           <div class="developer-submit"><button type="submit" id="save-code-button">Save code to local library</button><button type="button" id="cancel-code-edit" hidden>Cancel editing</button><button type="button" id="delete-code-edit" hidden>Delete code</button><p id="developer-status" role="status"></p></div>
         </form>
-        <section class="local-code-list"><h2>Current codes</h2><div id="local-codes"></div></section>
+        <section class="local-code-list">
+          <div class="developer-list-heading"><div><h2>Current codes</h2><small id="developer-code-count"></small></div><div class="developer-code-filters"><label><span>Game</span><select id="developer-code-game"><option value="all">All games</option></select></label><label><span>Search</span><input id="developer-code-search" type="search" placeholder="Search codes" /></label></div></div>
+          <div id="local-codes"></div>
+        </section>
         </div>
         <div class="developer-content-panel" data-dev-panel="guides">
           <form id="guide-developer-form" class="developer-form">
@@ -335,8 +341,11 @@
     <script src="developer-config.js?v=20260905-1"></script>
     <script src="data/catalog.js?v=20260905-1"></script>
     <script src="data/guides.js?v=20260905-1"></script>
-    <script src="data/custom-codes.js?v=20260905-1"></script>
+    <script src="data/custom-codes.js?v=20260914-1"></script>
     <script src="data/eshark-codes.js?v=20260912-1"></script>
-    <script src="app.js?v=20260912-1"></script>
+    <script src="data/sleipnir17-codes.js?v=20260913-1"></script>
+    <script src="data/frlg-source-codes.js?v=20260914-2"></script>
+    <script src="data/frlg-default-codes.js?v=20260914-1"></script>
+    <script src="app.js?v=20260914-2"></script>
   </body>
 </html>

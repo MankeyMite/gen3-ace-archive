@@ -213,11 +213,12 @@
 
   function isCompatible(code) {
     const platformGames = catalog.platforms.find((platform) => platform.id === state.platform)?.games;
+    const variant = resolveVariant(code);
     return code.verificationStatus !== "needs-verification" && code.games.includes(state.game) && code.languages.includes(state.language) && code.platforms.includes(state.platform)
       && (!platformGames || platformGames.includes(state.game))
-      && variantCodeBlocks(resolveVariant(code)).length > 0
+      && (code.generatorEngine === "eshark-frlg" ? Boolean(variant?.defaultBoxNames?.length) : variantCodeBlocks(variant).length > 0)
       && (!usesRomRevision() || (code.revisions?.includes(state.revision)
-        && (state.platform !== "switch" || state.revision === "1.1") && Boolean(resolveVariant(code))));
+        && (state.platform !== "switch" || state.revision === "1.1") && Boolean(variant)));
   }
 
   function visibleCodes() {
@@ -269,7 +270,8 @@
     if (usesRomRevision(setup.game)) {
       if (!code.revisions?.includes(setup.revision) || (setup.platform === "switch" && setup.revision !== "1.1")) return null;
       return variants[`${setup.game}|${setup.language}|${setup.platform}|${setup.revision}`]
-        || variants[`${setup.game}|${setup.language}|*|${setup.revision}`] || null;
+        || variants[`${setup.game}|${setup.language}|*|${setup.revision}`]
+        || (code.useDefaultForFrlg ? variants.default : null) || null;
     }
     return variants[`${setup.game}|${setup.language}|${setup.platform}`]
       || variants[`${setup.game}|${setup.language}|*`]
@@ -305,6 +307,7 @@
   }
 
   function variantCodeBlocks(variant) {
+    if (variant?.generatorSource) return [{ title: "Generated code", note: "", codeNote: null, template: variant.defaultBoxNames || [] }];
     const blocks = Array.isArray(variant?.codes)
       ? variant.codes.map((block, index) => {
         const hasCodeNote = Object.prototype.hasOwnProperty.call(block || {}, "codeNote");
@@ -422,7 +425,7 @@
   }
 
   function sourceCodeFor(code) {
-    const rawSource = getVariant(code).sourceCode || code.sourceCode;
+    const rawSource = getVariant(code).sourceCode || getVariant(code).generatorSource || code.sourceCode;
     let sourceCode = (Array.isArray(rawSource) ? rawSource : []).map(String);
     const languageValue = code.sourceLanguageValues?.[state.language];
     if (languageValue !== undefined) {
@@ -430,7 +433,7 @@
     }
     const platformValue = code.sourcePlatformValues?.[state.platform];
     if (platformValue !== undefined) {
-      sourceCode = sourceCode.map((line) => line.replace(/^(\s*(?:old_emu|inaccurate_emu|aligned_pc)\s*=\s*)\d+(\s*(?:(?:;|\/\/).*)?)$/, (_, prefix, suffix) => `${prefix}${platformValue}${suffix}`));
+      sourceCode = sourceCode.map((line) => line.replace(/^(\s*(?:old_emu|inaccurate_emu|aligned_pc)\s*=\s*)(!!)?\d+(\s*(?:(?:;|\/\/|%%).*)?)$/, (_, prefix, booleanCast = "", suffix) => `${prefix}${booleanCast}${platformValue}${suffix}`));
     }
     return sourceCode;
   }
@@ -444,7 +447,124 @@
     return lines.some((line) => !placeholder.test(line));
   }
 
+  const FRLG_ENGINE_URL = "https://e-sh4rk.github.io/CodeGenerator/ace_js.bc.js?2";
+  const FRLG_EXIT_URL = "https://e-sh4rk.github.io/EmeraldACE_web/files_frlg/exit.txt";
+  const FRLG_ENGINE_SHA256 = "1111FD19EDA81AF7742F402607334CAC657084BD27CE3090BD00DA869154C6F5";
+  const FRLG_EXIT_SHA256 = "AAD1146578486030176BBB848A70C5322698ECA206227210F51EF965EE9B24E8";
+  let frlgAssetsPromise = null;
+  let frlgGenerationToken = 0;
+
+  function frlgSourceFor(code, variant = getVariant(code)) {
+    const language = variant.generatorLanguage;
+    const game = variant.generatorGame;
+    return sourceCodeFor(code).join("\n")
+      .replace(/^(\s*species\s*=\s*)POKEMON\b/m, (_, prefix) => `${prefix}1`)
+      .replaceAll("{LANG}", language.toUpperCase()).replaceAll("{lang}", language)
+      .replaceAll("{LANGNR}", language.slice(0, 3).toUpperCase()).replaceAll("{langnr}", language.slice(0, 3))
+      .replaceAll("{GAME}", game.toUpperCase()).replaceAll("{game}", game);
+  }
+
+  async function verifiedFrlgText(url, expectedHash) {
+    const response = await fetch(url, { mode: "cors" });
+    if (!response.ok) throw new Error(`Official generator asset unavailable (${response.status}).`);
+    if (!crypto.subtle) throw new Error("A secure browser connection is required to verify the generator.");
+    const bytes = await response.arrayBuffer();
+    const digest = await crypto.subtle.digest("SHA-256", bytes);
+    const hash = [...new Uint8Array(digest)].map((byte) => byte.toString(16).padStart(2, "0")).join("").toUpperCase();
+    if (hash !== expectedHash) throw new Error("The official generator changed; generation is paused until its output is rechecked.");
+    return new TextDecoder().decode(bytes);
+  }
+
+  function loadFrlgAssets() {
+    if (!frlgAssetsPromise) {
+      frlgAssetsPromise = Promise.all([
+        verifiedFrlgText(FRLG_ENGINE_URL, FRLG_ENGINE_SHA256),
+        verifiedFrlgText(FRLG_EXIT_URL, FRLG_EXIT_SHA256),
+      ]).then(([engine, exitCodes]) => ({ engine, exitCodes })).catch((error) => {
+        frlgAssetsPromise = null;
+        throw error;
+      });
+    }
+    return frlgAssetsPromise;
+  }
+
+  function generateFrlgText(assets, variant, source) {
+    return new Promise((resolve, reject) => {
+      const workerScript = `${assets.engine}\nself.onmessage = function (event) {\n` +
+        `  try { self.postMessage({ output: aceGen.build(event.data.language, event.data.game, event.data.source, event.data.exitCodes)[1] }); }\n` +
+        `  catch (error) { self.postMessage({ error: String(error) }); }\n};`;
+      const workerUrl = URL.createObjectURL(new Blob([workerScript], { type: "text/javascript" }));
+      const worker = new Worker(workerUrl);
+      const timeout = setTimeout(() => finish(new Error("Generation timed out; try again or simplify the source.")), 60000);
+      function finish(error, output) {
+        clearTimeout(timeout);
+        worker.terminate();
+        URL.revokeObjectURL(workerUrl);
+        if (error) reject(error); else resolve(output);
+      }
+      worker.onmessage = (event) => event.data.error ? finish(new Error(event.data.error)) : finish(null, event.data.output);
+      worker.onerror = (event) => finish(new Error(event.message || "The generator worker failed."));
+      worker.postMessage({ language: variant.generatorLanguage, game: variant.generatorGame, source, exitCodes: assets.exitCodes });
+    });
+  }
+
+  function parseFrlgBoxNames(output) {
+    const lines = [...String(output || "").matchAll(/^Box\s*(\d+):[^\r\n]*?\[([^\]\r\n]*)\]/gm)]
+      .map((match) => ({ number: Number(match[1]), name: match[2] }));
+    if (!lines.length) throw new Error(String(output || "Generation returned no box names.").trim().slice(0, 240));
+    const numbers = new Set();
+    for (const [index, line] of lines.entries()) {
+      if (line.number !== index + 1 || line.number > 14 || numbers.has(line.number) || [...line.name].length > 8 || line.name.includes("✖")) {
+        throw new Error("The generator returned an invalid or unwritable box name; nothing was copied.");
+      }
+      numbers.add(line.number);
+    }
+    return lines.map((line) => `Box ${line.number}: [${line.name}]`);
+  }
+
+  function remainingBoxNameText(usedBoxCount) {
+    return usedBoxCount >= 14 ? "" : `${usedBoxCount === 13 ? "Box 14" : `Boxes ${usedBoxCount + 1}–14`} may have any name.`;
+  }
+
+  async function runFrlgGenerator(code, variant, token) {
+    const source = elements.dialogContent.querySelector("[name=frlg-source]")?.value || "";
+    const status = elements.dialogContent.querySelector("[data-frlg-status]");
+    const button = elements.dialogContent.querySelector("[data-run-frlg-generator]");
+    const copy = elements.dialogContent.querySelector("[data-copy-code]");
+    const output = elements.dialogContent.querySelector("[data-generated-code]");
+    if (!status || !button || !copy || !output) return;
+    status.textContent = "Loading the verified generator and calculating box names…";
+    status.dataset.warning = "false";
+    button.disabled = true;
+    copy.disabled = true;
+    output.textContent = "";
+    const outputWarning = elements.dialogContent.querySelector("[data-frlg-output-warning]");
+    if (outputWarning) outputWarning.hidden = true;
+    try {
+      if (/^\s*species\s*=\s*POKEMON\b/m.test(source)) {
+        throw new Error("Replace POKEMON with a numeric species value in the source before generating.");
+      }
+      const assets = await loadFrlgAssets();
+      if (token !== frlgGenerationToken) return;
+      const result = await generateFrlgText(assets, variant, source);
+      if (token !== frlgGenerationToken) return;
+      const lines = parseFrlgBoxNames(result);
+      output.innerHTML = lines.map((line) => renderCodeLine(line, state.language === "ja")).join("\n");
+      status.textContent = `Generated ${lines.length} box name${lines.length === 1 ? "" : "s"}. Review them before copying.`;
+      status.dataset.warning = "false";
+      copy.disabled = false;
+    } catch (error) {
+      if (token === frlgGenerationToken) {
+        status.textContent = `Could not generate a code: ${error.message}`;
+        status.dataset.warning = "true";
+      }
+    } finally {
+      if (token === frlgGenerationToken) button.disabled = false;
+    }
+  }
+
   function openCode(id) {
+    frlgGenerationToken++;
     const code = catalog.codes.find((entry) => entry.id === id);
     if (!code || !isCompatible(code)) return;
     const variant = getVariant(code);
@@ -468,28 +588,33 @@
     const outputPanels = codeBlocks.map((block, index) => {
       const boxNumbers = block.template.map((line) => Number(line.match(/^Box\s*(\d+)\s*:/i)?.[1])).filter(Boolean);
       const usedBoxCount = Math.max(0, ...boxNumbers);
-      const remainingBoxText = usedBoxCount < 14
-        ? `${usedBoxCount === 13 ? "Box 14" : `Boxes ${usedBoxCount + 1}–14`} may have any name.`
-        : "";
+      const remainingBoxText = remainingBoxNameText(usedBoxCount);
       const displayedCodeNote = block.codeNote === null ? remainingBoxText : block.codeNote;
-      const outputNotes = [displayedCodeNote, index === codeBlocks.length - 1 ? usefulVariantNote : ""].filter(Boolean);
+      const outputNotes = [code.generatorEngine === "eshark-frlg" ? "" : displayedCodeNote, index === codeBlocks.length - 1 ? usefulVariantNote : ""].filter(Boolean);
+      const frlgWarning = code.generatorEngine === "eshark-frlg"
+        ? `<p class="code-output-warning" data-frlg-output-warning ${variant.defaultWarning ? "" : "hidden"}>${escapeHtml(variant.defaultWarning || "")}</p>` : "";
       const heading = codeBlocks.length > 1 ? block.title : (parameters.length ? "Generated code" : "Box name code");
       const guideNote = block.note ? `<div class="code-guide-note">${renderFormattedText(block.note)}</div>` : "";
       return `${guideNote}<div class="output-panel code-output-panel"><div class="output-heading"><h3>${escapeHtml(heading)}</h3><button type="button" data-copy-code="${index}">${codeBlocks.length > 1 ? "Copy" : "Copy all"}</button></div>
-        <pre data-generated-code="${index}"></pre>${outputNotes.length ? `<div class="code-notes">${outputNotes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}</div>` : ""}</div>`;
+        ${codeColorLegend(state.language === "ja")}${frlgWarning}<pre data-generated-code="${index}"></pre>${outputNotes.length ? `<div class="code-notes">${outputNotes.map((note) => `<p>${escapeHtml(note)}</p>`).join("")}</div>` : ""}</div>`;
     }).join("");
     const afterGuide = guideAfter ? `<div class="code-guide-note code-guide-note-after">${renderFormattedText(guideAfter)}</div>` : "";
     const outputPanel = `<div class="code-output-stack">${codeBlocks.length > 1 ? `<div class="multi-code-toolbar"><span>${codeCountLabel(codeBlocks.length)}</span><button type="button" data-copy-code="all">Copy all</button></div>` : ""}${outputPanels}${afterGuide}</div>`;
-    const generatorArea = parameters.length
-      ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
-      : `<form class="fixed-code-section" id="generator-form">${outputPanel}</form>`;
-    const sourceLink = code.source?.url ? `<p class="source"><a href="${escapeHtml(code.source.url)}" target="_blank" rel="noreferrer">${escapeHtml(code.source.label)}</a></p>` : "";
+    const generatorArea = code.generatorEngine === "eshark-frlg"
+      ? `<div class="dialog-layout"><form class="generator-form frlg-generator-form" id="generator-form"><h3>Source parameters</h3><p>The standard box names are shown for this setup. Edit the source values if needed, then generate again before copying your custom result.${variant.generatorSource.some((line) => /species\s*=\s*POKEMON\b/.test(line)) ? " The standard Pokémon species is Bulbasaur (#1)." : ""}</p><textarea name="frlg-source" spellcheck="false" aria-label="Editable FRLG generator source">${escapeHtml(frlgSourceFor(code, variant))}</textarea><button type="button" data-run-frlg-generator>Generate box names</button><p data-frlg-status data-warning="${Boolean(variant.defaultWarning || !variant.defaultBoxNames?.length)}" role="status">${escapeHtml(variant.defaultWarning || (variant.defaultBoxNames?.length ? "Standard box names shown for this setup." : "No standard output is available for this source."))}</p></form>${outputPanel}</div>`
+      : parameters.length
+        ? `<div class="dialog-layout"><form class="generator-form" id="generator-form"><h3>Your choices</h3>${parameters.map(controlFor).join("")}</form>${outputPanel}</div>`
+        : `<form class="fixed-code-section" id="generator-form">${outputPanel}</form>`;
+    const upstreamSource = variant.sourcePath
+      ? { label: `Original source: ${variant.sourcePath}`, url: `https://github.com/E-Sh4rk/EmeraldACE_web/blob/main/files_frlg/${variant.sourcePath}` }
+      : code.source;
+    const sourceLink = upstreamSource?.url ? `<p class="source"><a href="${escapeHtml(upstreamSource.url)}" target="_blank" rel="noreferrer">${escapeHtml(upstreamSource.label)}</a></p>` : "";
     const sourceCodeSection = hasSourceCode(code)
       ? `<details class="source-code"><summary>Show source code</summary><pre>${escapeHtml(sourceCodeFor(code).join("\n"))}</pre></details>` : "";
     const instructionsSection = code.instructions?.length
       ? `<section class="instructions"><h3>Instructions</h3><ol>${code.instructions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol></section>` : "";
     elements.dialogContent.innerHTML = `
-      <div class="dialog-header"><div><span class="category-tag">${code.category}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${code.title}</h2>${contentMetaMarkup(code, "Code")}<div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
+      <div class="dialog-header"><div><span class="category-tag">${escapeHtml(code.category)}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${escapeHtml(code.title)}</h2>${contentMetaMarkup(code, "Code")}<div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("platforms", state.platform)}</span><span>✓ ${nameFor("languages", state.language)}</span>${usesRomRevision() ? `<span>✓ ROM ${state.revision}</span>` : ""}</div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul>${sourceLink}</section>
       ${instructionsSection}
@@ -501,8 +626,26 @@
     $(".share-code", elements.dialogContent).addEventListener("click", () => shareCode(code));
     const generatorForm = $("#generator-form");
     const updateGeneratedCode = () => renderGenerated(code);
-    generatorForm.addEventListener("input", updateGeneratedCode);
-    generatorForm.addEventListener("change", updateGeneratedCode);
+    if (code.generatorEngine === "eshark-frlg") {
+      const copy = elements.dialogContent.querySelector("[data-copy-code]");
+      copy.disabled = !variant.defaultBoxNames?.length || Boolean(variant.defaultWarning);
+      generatorForm.addEventListener("input", () => {
+        frlgGenerationToken++;
+        copy.disabled = true;
+        elements.dialogContent.querySelector("[data-generated-code]").textContent = "";
+        const outputWarning = elements.dialogContent.querySelector("[data-frlg-output-warning]");
+        if (outputWarning) outputWarning.hidden = true;
+        const status = elements.dialogContent.querySelector("[data-frlg-status]");
+        status.textContent = "Source changed. Generate again before copying.";
+        status.dataset.warning = "false";
+      });
+      elements.dialogContent.querySelector("[data-run-frlg-generator]").addEventListener("click", () => {
+        runFrlgGenerator(code, variant, ++frlgGenerationToken);
+      });
+    } else {
+      generatorForm.addEventListener("input", updateGeneratedCode);
+      generatorForm.addEventListener("change", updateGeneratedCode);
+    }
     elements.dialogContent.querySelectorAll("[data-choice-search]").forEach((input) => {
       input.addEventListener("input", () => filterChoices(input));
     });
@@ -742,7 +885,8 @@
     const title = options.title || inlineTitle || "Executor test code";
     const noteText = options.note ?? inlineNote;
     const note = noteText ? `<div class="code-notes"><p>${escapeHtml(noteText)}</p></div>` : "";
-    return `<div class="output-panel code-output-panel troubleshooting-code-panel"><div class="output-heading"><h3>${escapeHtml(title)}</h3><button type="button" data-copy-troubleshooting-code>Copy</button></div><pre>${codeLines.map(renderCodeLine).join("\n")}</pre>${note}</div>`;
+    const japaneseCode = options.language === "ja" || /[\p{Script=Hiragana}\p{Script=Katakana}]/u.test(codeLines.join(""));
+    return `<div class="output-panel code-output-panel troubleshooting-code-panel"><div class="output-heading"><h3>${escapeHtml(title)}</h3><button type="button" data-copy-troubleshooting-code>Copy</button></div>${codeColorLegend(japaneseCode)}<pre>${codeLines.map((line) => renderCodeLine(line, japaneseCode)).join("\n")}</pre>${note}</div>`;
   }
 
   function renderTroubleshootingContent(page) {
@@ -898,10 +1042,13 @@
     makeChecks("#dev-languages", catalog.languages, "languages");
     makeChecks("#dev-platforms", catalog.platforms, "platforms");
     makeChecks("#dev-revisions", catalog.revisions, "revisions");
+    $("#developer-code-game").innerHTML = `<option value="all">All games</option>${catalog.games.map((game) => `<option value="${game.id}">${game.name}</option>`).join("")}`;
     $("#developer-form").addEventListener("submit", saveDeveloperCode);
     $("#export-codes").addEventListener("click", exportLocalCodes);
     $("#import-codes").addEventListener("change", importLocalCodes);
     $("#local-codes").addEventListener("click", handleDeveloperCodeAction);
+    $("#developer-code-game").addEventListener("change", renderLocalCodes);
+    $("#developer-code-search").addEventListener("input", renderLocalCodes);
     $("#cancel-code-edit").addEventListener("click", resetDeveloperForm);
     $("#delete-code-edit").addEventListener("click", deleteEditingCode);
     $("#developer-form").querySelectorAll('input[type="checkbox"]').forEach((input) => input.addEventListener("change", renderVariationTabs));
@@ -964,16 +1111,24 @@
     const selectedPlatforms = selectedDeveloperValues("platforms");
     const baselineGame = selectedGames[0], baselineLanguage = selectedLanguages[0];
     const baselinePlatform = selectedPlatforms.includes("accurate") ? "accurate" : selectedPlatforms[0];
-    const needsDefault = selectedGames.some((game) => !usesRomRevision(game));
+    const hasFrlg = selectedGames.some(usesRomRevision);
+    const useDefaultForFrlg = hasFrlg && $("#use-default-for-frlg").checked;
+    $("#use-default-for-frlg-option").hidden = !hasFrlg;
+    const needsDefault = selectedGames.some((game) => !usesRomRevision(game)) || useDefaultForFrlg;
     $("#developer-form").elements.code.required = needsDefault;
-    $("#default-code-label").textContent = selectedGames.length && !needsDefault ? "Default code (not used for FireRed / LeafGreen)" : baselineGame && baselineLanguage && baselinePlatform
+    $("#default-code-label").textContent = useDefaultForFrlg && selectedGames.every(usesRomRevision) ? "Shared FireRed / LeafGreen code *" : selectedGames.length && !needsDefault ? "Default code (not used for FireRed / LeafGreen)" : baselineGame && baselineLanguage && baselinePlatform
       ? `Default: ${nameFor("games", baselineGame)} · ${nameFor("languages", baselineLanguage)} · ${nameFor("platforms", baselinePlatform)} *`
       : "Default console / accurate-emulator code * - one line per box";
-    $("#default-code-help").textContent = selectedGames.length && !needsDefault
+    $("#default-code-help").textContent = useDefaultForFrlg
+      ? "This code is used for every selected FireRed / LeafGreen combination unless a variation below overrides it."
+      : selectedGames.length && !needsDefault
       ? "Enter each verified ROM revision in its variation tab. Blank revision variants are unavailable; FireRed/LeafGreen never use this default."
       : baselineGame && baselineLanguage && baselinePlatform
       ? "This baseline is saved automatically. Write instructions between code groups; add 'Code note: your message' after a code to replace its small footer."
       : "Select a game and language to define the baseline. Code lines start with Box 1: through Box 14:; per-code footers start with 'Code note:'.";
+    $("#combination-help").textContent = useDefaultForFrlg
+      ? "Blank FireRed/LeafGreen variants use the shared default. Fill a variation only when that combination needs different output."
+      : "Blank Emerald variants use the default. Blank FireRed/LeafGreen revision variants are unavailable. Instructions and per-code notes use the same format as the default code.";
     const combinations = variationCombinations();
     combinations.forEach((combo) => {
       if (!variationDrafts.has(combo.key)) variationDrafts.set(combo.key, { value: "", edited: false });
@@ -981,8 +1136,9 @@
     if (!combinations.some((combo) => combo.key === activeVariation)) activeVariation = combinations[0]?.key || "";
     $("#combination-tabs").innerHTML = combinations.map((combo) => {
       const filled = Boolean(variationDrafts.get(combo.key)?.value.trim());
+      const available = filled || (Boolean(combo.revision) && useDefaultForFrlg);
       const platformName = combo.platform === "accurate+inaccurate" ? "GBA + old emulator" : catalog.platforms.find((item) => item.id === combo.platform)?.shortName;
-      return `<button type="button" class="${combo.key === activeVariation ? "active" : ""} ${filled ? "filled" : ""}" data-variation="${combo.key}"><strong>${filled ? "✓ " : ""}${nameFor("games", combo.game)}</strong><span>${nameFor("languages", combo.language)} · ${platformName}${combo.revision ? ` · ROM ${combo.revision}` : ""}</span></button>`;
+      return `<button type="button" class="${combo.key === activeVariation ? "active" : ""} ${available ? "filled" : ""}" data-variation="${combo.key}"><strong>${available ? "✓ " : ""}${nameFor("games", combo.game)}</strong><span>${nameFor("languages", combo.language)} · ${platformName}${combo.revision ? ` · ROM ${combo.revision}` : ""}</span></button>`;
     }).join("");
     renderActiveVariation();
   }
@@ -1002,18 +1158,19 @@
     }
     const [game, language, platform, revision] = activeVariation.split("|");
     const draft = variationDrafts.get(activeVariation);
+    const usesSharedDefault = Boolean(revision) && $("#use-default-for-frlg").checked;
     const platformName = platform === "accurate+inaccurate" ? "Console / accurate emulator + old emulator" : nameFor("platforms", platform);
-    field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}${revision ? ` · ROM ${revision}` : ""}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="${revision ? "Leave blank if this revision combination is unverified or unsupported." : "Leave blank to use the default code."} Write instructions between code groups and add Code note: after any code that needs a custom footer."></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : revision ? "Unavailable — no verified output" : "Uses default code"}</small>`;
+    field.innerHTML = `<label><span>${nameFor("games", game)} · ${nameFor("languages", language)} · ${platformName}${revision ? ` · ROM ${revision}` : ""}</span><textarea rows="10" aria-label="Code for selected compatibility variation" placeholder="${usesSharedDefault ? "Leave blank to use the shared default code." : revision ? "Leave blank if this revision combination is unverified or unsupported." : "Leave blank to use the default code."} Write instructions between code groups and add Code note: after any code that needs a custom footer."></textarea></label><small class="variation-state">${draft.value.trim() ? "✓ Variation filled in" : usesSharedDefault ? "Uses shared default code" : revision ? "Unavailable — no verified output" : "Uses default code"}</small>`;
     const textarea = field.querySelector("textarea");
     textarea.value = draft.value;
     textarea.addEventListener("input", () => {
       variationDrafts.set(activeVariation, { value: textarea.value, edited: true });
       const filled = Boolean(textarea.value.trim());
-      field.querySelector(".variation-state").textContent = filled ? "✓ Variation filled in" : revision ? "Unavailable — no verified output" : "Uses default code";
+      field.querySelector(".variation-state").textContent = filled ? "✓ Variation filled in" : usesSharedDefault ? "Uses shared default code" : revision ? "Unavailable — no verified output" : "Uses default code";
       const tab = $("#combination-tabs").querySelector(`[data-variation="${activeVariation}"]`);
-      tab?.classList.toggle("filled", filled);
+      tab?.classList.toggle("filled", filled || usesSharedDefault);
       const title = tab?.querySelector("strong");
-      if (title) title.textContent = `${filled ? "✓ " : ""}${nameFor("games", activeVariation.split("|")[0])}`;
+      if (title) title.textContent = `${filled || usesSharedDefault ? "✓ " : ""}${nameFor("games", activeVariation.split("|")[0])}`;
     });
   }
 
@@ -1060,8 +1217,9 @@
       status.textContent = "Select the source-verified FireRed/LeafGreen ROM revisions.";
       return;
     }
+    const useDefaultForFrlg = games.some(usesRomRevision) && $("#use-default-for-frlg").checked;
     const defaultDraft = parseCodeDraft(data.get("code"));
-    if (!defaultDraft.blocks.length && games.some((game) => !usesRomRevision(game))) {
+    if (!defaultDraft.blocks.length && (games.some((game) => !usesRomRevision(game)) || useDefaultForFrlg)) {
       status.textContent = "Add at least one box-name code.";
       return;
     }
@@ -1098,6 +1256,7 @@
       sourceLanguageValues: existingCode?.sourceLanguageValues,
       sourcePlatformValues: existingCode?.sourcePlatformValues,
       revisions: games.some(usesRomRevision) ? data.getAll("revisions") : undefined,
+      ...(useDefaultForFrlg ? { useDefaultForFrlg: true } : {}),
       verificationStatus: existingCode?.verificationStatus,
       verificationNote: existingCode?.verificationNote,
       source: { label: safeText(data.get("sourceLabel")) || "Locally added entry", url: safeText(data.get("sourceUrl")) },
@@ -1116,8 +1275,19 @@
     renderLocalCodes(); renderLibrary();
   }
 
+  function developerCodeMatches(code, game, query) {
+    if (game !== "all" && !code.games?.includes(game)) return false;
+    const normalizedQuery = String(query || "").trim().toLowerCase();
+    if (!normalizedQuery) return true;
+    return [code.title, code.author, code.category, code.summary, ...(code.tags || [])].join(" ").toLowerCase().includes(normalizedQuery);
+  }
+
   function renderLocalCodes() {
-    const codes = [...catalog.codes].sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
+    const game = $("#developer-code-game")?.value || "all";
+    const query = $("#developer-code-search")?.value || "";
+    const codes = [...catalog.codes].filter((code) => developerCodeMatches(code, game, query))
+      .sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
+    $("#developer-code-count").textContent = `${codes.length} of ${catalog.codes.length} codes`;
     $("#local-codes").innerHTML = codes.length ? codes.map((code) => {
       const count = codeBlockCount(code);
       return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.author ? ` · Code by ${escapeHtml(code.author)}` : ""}${code.addedOn ? ` · Added ${formatAddedDate(code.addedOn)}` : ""}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}${code.verificationStatus === "needs-verification" ? ` · Needs verification: ${escapeHtml(code.verificationNote || "")}` : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
@@ -1161,11 +1331,13 @@
       input.checked = (code[input.name] || []).includes(input.value);
     });
     $("#same-emulator-code").checked = false;
+    $("#use-default-for-frlg").checked = Boolean(code.useDefaultForFrlg);
     variationDrafts.clear(); activeVariation = "";
     Object.entries(code.variants || {}).forEach(([key, variant]) => {
       if ([3, 4].includes(key.split("|").length)) variationDrafts.set(key, { value: variantToEditorText(variant), edited: true });
     });
     variationCombinations().forEach((combo) => {
+      if (code.useDefaultForFrlg && usesRomRevision(combo.game)) return;
       const variant = resolveVariant(code, { ...combo, platform: combo.platformIds[0] });
       if (variant) variationDrafts.set(combo.key, { value: variantToEditorText(variant), edited: true });
     });
@@ -1449,13 +1621,34 @@
     [...select.options].forEach((option) => { option.hidden = !option.text.toLowerCase().includes(query); });
   }
 
-  function renderCodeCharacters(value) {
-    return [...String(value || "")].map((character) => {
+  function codeColorLegend(japaneseCode) {
+    const labels = japaneseCode
+      ? ["Hiragana", "Katakana", "Alphabet / numbers / symbols", "Spaces, periods (.) and commas (,) (any work)"]
+      : ["Upper case letters", "Lower case letters", "Symbols", "Spaces, periods (.) and commas (,) (any work)"];
+    return `<div class="code-color-key" role="note" aria-label="Code color key">${["Blue", "Red", "Green", "White"].map((color, index) => `<span class="code-color-key-item"><span class="code-color-swatch code-color-swatch-${color.toLowerCase()}" aria-hidden="true"></span><strong>${color}</strong><span>= ${labels[index]}</span></span>`).join("")}</div>`;
+  }
+
+  function renderCodeCharacters(value, japaneseBoxName = false, boxName = false, sourcePaddedBoxName = false) {
+    const characters = [...String(value || "")];
+    let visibleSlots = characters.length;
+    // Sleipnir17's bracketed source names are padded to eight slots. Those
+    // trailing blanks are layout, not spaces the player should enter.
+    if (boxName && sourcePaddedBoxName) {
+      while (visibleSlots > 0 && /[ \t]/.test(characters[visibleSlots - 1])) visibleSlots--;
+    }
+    return characters.map((character, index) => {
+      if (index >= visibleSlots) return `<span class="code-char-padding" aria-hidden="true"></span>`;
       const escapedCharacter = escapeHtml(character);
-      if (character === "　") return `<span class="code-char-underscore" title="Japanese space">${escapedCharacter}</span>`;
+      if (character === "　" || (boxName && /[ \t]/.test(character))) return `<span class="code-char-underscore code-char-space" title="Underscore (space)">_</span>`;
       if (/\s/u.test(character)) return escapedCharacter;
       if (character === "." || character === ",") {
         return `<span class="code-char-flexible" title="Available on multiple keyboards">${escapedCharacter}</span>`;
+      }
+      if (japaneseBoxName && character !== "_") {
+        const colorClass = /\p{Script=Hiragana}/u.test(character) ? "code-char-hiragana"
+          : /\p{Script=Katakana}/u.test(character) ? "code-char-katakana"
+          : "code-char-japanese-other";
+        return `<span class="${colorClass}${character === "q" ? " code-char-q" : ""}">${escapedCharacter}</span>`;
       }
       if (character === "_") return `<span class="code-char-underscore" title="Underscore (space)">${escapedCharacter}</span>`;
       if (character === "[" || character === "]") return `<span class="code-char-bracket">${escapedCharacter}</span>`;
@@ -1466,10 +1659,10 @@
       if (/\p{Ll}/u.test(character)) return `<span class="code-char-lower">${escapedCharacter}</span>`;
       if (/[0-9]/.test(character)) return `<span class="code-char-number">${escapedCharacter}</span>`;
       return escapedCharacter;
-    }).join("");
+    }).map((character) => boxName ? `<span class="code-char-slot">${character}</span>` : character).join("");
   }
 
-  function parseCodeLine(line) {
+  function parseCodeLine(line, preserveBoxSpaces = false) {
     const value = String(line || "");
     const match = value.match(/^(Box\s*(?:1[0-4]|[1-9])\s*:)(.*)$/i);
     if (!match) return { isBoxLine: false, prefix: "", body: value };
@@ -1478,13 +1671,14 @@
       isBoxLine: true,
       prefix: match[1],
       annotation: annotationMatch ? annotationMatch[2].slice(annotationMatch[2].indexOf("]") + 1).trim() : "",
-      body: annotationMatch && /[\u3000-\u9fff\uff00-\uffef]/u.test(annotationMatch[2])
+      displayBody: annotationMatch ? annotationMatch[2].slice(1, annotationMatch[2].indexOf("]")) : match[2].replace(/^[ \t]/, ""),
+      body: annotationMatch && (!annotationMatch[1] || /[\u3000-\u9fff\uff00-\uffef]/u.test(annotationMatch[2]))
         ? annotationMatch[2].slice(1, annotationMatch[2].indexOf("]"))
-        : annotationMatch ? annotationMatch[1] : match[2].replace(/^[ \t]+|[ \t]+$/g, ""),
+        : annotationMatch ? annotationMatch[1] : preserveBoxSpaces ? match[2] : match[2].replace(/^[ \t]+|[ \t]+$/g, ""),
     };
   }
 
-  function renderCodeLine(line) {
+  function renderCodeLine(line, japaneseBoxNameOverride = null, sourcePaddedBoxName = false) {
     const parsedLine = parseCodeLine(line);
     if (!parsedLine.isBoxLine) return renderCodeCharacters(parsedLine.body);
     // Each device resolves to its own variant, so replacement instructions for
@@ -1494,10 +1688,20 @@
     const helper = note
       ? `<span class="code-line-helper" data-note="${escapeHtml(note)}" aria-label="${escapeHtml(note)}"></span>`
       : "";
-    return `<span class="box-code-prefix">${escapeHtml(parsedLine.prefix)}</span><span class="code-line-main">${renderCodeCharacters(parsedLine.body)}</span>${helper}`;
+    const displayBody = parsedLine.displayBody;
+    const japaneseBoxName = typeof japaneseBoxNameOverride === "boolean"
+      ? japaneseBoxNameOverride
+      : state.language === "ja" || /[\u3000-\u9fff\uff00-\uffef]/u.test(displayBody);
+    return `<span class="box-code-prefix">${escapeHtml(parsedLine.prefix)}</span><span class="code-line-main${japaneseBoxName ? "" : " code-line-main-western"}">${renderCodeCharacters(displayBody, japaneseBoxName, true, sourcePaddedBoxName)}</span>${helper}`;
   }
 
   function renderGenerated(code) {
+    if (code.generatorEngine === "eshark-frlg") {
+      const variant = getVariant(code);
+      const target = elements.dialogContent.querySelector('[data-generated-code="0"]');
+      if (target) target.innerHTML = (variant.defaultBoxNames || []).map((line) => renderCodeLine(line, state.language === "ja")).join("\n");
+      return;
+    }
     const form = $("#generator-form");
     const variant = getVariant(code);
     const values = {};
@@ -1517,15 +1721,18 @@
     variantCodeBlocks(variant).forEach((block, index) => {
       const output = block.template.map((line) => line.replace(/\{(\w+)\.(\w+)\}/g, (_, key, property) => values[key]?.[property] ?? "????"));
       const target = elements.dialogContent.querySelector(`[data-generated-code="${index}"]`);
-      if (target) target.innerHTML = output.map(renderCodeLine).join("\n");
+      if (target) target.innerHTML = output.map((line) => renderCodeLine(line, null, code.sourcePaddedBoxNames === true)).join("\n");
     });
   }
 
-  function compactCodeForClipboard(value) {
+  function compactCodeForClipboard(value, preserveBoxSpaces = false, japaneseBoxNames = false) {
     return String(value || "").split(/\r?\n/).map((line) => {
-      const parsedLine = parseCodeLine(line);
-      if (!parsedLine.isBoxLine) return parsedLine.body.replace(/[ \t]+/g, "");
-      return `${parsedLine.prefix} ${parsedLine.body.replace(/[ \t]+/g, "")}`;
+      const parsedLine = parseCodeLine(line, preserveBoxSpaces);
+      const japaneseBoxName = parsedLine.isBoxLine && (japaneseBoxNames || /[\u3000-\u9fff\uff00-\uffef]/u.test(parsedLine.body));
+      const body = japaneseBoxName ? parsedLine.body.replace(/[ \t　]/g, "_") : parsedLine.body.replace(/　/g, "_");
+      if (!parsedLine.isBoxLine) return body.replace(/[ \t]+/g, "");
+      if (preserveBoxSpaces) return `${parsedLine.prefix} ${body}`;
+      return `${parsedLine.prefix} ${body.replace(/[ \t]+/g, "")}`;
     }).join("\n");
   }
 
@@ -1539,7 +1746,7 @@
     const outputs = copyTarget === "all"
       ? [...elements.dialogContent.querySelectorAll("[data-generated-code]")]
       : [elements.dialogContent.querySelector(`[data-generated-code="${copyTarget}"]`)].filter(Boolean);
-    const output = outputs.map((item) => compactCodeForClipboard(item.textContent)).join("\n\n");
+    const output = outputs.map((item) => compactCodeForClipboard(item.textContent, code.rawBoxNames === true, state.language === "ja")).join("\n\n");
     const blockTitle = copyTarget === "all"
       ? ""
       : event.currentTarget.closest(".code-output-panel")?.querySelector(".output-heading h3")?.textContent?.trim();

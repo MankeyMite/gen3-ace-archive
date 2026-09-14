@@ -1824,6 +1824,7 @@ window.ACE_CUSTOM_CONTENT = {
       "id": "get-any-item-emerald",
       "title": "Get any item",
       "author": "Mettrich",
+      "rawBoxNames": true,
       "addedOn": "2026-09-04",
       "summary": "Choose an item and generate the matching Emerald box names. After executing the code, collect the selected item from the lottery lady on the first floor of Lilycove Department Store.",
       "category": "Items",
@@ -1851,7 +1852,7 @@ window.ACE_CUSTOM_CONTENT = {
       "parameters": [
         {
           "id": "item",
-          "label": "Item to receive",
+          "label": "Item to receive (all Generation III items)",
           "type": "choice",
           "source": "items",
           "presentation": "select",
@@ -1861,27 +1862,27 @@ window.ACE_CUSTOM_CONTENT = {
       "variants": {
         "default": {
           "template": [
-            "Box  1: – B U n L … ! n\t[–BUnL…!n]",
-            "Box  2: A A {item.lowChar} F F . o\t[AA{item.lowChar}FF.o]",
-            "Box  3: A A {item.secondLowChar} T B n\t[AA{item.secondLowChar}TBn]",
-            "Box  4: A {item.secondHighChar} R B n\t[A{item.secondHighChar}RBn]",
-            "Box  5: {item.highChar} P B n A F Q m\t[{item.highChar}PBnAFQm]",
-            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
-            "Box  7: B n\t[Bn]"
+            "Box  1: [–BUnL…!n]",
+            "Box  2: [AAA{item.lowChar}F.o]",
+            "Box  3: [AA{item.secondLowChar}TBn]",
+            "Box  4: [A{item.secondHighChar}RBn]",
+            "Box  5: [{item.highChar}PBnAFQm]",
+            "Box  6: [RToDYJm?]",
+            "Box  7: [Bn]"
           ],
-          "notes": "Console and accurate-emulator version. The item ID is encoded automatically from the selected Generation III index number."
+          "notes": "Console and accurate-emulator version. Choose an item above; its four-digit ID changes Boxes 2–5 automatically."
         },
         "*|inaccurate": {
           "template": [
-            "Box  1: – B U n N … ! n\t[–BUnN…!n]",
-            "Box  2: A A {item.lowChar} F F . o\t[AA{item.lowChar}FF.o]",
-            "Box  3: A A {item.secondLowChar} T B n\t[AA{item.secondLowChar}TBn]",
-            "Box  4: A {item.secondHighChar} R B n\t[A{item.secondHighChar}RBn]",
-            "Box  5: {item.highChar} P B n A F Q m\t[{item.highChar}PBnAFQm]",
-            "Box  6: R T o D Y J m ?\t[RToDYJm?]",
-            "Box  7: B n\t[Bn]"
+            "Box  1: [–BUnN…!n]",
+            "Box  2: [AAA{item.lowChar}F.o]",
+            "Box  3: [AA{item.secondLowChar}TBn]",
+            "Box  4: [A{item.secondHighChar}RBn]",
+            "Box  5: [{item.highChar}PBnAFQm]",
+            "Box  6: [RToDYJm?]",
+            "Box  7: [Bn]"
           ],
-          "notes": "Older/inaccurate-emulator version. The item ID is encoded automatically from the selected Generation III index number."
+          "notes": "Older/inaccurate-emulator version. Choose an item above; its four-digit ID changes Boxes 2–5 automatically."
         }
       },
       "sourcePlatformValues": {
@@ -1895,7 +1896,7 @@ window.ACE_CUSTOM_CONTENT = {
       ],
       "sourceCode": [
         "@@ title = \"Title\"",
-        "@@ author = \"Author\"",
+        "@@ author = \"Mettrich\"",
         "@@ exit = null",
         "@@ filler1 = 0xbbbbbbff",
         "@@ filler2 = 0xbbbbffff",
@@ -1928,11 +1929,9 @@ window.ACE_CUSTOM_CONTENT = {
         "Go to the first floor of Lilycove Department Store and talk to the lottery lady to receive the item."
       ],
       "source": {
-        "label": "Original source — Mettrich (GitHub Gist)",
-        "url": "https://gist.github.com/claydolwithexplosion/017f1784deebcd118b61d3ad917edb3c/92643ca3371d7ade44b71eab628eff00b60a8100#get-any-item"
-      },
-      "verificationStatus": "needs-verification",
-      "verificationNote": "The source disagrees with itself in Box 2: spaced \"A A A $ F . o\" versus compact \"AA$FF.o\". Existing archive output is retained for review, but hidden from compatible results until an authoritative correction is available. No ACE text was repaired or compiled."
+        "label": "Item-to-box-names generator — MankeyMite (code by Mettrich)",
+        "url": "https://github.com/MankeyMite/Gen3ItemToBoxNames/blob/main/index.html"
+      }
     },
     {
       "id": "local-test-code-for-0x0611-dots-egg-1788560773245",

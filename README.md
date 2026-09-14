@@ -77,8 +77,28 @@ FireRed/LeafGreen entries declare `revisions: ["1.0", "1.1"]` (only the revision
 actually verified) and explicit variant keys such as
 `firered|en|accurate|1.0` or `leafgreen|es|switch|1.1`. A platform wildcard is allowed
 in `firered|en|*|1.1` only when the source proves shared output. A missing revision
-variant is unavailable; it never falls back to `default` or an Emerald variant.
+variant is unavailable; it never falls back to `default` or an Emerald variant unless
+the entry explicitly sets `useDefaultForFrlg: true`. Use that flag only when the same
+output is verified for every selected FireRed/LeafGreen game, language, platform,
+and revision; an explicit variant still overrides the shared default.
 Existing Emerald three-part keys and fallback rules remain supported.
+
+The supplied FRLG CodeGenerator collection adds 77 source-backed entries in
+`data/frlg-source-codes.js`. Each entry keeps its documented game/language/revision
+source selection. `data/frlg-default-codes.js` contains standard box names for
+every usable FRLG setup, so those codes appear and can be copied immediately
+without network access. The visitor can edit source parameters and regenerate a custom
+result with the official E-Sh4rk engine and exit definitions. Those assets
+require internet access and are SHA-256 pinned; a changed upstream asset pauses
+custom generation until it is reviewed. The two Pokémon-parameter sources use
+Bulbasaur (species #1) for their standard output. The Japanese roamer-IV source
+produces an unwritable glyph, so it is shown with Copy disabled. The supplied
+source cannot produce box names for Complete the full Pokédex on old emulators
+or Get All Poké Balls, TMs and Berries in German; those combinations are hidden.
+Compilation and display checks do not constitute
+in-game verification; follow the original source's setup and warnings. Rebuild
+the defaults with `node scripts/build-frlg-defaults-parallel.cjs path/to/ace_js.bc.js
+path/to/exit.txt` and the pinned official assets after source changes.
 
 For `old_emu` sources, `sourcePlatformValues` maps `accurate` to `0` and `inaccurate`
 to `1`; the displayed variants must also contain the corresponding exact output.

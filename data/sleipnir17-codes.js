@@ -243,9 +243,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -496,9 +496,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -730,9 +730,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -964,9 +964,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -1198,9 +1198,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -1432,9 +1432,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -1685,9 +1685,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -1938,9 +1938,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -2206,9 +2206,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 1",
@@ -2440,9 +2440,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 2",
@@ -2692,9 +2692,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x085F execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 2",
@@ -2926,9 +2926,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 2",
@@ -3160,9 +3160,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -3413,9 +3413,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -3647,9 +3647,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -3915,9 +3915,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -4183,9 +4183,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -4451,9 +4451,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -4719,9 +4719,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -4987,9 +4987,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -5255,9 +5255,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Japanese box names use the source's 0x0615 execution route."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -5489,9 +5489,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -5744,9 +5744,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -5978,9 +5978,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -6212,9 +6212,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -6446,9 +6446,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -6701,9 +6701,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -6956,9 +6956,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -7211,9 +7211,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 3",
@@ -7466,9 +7466,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -7721,9 +7721,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -7976,9 +7976,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -8231,9 +8231,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -8486,9 +8486,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -8720,9 +8720,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -8954,9 +8954,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -9188,9 +9188,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -9439,9 +9439,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",
@@ -9694,9 +9694,9 @@ window.ACE_CUSTOM_CONTENT.codes.push(...[
       "Back up the save before using event or save-state edits."
     ],
     "instructions": [
-      "Read the source note and requirements carefully.",
+      "Review the requirements and original reference before use.",
       "Select your game language and device, then enter every box name exactly, including spaces and directional punctuation.",
-      "Execute using the ACE setup described in the source."
+      "Use the ACE setup required by this entry."
     ],
     "source": {
       "label": "Sleipnir17 original code list 4",

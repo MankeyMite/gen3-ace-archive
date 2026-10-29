@@ -7,11 +7,12 @@ const root = path.resolve(__dirname, '..');
 const read = file => fs.readFileSync(path.join(root, file), 'utf8');
 const storage = new Map();
 const context = {
-  window: { location: { href: 'http://localhost/?game=emerald' } }, URL,
+  window: { location: { href: 'http://localhost/?game=emerald' }, ACE_DEVELOPER_CONFIG: {showDeveloperMode:1} }, URL,
   localStorage: { getItem: key => storage.get(key) || null, setItem: (key, value) => storage.set(key, value) },
   document: { querySelector: () => ({ querySelector: () => ({}) }) },
 };
 vm.createContext(context);
+vm.runInContext(read('data/code-publication.js'), context);
 vm.runInContext(read('data/catalog.js'), context);
 vm.runInContext(read('data/custom-codes.js'), context);
 vm.runInContext(read('data/eshark-codes.js'), context);
@@ -20,14 +21,99 @@ vm.runInContext(read('data/frlg-source-codes.js'), context);
 vm.runInContext(read('data/frlg-default-codes.js'), context);
 // Load the actual application functions, stopping before DOM event wiring.
 const app = read('app.js');
-const end = app.indexOf('  elements.categories.addEventListener');
+const end = app.indexOf('  elements.search.addEventListener');
 assert.ok(end > 0);
-vm.runInContext(app.slice(0, end) + '\nwindow.testAPI = {state, catalog, elements, updateThirdSelector, updateLanguageSelection, getVariant, resolveVariant, isCompatible, sourceCodeFor, frlgSourceFor, parseFrlgBoxNames, codeShareUrl, tabShareUrl, guideShareUrl, parseCodeLine, renderCodeLine, renderGenerated, compactCodeForClipboard, codeColorLegend, troubleshootingCodeMarkup, variantCodeBlocks, developerCodeMatches, controlFor};\n})();', context);
+const testApiSource = app.slice(0, end) + '\nwindow.testAPI = {state, catalog, elements, updateThirdSelector, updateLanguageSelection, getVariant, resolveVariant, isCompatible, sourceCodeFor, hasSourceCode, frlgSourceFor, parseFrlgBoxNames, codeShareUrl, tabShareUrl, guideShareUrl, parseCodeLine, renderCodeLine, renderGenerated, compactCodeForClipboard, codeColorLegend, troubleshootingCodeMarkup, variantCodeBlocks, developerCodeMatches, controlFor, codePublicationStatus, codeIsVisible, gameHasPublishedCodes, visibleCodes, openCode, toggleCodePublication, exportLocalCodes};\n})();';
+vm.runInContext(testApiSource, context);
 const api = context.window.testAPI;
 const codes = api.catalog.codes;
 assert.equal(new Set(codes.map(c => c.id)).size, codes.length, 'Unique merged code IDs');
 const rawCodes = context.window.ACE_CUSTOM_CONTENT.codes;
 assert.equal(new Set(rawCodes.map(c => c.id)).size, rawCodes.length, 'Unique custom IDs including tombstones');
+// Exercise the public gate and publication export in a separate browser session.
+let publicationDownload = '';
+const publicationStorage = new Map();
+function publicationSession(exportedContent) {
+  class DownloadURL extends URL {
+    static createObjectURL(blob) { publicationDownload = blob.parts.join(''); return 'blob:test'; }
+    static revokeObjectURL() {}
+  }
+  const session = {
+    window: {location:{href:'http://localhost/?game=emerald'}}, URL:DownloadURL,
+    Blob: class { constructor(parts) { this.parts = parts; } },
+    localStorage: {getItem:key => publicationStorage.get(key) || null, setItem:(key, value) => publicationStorage.set(key, value)},
+    document: {querySelector:() => ({}), createElement:() => ({click(){}})},
+  };
+  vm.createContext(session);
+  for (const file of ['developer-config.js', 'data/code-publication.js', 'data/catalog.js', 'data/custom-codes.js', 'data/eshark-codes.js', 'data/sleipnir17-codes.js', 'data/frlg-source-codes.js', 'data/frlg-default-codes.js']) {
+    vm.runInContext(file === 'data/custom-codes.js' && exportedContent ? exportedContent : read(file), session);
+  }
+  vm.runInContext(testApiSource, session);
+  return session;
+}
+const publicationContext = publicationSession();
+const publicationApi = publicationContext.window.testAPI;
+assert.equal(publicationContext.window.ACE_DEVELOPER_CONFIG.showDeveloperMode, 0, 'Project defaults to public mode');
+assert.equal(publicationApi.catalog.codes.filter(publicationApi.codeIsVisible).length, 11, 'Only the previously published codes are public');
+assert.equal(publicationApi.catalog.codes.filter(code => publicationApi.codePublicationStatus(code) === 'draft').length, 207, 'All additions since the last push are drafts');
+const draftCode = publicationApi.catalog.codes.find(code => code.id === 'eshark-change-prng-seed-emerald');
+const farawayId = 'local-unlock-faraway-island-via-mystery-gift-1783987523627';
+assert.ok(publicationApi.visibleCodes().some(code => code.id === farawayId), 'Faraway Island stays public');
+assert.ok(!publicationApi.visibleCodes().some(code => code.id === draftCode.id), 'Drafts are absent from public results');
+publicationApi.state.search = 'PRNG';
+assert.equal(publicationApi.visibleCodes().length, 0, 'Search does not reveal draft codes');
+publicationApi.state.search = '';
+publicationApi.elements.dialogContent.innerHTML = 'closed';
+publicationApi.openCode(draftCode.id);
+assert.equal(publicationApi.elements.dialogContent.innerHTML, 'closed', 'Direct code links cannot open a draft in public mode');
+publicationApi.toggleCodePublication(draftCode.id);
+assert.equal(publicationApi.codePublicationStatus(draftCode), 'draft', 'Public mode cannot mark codes published');
+const futureCode = {id:'future-unreviewed-code', games:['draft-only-game']};
+publicationApi.catalog.codes.push(futureCode);
+assert.equal(publicationApi.codeIsVisible(futureCode), false, 'Future additions default to draft');
+assert.equal(publicationApi.gameHasPublishedCodes('draft-only-game'), false, 'Drafts do not enable public game choices');
+publicationContext.window.ACE_DEVELOPER_CONFIG.showDeveloperMode = 1;
+assert.equal(publicationApi.codeIsVisible(futureCode), true, 'Developer mode includes future drafts');
+assert.equal(publicationApi.gameHasPublishedCodes('draft-only-game'), true, 'Developer mode enables games with drafts');
+publicationApi.catalog.codes.pop();
+assert.ok(publicationApi.isCompatible(draftCode), 'Developer mode can preview a compatible draft');
+const draftBeforePublication = JSON.stringify(draftCode);
+publicationApi.toggleCodePublication(draftCode.id);
+assert.equal(publicationApi.codePublicationStatus(draftCode), 'published');
+assert.equal(JSON.stringify(draftCode), draftBeforePublication, 'Publication preserves all source and variant data');
+const reloadedPublication = publicationSession();
+assert.equal(reloadedPublication.window.testAPI.codePublicationStatus(draftCode), 'published', 'Publication decision survives a browser reload');
+publicationApi.exportLocalCodes();
+publicationStorage.clear();
+const exportedPublication = publicationSession(publicationDownload);
+assert.ok(exportedPublication.window.testAPI.visibleCodes().some(code => code.id === draftCode.id), 'Publication decision survives export without local storage');
+assert.equal(exportedPublication.window.testAPI.catalog.codes.filter(exportedPublication.window.testAPI.codeIsVisible).length, 12, 'Publishing one reviewed code reveals only that code');
+publicationContext.window.ACE_DEVELOPER_CONFIG.showDeveloperMode = 0;
+assert.ok(publicationApi.isCompatible(draftCode), 'Reviewed code is available in public mode');
+publicationContext.window.ACE_DEVELOPER_CONFIG.showDeveloperMode = 1;
+publicationApi.toggleCodePublication(draftCode.id);
+publicationContext.window.ACE_DEVELOPER_CONFIG.showDeveloperMode = 0;
+assert.equal(publicationApi.isCompatible(draftCode), false, 'Make draft hides a reviewed code again');
+const ARCHIVE_SOURCE_NOTE = "; Archive note: Follow this entry's setup and safety guidance before execution.";
+const sourceBlocksFor = (value, blocks = []) => {
+  if (!value || typeof value !== 'object') return blocks;
+  if (Array.isArray(value)) { for (const item of value) sourceBlocksFor(item, blocks); return blocks; }
+  for (const [key, item] of Object.entries(value)) {
+    if (key === 'sourceCode' && Array.isArray(item) && item.length) blocks.push(item);
+    else sourceBlocksFor(item, blocks);
+  }
+  return blocks;
+};
+let rewrittenEmeraldSourceBlocks = 0;
+for (const code of rawCodes.filter(code => code.games?.includes('emerald'))) for (const block of sourceBlocksFor(code)) {
+  const hasArchiveNote = block[0] === ARCHIVE_SOURCE_NOTE;
+  if (hasArchiveNote) rewrittenEmeraldSourceBlocks++;
+  assert.ok(block.slice(hasArchiveNote ? 1 : 0).every(line => {
+    const text = String(line).trim();
+    return !/^;|^\/\//.test(text) && !/\s(?:;|\/\/)/.test(text);
+  }), `${code.id}: inherited source comments were removed`);
+}
+assert.equal(rewrittenEmeraldSourceBlocks, 106, 'Every Emerald source block has one short archive-authored note');
 const esharkCodes = rawCodes.filter(code => code.id.startsWith('eshark-'));
 assert.equal(esharkCodes.length, 64, 'All 64 document codes are imported');
 for (const code of esharkCodes) {
@@ -41,6 +127,8 @@ for (const code of sleipnirCodes) {
   assert.equal(code.rawBoxNames, true, code.id);
   assert.equal(code.sourcePaddedBoxNames, true, `${code.id}: source padding is not input`);
   assert.ok(code.source.url.includes('pastebin.com'), code.id);
+  assert.ok(!code.instructions.some(item => /source note|setup described in the source/i.test(item)), `${code.id}: does not imply unpublished source code is shown`);
+  assert.ok(code.instructions.includes('Review the requirements and original reference before use.'), `${code.id}: points to its original reference`);
   for (const [key, variant] of Object.entries(code.variants)) {
     assert.ok(/^emerald\|(en|fr|it|de|es|ja)\|(accurate|inaccurate)$/.test(key), key);
     assert.ok(variant.template.length >= 3, key);
@@ -171,6 +259,46 @@ for (const code of codes) {
   }
 }
 const byId = id => codes.find(c => c.id === id);
+const faraway = byId('local-unlock-faraway-island-via-mystery-gift-1783987523627');
+const farawayFirstBoxes = {
+  en: ['LL.I…HRH', '9SIwQBH', 'KJwABHVG'],
+  it: ['IL.IJGBH', '9SIeOBH', 'KJjBBHVG'],
+  de: ['LL.InTRH', '9SITQRH', 'KJA/BHVG'],
+  es: ['IL.I9FBH', '9SImOBH', 'KJIBRHVG'],
+  fr: ['LL.IKFRH', '9SI5QRH', 'KJ2/BHVG'],
+};
+const farawaySource = `@@ title = "Execute script"
+@@ author = "Mettrich"
+@@ filler1 = 0xc3cdaaff
+@@ filler2 = 0xc4c5ffff
+@@ filler4 = 0xffffffff
+@@ fill = false
+
+@@
+
+movgt r12, #0x0c600000
+sbcgt r12, r12, #0x0000000b
+adcgts r12, r12, #0x0003ac00
+adcgts r11, r12, #0x0003ac00
+
+0xc3ffc1d0
+0xe2ecc0cc
+strh r12, [r10, #0x35]!
+strh r12, [r10, #8]
+
+bics r12, r14, #0xff00
+strge r11, [r10, r14, asr #23]!
+adcgts r15, r12, #0x2b0`;
+for (const [language, firstBoxes] of Object.entries(farawayFirstBoxes)) for (const platform of ['accurate', 'inaccurate']) {
+  Object.assign(api.state, {game:'emerald', language, platform, revision:'1.1'});
+  assert.ok(api.isCompatible(faraway));
+  const lines = api.getVariant(faraway).template;
+  const expectedNames = [...firstBoxes, 'IRFxn', '♂Ivm,FPm', 'RjoTA96?', 'BH'];
+  assert.deepEqual(Array.from(lines, line => line.match(/\[([^\]]*)\]$/)[1]), expectedNames, `Faraway Island ${language} ${platform}: supplied box names`);
+  assert.equal(api.compactCodeForClipboard(lines.join('\n')), expectedNames.map((name, index) => `Box  ${index + 1}: ${name}`).join('\n'), 'Copied Faraway Island names match the supplied transcription');
+  assert.equal(api.hasSourceCode(faraway), language === 'en', 'Only English shows the source viewer');
+  assert.equal(api.sourceCodeFor(faraway).slice(2).join('\n'), language === 'en' ? farawaySource : '', 'Only English resolves the supplied script');
+}
 const itemCode = byId('get-any-item-emerald');
 assert.ok(itemCode && itemCode.verificationStatus !== 'needs-verification', 'Verified Emerald item picker is published');
 assert.equal(itemCode.rawBoxNames, true, 'Item generator uses exact box names');
@@ -245,7 +373,7 @@ const pidTid = byId('eshark-change-pokemon-pid-or-tid-emerald');
 assert.equal(compactBox(pidTid, enAcc, 1), 'C.Un6 9n');
 assert.equal(compactBox(pidTid, enOld, 1), 'C.Un8 9n');
 Object.assign(api.state, enOld);
-assert.match(api.sourceCodeFor(pidTid).join('\n'), /^aligned_pc\s*=\s*1\s*\/\//m);
+assert.match(api.sourceCodeFor(pidTid).join('\n'), /^aligned_pc\s*=\s*1\s*$/m);
 const certificateBootstrap = byId('eshark-certificate-exit-code-bootstrap-emerald');
 assert.deepEqual([...certificateBootstrap.platforms], ['accurate']);
 const dex = byId('mettrich-dexreg-base64-payload');

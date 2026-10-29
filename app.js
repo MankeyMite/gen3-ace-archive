@@ -2,11 +2,15 @@
   "use strict";
 
   const catalog = window.ACE_CATALOG;
+  const publishedCodeIds = new Set(window.ACE_CODE_PUBLICATION?.publishedCodeIds || []);
   const LOCAL_CODES_KEY = "ace-developer-codes";
+  const LOCAL_PUBLICATION_KEY = "ace-developer-code-publication";
   const LOCAL_GUIDES_KEY = "ace-developer-guides";
   const LOCAL_PAGES_KEY = "ace-developer-pages";
   const LOCAL_CODE_PROJECT_SIGNATURE = "_baseProjectSignature";
   const customContent = window.ACE_CUSTOM_CONTENT || {};
+  const projectPublication = customContent.codePublication || {};
+  let localPublication = loadLocalCollection(LOCAL_PUBLICATION_KEY, {});
   const projectCodes = Array.isArray(customContent.codes) ? customContent.codes : (Array.isArray(window.ACE_CUSTOM_CODES) ? window.ACE_CUSTOM_CODES : []);
   const projectGuides = Array.isArray(customContent.guides) ? customContent.guides : [];
   const builtInGuides = Array.isArray(window.ACE_BUILTIN_GUIDES) ? window.ACE_BUILTIN_GUIDES : [];
@@ -85,7 +89,6 @@
     language: localStorage.getItem("ace-language") || "en",
     platform: localStorage.getItem("ace-platform") || "accurate",
     revision: localStorage.getItem("ace-revision") || "1.1",
-    category: "All",
     search: "",
   };
   const FAQ_GAME_FILTERS = [
@@ -114,7 +117,7 @@
   const elements = {
     game: $("#game-select"), language: $("#language-select"), platform: $("#platform-select"),
     languageLabel: $("#setup-language-label"),
-    grid: $("#code-grid"), count: $("#result-count"), categories: $("#category-filters"),
+    grid: $("#code-grid"), count: $("#result-count"),
     search: $("#code-search"), status: $("#setup-status"), dialog: $("#code-dialog"),
     dialogContent: $("#dialog-content"), empty: $("#empty-state"), toast: $("#toast"),
     guideDialog: $("#guide-dialog"), guideDialogContent: $("#guide-dialog-content"),
@@ -126,7 +129,22 @@
   }
 
   function gameHasPublishedCodes(gameId) {
-    return catalog.codes.some((code) => !code.deleted && code.verificationStatus !== "needs-verification" && code.games?.includes(gameId));
+    return catalog.codes.some((code) => !code.deleted && codeIsVisible(code) && code.verificationStatus !== "needs-verification" && code.games?.includes(gameId));
+  }
+
+  function isDeveloperMode() {
+    return window.ACE_DEVELOPER_CONFIG?.showDeveloperMode === 1;
+  }
+
+  function codePublicationStatus(code) {
+    const override = localPublication[code.id] ?? projectPublication[code.id];
+    if (override !== undefined) return override === "published" ? "published" : "draft";
+    if (code.publicationStatus !== undefined) return code.publicationStatus === "published" ? "published" : "draft";
+    return publishedCodeIds.has(code.id) ? "published" : "draft";
+  }
+
+  function codeIsVisible(code) {
+    return isDeveloperMode() || codePublicationStatus(code) === "published";
   }
 
   function codeCountLabel(count) {
@@ -214,7 +232,7 @@
   function isCompatible(code) {
     const platformGames = catalog.platforms.find((platform) => platform.id === state.platform)?.games;
     const variant = resolveVariant(code);
-    return code.verificationStatus !== "needs-verification" && code.games.includes(state.game) && code.languages.includes(state.language) && code.platforms.includes(state.platform)
+    return codeIsVisible(code) && code.verificationStatus !== "needs-verification" && code.games.includes(state.game) && code.languages.includes(state.language) && code.platforms.includes(state.platform)
       && (!platformGames || platformGames.includes(state.game))
       && (code.generatorEngine === "eshark-frlg" ? Boolean(variant?.defaultBoxNames?.length) : variantCodeBlocks(variant).length > 0)
       && (!usesRomRevision() || (code.revisions?.includes(state.revision)
@@ -225,7 +243,7 @@
     const query = state.search.trim().toLowerCase();
     return catalog.codes.filter((code) => {
       const text = [code.title, code.author, code.summary, code.category, ...(code.tags || [])].join(" ").toLowerCase();
-      return isCompatible(code) && (state.category === "All" || code.category === state.category) && (!query || text.includes(query));
+      return isCompatible(code) && (!query || text.includes(query));
     }).sort((a, b) => Number(Boolean(b.recommended)) - Number(Boolean(a.recommended)) || compareTitles(a, b));
   }
 
@@ -233,15 +251,7 @@
     return String(a.title || "").localeCompare(String(b.title || ""), undefined, { sensitivity: "base", numeric: true });
   }
 
-  function renderCategories() {
-    const categories = ["All", ...new Set(catalog.codes.filter(isCompatible).map((code) => code.category))];
-    if (!categories.includes(state.category)) state.category = "All";
-    elements.categories.innerHTML = categories.map((category) => `
-      <button type="button" class="${category === state.category ? "active" : ""}" data-category="${category}">${category}</button>`).join("");
-  }
-
   function renderLibrary() {
-    renderCategories();
     const codes = visibleCodes();
     const game = nameFor("games", state.game);
     const language = nameFor("languages", state.language);
@@ -254,9 +264,9 @@
       const countTag = count > 1 ? `<span class="code-count-tag">${codeCountLabel(count)}</span>` : "";
       return `
       <article class="code-card" data-id="${code.id}" tabindex="0">
-        <div class="code-card-tags"><span class="category-tag">${code.category}</span>${code.recommended ? '<span class="recommended-tag">Recommended</span>' : ""}</div>
+        <div class="code-card-tags"><span class="category-tag">${code.category}</span>${codePublicationStatus(code) === "draft" ? '<span class="category-tag">Draft · Developer only</span>' : ""}${code.recommended ? '<span class="recommended-tag">Recommended</span>' : ""}</div>
         <div class="code-list-copy"><h3>${code.title}</h3><p>${code.summary}</p></div>
-        <div class="card-meta"><span class="difficulty ${code.difficulty.toLowerCase()}">${code.difficulty}</span>${countTag}</div>
+        ${countTag ? `<div class="card-meta">${countTag}</div>` : ""}
       </article>`;
     }).join("");
   }
@@ -439,9 +449,7 @@
   }
 
   function hasSourceCode(code) {
-    const lines = Array.isArray(code.sourceCode)
-      ? code.sourceCode.map((line) => String(line).trim()).filter(Boolean)
-      : [];
+    const lines = sourceCodeFor(code).map((line) => line.trim()).filter(Boolean);
     if (!lines.length) return false;
     const placeholder = /^(?:;\s*)?(?:source\s+)?code\s+(?:not\s+(?:added|available)|unavailable|missing)(?:\s+yet)?[.!]?$/i;
     return lines.some((line) => !placeholder.test(line));
@@ -614,7 +622,7 @@
     const instructionsSection = code.instructions?.length
       ? `<section class="instructions"><h3>Instructions</h3><ol>${code.instructions.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ol></section>` : "";
     elements.dialogContent.innerHTML = `
-      <div class="dialog-header"><div><span class="category-tag">${escapeHtml(code.category)}</span>${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${escapeHtml(code.title)}</h2>${contentMetaMarkup(code, "Code")}<div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
+      <div class="dialog-header"><div><span class="category-tag">${escapeHtml(code.category)}</span>${codePublicationStatus(code) === "draft" ? '<span class="category-tag">Draft · Developer only</span>' : ""}${codeBlocks.length > 1 ? `<span class="code-count-tag">${codeCountLabel(codeBlocks.length)}</span>` : ""}<h2>${escapeHtml(code.title)}</h2>${contentMetaMarkup(code, "Code")}<div class="code-description">${renderFormattedText(code.summary)}</div></div><div class="dialog-actions"><button class="share-code" type="button" aria-label="Copy share link" title="Copy share link">${SHARE_ICON}</button><button class="close-dialog" aria-label="Close">×</button></div></div>
       <div class="compatibility-strip"><span>✓ ${nameFor("games", state.game)}</span><span>✓ ${nameFor("platforms", state.platform)}</span><span>✓ ${nameFor("languages", state.language)}</span>${usesRomRevision() ? `<span>✓ ROM ${state.revision}</span>` : ""}</div>
       <section class="requirements"><h3>Requirements</h3><ul>${(code.requirements || ["No special requirements listed"]).map((item) => `<li>${item}</li>`).join("")}</ul>${sourceLink}</section>
       ${instructionsSection}
@@ -1032,8 +1040,7 @@
   }
 
   function initDeveloperMode() {
-    const enabled = window.ACE_DEVELOPER_CONFIG?.showDeveloperMode === 1;
-    if (!enabled) return;
+    if (!isDeveloperMode()) return;
     $(".developer-tab").hidden = false;
     const makeChecks = (target, entries, name) => {
       $(target).innerHTML = entries.map((entry) => `<label><input type="checkbox" name="${name}" value="${entry.id}" /><span>${entry.name}</span></label>`).join("");
@@ -1249,6 +1256,7 @@
       id: editingCodeId || `local-${title.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "")}-${Date.now()}`,
       title, author: safeText(data.get("author")) || authorFromSourceCode(sourceCode), addedOn: safeAddedDate(data.get("addedOn")) || existingCode?.addedOn || todayIsoDate(), summary: safeText(data.get("summary")), category: safeText(data.get("category")), difficulty: safeText(data.get("difficulty")),
       recommended: data.get("recommended") === "on",
+      publicationStatus: existingCode ? codePublicationStatus(existingCode) : "draft",
       games, languages, platforms, tags: existingCode?.tags || [], parameters: existingCode?.parameters || [], variants,
       requirements: lines(data.get("requirements")).map(safeText), sourceCode,
       video: safeText(data.get("video")), troubleshooting: lines(data.get("troubleshooting")).map(safeText),
@@ -1271,7 +1279,7 @@
     localStorage.setItem(LOCAL_CODES_KEY, JSON.stringify(localCodes));
     const wasEditing = Boolean(editingCodeId);
     resetDeveloperForm();
-    status.textContent = `${wasEditing ? "Updated" : "Saved"} “${title}”. It is now available under ACE codes.`;
+    status.textContent = `${wasEditing ? "Updated" : "Saved"} “${title}”. ${codePublicationStatus(code) === "draft" ? "Draft — visible only in Developer mode." : "Published — visible in the public archive."}`;
     renderLocalCodes(); renderLibrary();
   }
 
@@ -1290,11 +1298,18 @@
     $("#developer-code-count").textContent = `${codes.length} of ${catalog.codes.length} codes`;
     $("#local-codes").innerHTML = codes.length ? codes.map((code) => {
       const count = codeBlockCount(code);
-      return `<div><span><strong>${code.title}</strong><small>${code.category} · ${code.difficulty}${code.author ? ` · Code by ${escapeHtml(code.author)}` : ""}${code.addedOn ? ` · Added ${formatAddedDate(code.addedOn)}` : ""}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}${code.verificationStatus === "needs-verification" ? ` · Needs verification: ${escapeHtml(code.verificationNote || "")}` : ""}</small></span><span class="local-code-actions"><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
+      const draft = codePublicationStatus(code) === "draft";
+      return `<div><span><strong>${code.title}</strong><small>${draft ? "Draft · Developer only" : "Published"} · ${code.category} · ${code.difficulty}${code.author ? ` · Code by ${escapeHtml(code.author)}` : ""}${code.addedOn ? ` · Added ${formatAddedDate(code.addedOn)}` : ""}${count > 1 ? ` · ${codeCountLabel(count)}` : ""}${code.recommended ? " · Recommended" : ""}${code.verificationStatus === "needs-verification" ? ` · Needs verification: ${escapeHtml(code.verificationNote || "")}` : ""}</small></span><span class="local-code-actions"><button type="button" data-toggle-publication="${code.id}">${draft ? "Mark published" : "Make draft"}</button><button type="button" data-edit-code="${code.id}">Edit</button></span></div>`;
     }).join("") : "<p>No codes available.</p>";
   }
 
   function handleDeveloperCodeAction(event) {
+    const publicationId = event.target.dataset.togglePublication;
+    if (publicationId) {
+      toggleCodePublication(publicationId);
+      renderLocalCodes(); renderLibrary();
+      return;
+    }
     const editId = event.target.dataset.editCode;
     if (editId) { editDeveloperCode(editId); return; }
     const id = event.target.dataset.deleteLocal;
@@ -1304,6 +1319,16 @@
     if (index >= 0) catalog.codes.splice(index, 1);
     localStorage.setItem(LOCAL_CODES_KEY, JSON.stringify(localCodes));
     renderLocalCodes(); renderLibrary();
+  }
+
+  function toggleCodePublication(id) {
+    if (!isDeveloperMode()) return;
+    const existingCode = catalog.codes.find((code) => code.id === id);
+    if (!existingCode) return;
+    const status = codePublicationStatus(existingCode) === "draft" ? "published" : "draft";
+    localPublication[id] = status;
+    localStorage.setItem(LOCAL_PUBLICATION_KEY, JSON.stringify(localPublication));
+    $("#developer-status").textContent = `“${existingCode.title}” marked ${status}. Export the project file to keep this change.`;
   }
 
   function editDeveloperCode(id) {
@@ -1579,7 +1604,8 @@
         ])),
       };
     }
-    const contents = `/* Generated by the ACE Archive Developer editor. */\nwindow.ACE_CUSTOM_CONTENT = ${JSON.stringify({ codes: permanentCodes, guides: permanentGuides, pages: permanentPages }, null, 2)};\n`;
+    const codePublication = { ...projectPublication, ...localPublication };
+    const contents = `/* Generated by the ACE Archive Developer editor. */\nwindow.ACE_CUSTOM_CONTENT = ${JSON.stringify({ codes: permanentCodes, guides: permanentGuides, pages: permanentPages, codePublication }, null, 2)};\n`;
     const blob = new Blob([contents], { type: "text/javascript" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob); link.download = "custom-codes.js"; link.click();
@@ -1605,6 +1631,8 @@
       });
       localGuides = (importedContent.guides || []).map((guide) => ({ ...guide, locallyAdded: true }));
       localPages = importedContent.pages || {};
+      localPublication = importedContent.codePublication || {};
+      localStorage.setItem(LOCAL_PUBLICATION_KEY, JSON.stringify(localPublication));
       catalog.codes.splice(0, catalog.codes.length, ...catalog.codes.filter((code) => !code.locallyAdded));
       localCodes.forEach(mergeCode);
       localGuides.forEach(mergeGuide); Object.assign(pageContent, localPages);
@@ -1785,7 +1813,6 @@
     dialog.querySelectorAll("iframe").forEach((frame) => frame.removeAttribute("src"));
   }
 
-  elements.categories.addEventListener("click", (event) => { if (event.target.dataset.category) { state.category = event.target.dataset.category; renderLibrary(); } });
   elements.search.addEventListener("input", (event) => { state.search = event.target.value; renderLibrary(); });
   elements.grid.addEventListener("click", (event) => { const id = event.target.closest("[data-id]")?.dataset.id; if (id) openCode(id); });
   elements.grid.addEventListener("keydown", (event) => { if (event.key === "Enter") openCode(event.target.closest("[data-id]")?.dataset.id); });

@@ -44,6 +44,20 @@ Edits made in Developer mode are initially stored only in that browser's local
 storage. They are not part of the repository until you export the project file and
 replace `data/custom-codes.js`.
 
+New codes are drafts by default. With `showDeveloperMode: 0`, drafts are excluded
+from the code list, search, game availability, and direct code links. Set
+`showDeveloperMode` to `1` locally to preview compatible drafts in ACE codes and
+review all entries in the Developer editor. Existing verification restrictions
+still apply. The 11 codes public at commit `e1c6dda` remain published through
+`data/code-publication.js`, including the corrected Faraway Island entry.
+
+After reviewing a code, use **Mark published** in the Developer list. **Make
+draft** hides a published entry again. Export the project file and replace
+`data/custom-codes.js` to save the publication decision, then restore
+`showDeveloperMode` to `0` before publishing. These actions preserve the code's
+source, variants, and generator settings. Drafts are hidden in the website UI;
+their data remains in the site's JavaScript files.
+
 For guide videos, prefer a YouTube URL in the guide editor instead of committing a
 large local video file.
 
